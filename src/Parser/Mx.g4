@@ -29,7 +29,7 @@ statement
     | FOR '(' first = expression? ';' second = expression? ';' third =expression? ')' statement
                                                                             #FOR_STATE
     | WHILE '(' expression ')' statement                                    #WHILE_STATE
-    | RETURN expression ';'                                                 #RETURN_STATE
+    | RETURN expression? ';'                                                 #RETURN_STATE
     | BREAK ';'                                                             #BREAK_STATE
     | CONTINUE ';'                                                          #CONTINUE_STATE
     | expression ';'                                                        #EXPR_STATE

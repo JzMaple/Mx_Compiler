@@ -101,7 +101,10 @@ public class ThirdVisitor extends MxBaseVisitor<IRnode> {
     private void checkReturn(BaseType a, BaseType b) {
         try {
             if (a instanceof VoidType) {
-                throw new StatementException("The return expression is not expected in a void return function");
+                if (b != null) {
+                    String b_class_name = b.getClassName();
+                    throw new StatementException("The \"" + b_class_name +"\" return expression is not expected in a void return function");
+                }
             } else if (!a.assignment_check(b)) {
                 String a_class_name = a.getClassName();
                 String b_class_name = b.getClassName();
@@ -292,7 +295,11 @@ public class ThirdVisitor extends MxBaseVisitor<IRnode> {
 
     @Override
     public IRnode visitRETURN_STATE(MxParser.RETURN_STATEContext ctx) {
-        BaseType expression_type = ((IRExpressionNode) visit(ctx.expression())).getType();
+        BaseType expression_type;
+        if (ctx.expression() != null)
+            expression_type =((IRExpressionNode) visit(ctx.expression())).getType();
+        else
+            expression_type = null;
         checkInFunction();
         BaseType return_type = ((FunctionType) function_stack.peek().getType()).getReturnType();
         checkReturn(return_type, expression_type);
@@ -446,7 +453,10 @@ public class ThirdVisitor extends MxBaseVisitor<IRnode> {
     public IRnode visitRELATION(MxParser.RELATIONContext ctx) {
         BaseType left_expression_type = visit(ctx.expression(0)).getType();
         BaseType right_expression_type = visit(ctx.expression(1)).getType();
-        checkIntStringCompare(left_expression_type, right_expression_type);
+        if (ctx.op.getText().equals("==") || ctx.op.getText().equals("!="))
+            checkTypeConsistent(left_expression_type, right_expression_type);
+        else
+            checkIntStringCompare(left_expression_type, right_expression_type);
         return new IRExpressionNode(class_list.getClass("bool"), false);
     }
 
