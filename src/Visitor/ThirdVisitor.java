@@ -56,6 +56,18 @@ public class ThirdVisitor extends MxBaseVisitor<IRnode> {
         }
     }
 
+    private void checkArrayType(BaseType class_type) {
+        try {
+            if (!(class_type instanceof ArrayType)) {
+                String class_name = class_type.getClassName();
+                throw new StatementException("A bool type return expression is expected here, but got a \"" + class_name + "\" type");
+            }
+        } catch (Exception e) {
+            error.printException();
+            System.exit(1);
+        }
+    }
+
     private void checkIntStringCompare(BaseType a, BaseType b) {
         try {
             checkTypeConsistent(a, b);
@@ -353,7 +365,7 @@ public class ThirdVisitor extends MxBaseVisitor<IRnode> {
     public IRnode visitARRAY(MxParser.ARRAYContext ctx) {
         BaseType array_type = visit(ctx.expression(0)).getType();
         BaseType subscript = visit(ctx.expression(1)).getType();
-        checkTypeConsistent(array_type, new ArrayType(null));
+        checkArrayType(array_type);
         checkTypeConsistent(subscript, class_list.getClass("int"));
         return new IRExpressionNode(((ArrayType) array_type).getBasicArrayType(), true);
     }
@@ -421,8 +433,12 @@ public class ThirdVisitor extends MxBaseVisitor<IRnode> {
     public IRnode visitARITHMETIC(MxParser.ARITHMETICContext ctx) {
         BaseType left_expression_type = visit(ctx.expression(0)).getType();
         BaseType right_expression_type = visit(ctx.expression(1)).getType();
-        checkTypeConsistent(left_expression_type, class_list.getClass("int"));
-        checkTypeConsistent(right_expression_type, class_list.getClass("int"));
+        if (ctx.op.getText().equals("+")) {
+            checkIntStringCompare(left_expression_type, right_expression_type);
+        } else {
+            checkTypeConsistent(left_expression_type, class_list.getClass("int"));
+            checkTypeConsistent(right_expression_type, class_list.getClass("int"));
+        }
         return new IRExpressionNode(left_expression_type, false);
     }
 
