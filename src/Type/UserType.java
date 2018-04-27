@@ -51,4 +51,8 @@ public class UserType extends BaseType {
     public Map<String, FunctionType> getMemberFunctionList() {
         return class_member_function;
     }
+
+    public Map<String, BaseType> getMemberVariableList() {
+        return class_member_variable;
+    }
 }

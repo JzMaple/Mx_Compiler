@@ -11,9 +11,12 @@ public class VariableList {
     private VariableList outer;
     private Map<String, BaseType> variable_list;
 
-    public VariableList(VariableList _outer) {
+    public VariableList(Map<String, BaseType> _variable_list, VariableList _outer) {
         outer = _outer;
-        variable_list = new HashMap<>();
+        if (_variable_list == null)
+            variable_list = new HashMap<>();
+        else
+            variable_list = _variable_list;
     }
 
     private void _insertVariable(String variable_name, BaseType variable_type) throws Exception {
