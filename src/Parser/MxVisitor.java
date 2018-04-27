@@ -264,6 +264,12 @@ public interface MxVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitMEMBER_FUNCTION(MxParser.MEMBER_FUNCTIONContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link MxParser#expressionList}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitExpressionList(MxParser.ExpressionListContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code NORMAL_INS}
 	 * labeled alternative in {@link MxParser#instantiation}.
 	 * @param ctx the parse tree

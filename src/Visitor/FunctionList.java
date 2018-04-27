@@ -10,10 +10,6 @@ public class FunctionList {
     private ClassList class_list;
     private Map<String, FunctionType> function_list = new HashMap<>();
 
-    public FunctionList(ClassList _class_list) {
-        class_list = _class_list;
-    }
-
     private FunctionType _getInt() {
         return new FunctionType(class_list.getClass("int"), new Vector<>());
     }
@@ -40,7 +36,7 @@ public class FunctionList {
         return new FunctionType(class_list.getClass("string"), parameters);
     }
 
-    public void setFunction_list(ClassList _class_list) {
+    public FunctionList(ClassList _class_list) {
         class_list = _class_list;
         function_list.put("getInt", _getInt());
         function_list.put("getSting", _getString());

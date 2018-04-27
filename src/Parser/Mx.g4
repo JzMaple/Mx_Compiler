@@ -6,16 +6,16 @@ program
     : (typeDefine|instantiation|function)+
     ;
 
-block
-    : '{' statement* '}'
-    ;
-
 typeDefine
     : CLASS Identifier '{' program? '}'
     ;
 
 function
     : class_statement? Identifier '(' parameter? ')' block
+    ;
+
+block
+    : '{' statement* '}'
     ;
 
 parameter
@@ -39,10 +39,10 @@ statement
 
 
 expression
-    : Identifier '(' parameter? ')'                                         #FUNCTION_USE
+    : Identifier '(' expressionList? ')'                                         #FUNCTION_USE
     | expression '[' expression ']'                                         #ARRAY
     | expression '.' Identifier                                             #MEMBER_VARIABLE
-    | expression '.' Identifier '(' parameter? ')'                          #MEMBER_FUNCTION
+    | expression '.' Identifier '(' expressionList? ')'                     #MEMBER_FUNCTION
     | Identifier                                                            #IDENTIFIER
     | Number                                                                #CONST_INT
     | TRUE                                                                  #CONST_BOOL
@@ -69,6 +69,10 @@ expression
     | '(' expression ')'                                                    #BRACKET
     ;
 
+expressionList
+    : expression ',' expressionList
+    | expression
+    ;
 
 instantiation
     : class_statement Identifier ';'                                        #NORMAL_INS
@@ -76,8 +80,8 @@ instantiation
     ;
 
 class_statement
-    : class_statement '[]'                                                  #ARRAY_VAR
-    | class_name                                                            #SINGLE_VAR
+    : class_name                                                            #SINGLE_VAR
+    | class_statement ('['']')                                              #ARRAY_VAR
     ;
 
 class_name

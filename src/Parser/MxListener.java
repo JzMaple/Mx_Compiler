@@ -440,6 +440,16 @@ public interface MxListener extends ParseTreeListener {
 	 */
 	void exitMEMBER_FUNCTION(MxParser.MEMBER_FUNCTIONContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link MxParser#expressionList}.
+	 * @param ctx the parse tree
+	 */
+	void enterExpressionList(MxParser.ExpressionListContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link MxParser#expressionList}.
+	 * @param ctx the parse tree
+	 */
+	void exitExpressionList(MxParser.ExpressionListContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code NORMAL_INS}
 	 * labeled alternative in {@link MxParser#instantiation}.
 	 * @param ctx the parse tree

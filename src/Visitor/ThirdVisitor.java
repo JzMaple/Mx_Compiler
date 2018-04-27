@@ -184,10 +184,23 @@ public class ThirdVisitor extends MxBaseVisitor<IRnode> {
         IRnode function_node = new IRFunctionNode(function_type);
         function_stack.push(function_node);
         scope_stack.push(new VariableList(scope_stack.peek()));
+        if (ctx.parameter() != null) visit(ctx.parameter());
         visit(ctx.block());
         function_stack.pop();
         scope_stack.pop();
         return function_node;
+    }
+
+    @Override
+    public IRnode visitParameter(MxParser.ParameterContext ctx) {
+        Vector<BaseType> parameter_list = new Vector<>();
+        BaseType variable_type = class_list.getClass(ctx.class_statement().getText());
+        String variable_name = ctx.Identifier().getText();
+        parameter_list.add(variable_type);
+        scope_stack.peek().insertVariable(variable_name, variable_type);
+        if (ctx.parameter() != null)
+            parameter_list.addAll(((IRParameterNode) visit(ctx.parameter())).getParameterTypeList());
+        return new IRParameterNode(parameter_list);
     }
 
     @Override
@@ -297,8 +310,8 @@ public class ThirdVisitor extends MxBaseVisitor<IRnode> {
             function_type = class_type.getFunctionType(function_name);
         }
         Vector<BaseType> parameters;
-        if (ctx.parameter() != null)
-            parameters = ((IRParameterNode) visit(ctx.parameter())).getParameterTypeList();
+        if (ctx.expressionList() != null)
+            parameters = ((IRParameterNode) visit(ctx.expressionList())).getParameterTypeList();
         else
             parameters = new Vector<>();
         checkFunctionParameter(function_type, parameters);
@@ -319,12 +332,21 @@ public class ThirdVisitor extends MxBaseVisitor<IRnode> {
         BaseType class_type = visit(ctx.expression()).getType();
         FunctionType function_type = class_type.getFunctionType(function_name);
         Vector<BaseType> parameters;
-        if (ctx.parameter() != null)
-            parameters = ((IRParameterNode) visit(ctx.parameter())).getParameterTypeList();
+        if (ctx.expressionList() != null)
+            parameters = ((IRParameterNode) visit(ctx.expressionList())).getParameterTypeList();
         else
             parameters = new Vector<>();
         checkFunctionParameter(function_type, parameters);
         return new IRExpressionNode(function_type.getReturnType(), false);
+    }
+
+    @Override
+    public IRnode visitExpressionList(MxParser.ExpressionListContext ctx) {
+        Vector<BaseType> expression_list = new Vector<>();
+        expression_list.add(visit(ctx.expression()).getType());
+        if (ctx.expressionList() != null)
+            expression_list.addAll(((IRParameterNode) visit(ctx.expressionList())).getParameterTypeList());
+        return new IRParameterNode(expression_list);
     }
 
     @Override
