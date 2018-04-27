@@ -12,21 +12,22 @@ import Exception.*;
 
 public class ThirdVisitor extends MxBaseVisitor<IRnode> {
     private ClassList class_list;
-    private FunctionList function_list;
     private Stack<IRnode> class_stack;
     private Stack<IRnode> function_stack;
     private Stack<IRnode> loop_stack;
-    private Stack<VariableList> scope_stack;
+    private Stack<FunctionList> function_scope_stack;
+    private Stack<VariableList> variable_scope_stack;
     private MyException error = new MyException();
 
     public ThirdVisitor(ClassList _class_list, FunctionList _function_list) {
         class_list = _class_list;
-        function_list = _function_list;
         class_stack = new Stack<IRnode>();
         function_stack = new Stack<IRnode>();
         loop_stack = new Stack<IRnode>();
-        scope_stack = new Stack<>();
-        scope_stack.push(new VariableList(null));
+        variable_scope_stack = new Stack<>();
+        variable_scope_stack.push(new VariableList(null));
+        function_scope_stack = new Stack<>();
+        function_scope_stack.push(_function_list);
     }
 
 //    private void errorPrint() {
@@ -180,10 +181,10 @@ public class ThirdVisitor extends MxBaseVisitor<IRnode> {
         BaseType class_type = class_list.getClass(ctx.Identifier().getText());
         IRnode class_node = new IRClassNode(class_type);
         class_stack.push(class_node);
-        scope_stack.push(new VariableList(scope_stack.peek()));
+        variable_scope_stack.push(new VariableList(variable_scope_stack.peek()));
         if (ctx.program() != null) visit(ctx.program());
         class_stack.pop();
-        scope_stack.pop();
+        variable_scope_stack.pop();
         return class_node;
     }
 
@@ -192,27 +193,27 @@ public class ThirdVisitor extends MxBaseVisitor<IRnode> {
         FunctionType function_type;
         String function_name = ctx.Identifier().getText();
         if (class_stack.empty()) {
-            function_type = function_list.getFunctionType(function_name);
+            function_type = function_scope_stack.peek().getFunctionType(function_name);
         } else {
             BaseType class_type = class_stack.peek().getType();
             function_type = class_type.getFunctionType(function_name);
         }
         IRnode function_node = new IRFunctionNode(function_type);
         function_stack.push(function_node);
-        scope_stack.push(new VariableList(scope_stack.peek()));
-        scope_stack.peek().insertVariable(function_name, function_type);
+        variable_scope_stack.push(new VariableList(variable_scope_stack.peek()));
+        variable_scope_stack.peek().insertVariable(function_name, function_type);
         if (ctx.parameter() != null) visit(ctx.parameter());
         visit(ctx.noScope_block());
         function_stack.pop();
-        scope_stack.pop();
+        variable_scope_stack.pop();
         return function_node;
     }
 
     @Override
     public IRnode visitScope_block(MxParser.Scope_blockContext ctx) {
-        scope_stack.push(new VariableList(scope_stack.peek()));
+        variable_scope_stack.push(new VariableList(variable_scope_stack.peek()));
         visitChildren(ctx);
-        scope_stack.pop();
+        variable_scope_stack.pop();
         return null;
     }
 
@@ -222,7 +223,7 @@ public class ThirdVisitor extends MxBaseVisitor<IRnode> {
         BaseType variable_type = class_list.getClass(ctx.class_statement().getText());
         String variable_name = ctx.Identifier().getText();
         parameter_list.add(variable_type);
-        scope_stack.peek().insertVariable(variable_name, variable_type);
+        variable_scope_stack.peek().insertVariable(variable_name, variable_type);
         if (ctx.parameter() != null)
             parameter_list.addAll(((IRParameterNode) visit(ctx.parameter())).getParameterTypeList());
         return new IRParameterNode(parameter_list);
@@ -234,7 +235,7 @@ public class ThirdVisitor extends MxBaseVisitor<IRnode> {
         String variable_identifier_name = ctx.Identifier().getText();
         BaseType variable_type = class_list.getClass(variable_class_name);
         checkVoidInstantiation(variable_type);
-        scope_stack.peek().insertVariable(variable_identifier_name, variable_type);
+        variable_scope_stack.peek().insertVariable(variable_identifier_name, variable_type);
         return new IRVariableNode(variable_type, false);
     }
 
@@ -244,7 +245,7 @@ public class ThirdVisitor extends MxBaseVisitor<IRnode> {
         String variable_identifier_name = ctx.Identifier().getText();
         BaseType variable_type = class_list.getClass(variable_class_name);
         checkVoidInstantiation(variable_type);
-        scope_stack.peek().insertVariable(variable_identifier_name, variable_type);
+        variable_scope_stack.peek().insertVariable(variable_identifier_name, variable_type);
         BaseType expression_type = ((IRExpressionNode) visit(ctx.expression())).getType();
         checkTypeConsistent(variable_type, expression_type);
         return new IRVariableNode(variable_type, false);
@@ -254,9 +255,9 @@ public class ThirdVisitor extends MxBaseVisitor<IRnode> {
     public IRnode visitIF_STATE(MxParser.IF_STATEContext ctx) {
         BaseType expression_type = ((IRExpressionNode) visit(ctx.expression())).getType();
         checkBoolExpression(expression_type);
-        scope_stack.push(new VariableList(scope_stack.peek()));
+        variable_scope_stack.push(new VariableList(variable_scope_stack.peek()));
         visit(ctx.noScope_block());
-        scope_stack.pop();
+        variable_scope_stack.pop();
         return null;
     }
 
@@ -264,12 +265,12 @@ public class ThirdVisitor extends MxBaseVisitor<IRnode> {
     public IRnode visitIFELSE_STATE(MxParser.IFELSE_STATEContext ctx) {
         BaseType expression_type = ((IRExpressionNode) visit(ctx.expression())).getType();
         checkBoolExpression(expression_type);
-        scope_stack.push(new VariableList(scope_stack.peek()));
+        variable_scope_stack.push(new VariableList(variable_scope_stack.peek()));
         visit(ctx.noScope_block(0));
-        scope_stack.pop();
-        scope_stack.push(new VariableList(scope_stack.peek()));
+        variable_scope_stack.pop();
+        variable_scope_stack.push(new VariableList(variable_scope_stack.peek()));
         visit(ctx.noScope_block(1));
-        scope_stack.pop();
+        variable_scope_stack.pop();
         return null;
     }
 
@@ -282,10 +283,10 @@ public class ThirdVisitor extends MxBaseVisitor<IRnode> {
         }
         if (ctx.third != null) visit(ctx.third);
         IRnode loop_node = new IRLoopNode();
-        scope_stack.push(new VariableList(scope_stack.peek()));
+        variable_scope_stack.push(new VariableList(variable_scope_stack.peek()));
         loop_stack.push(loop_node);
         visit(ctx.noScope_block());
-        scope_stack.pop();
+        variable_scope_stack.pop();
         loop_stack.pop();
         return null;
     }
@@ -295,10 +296,10 @@ public class ThirdVisitor extends MxBaseVisitor<IRnode> {
         BaseType expression_type = ((IRExpressionNode) visit(ctx.expression())).getType();
         checkBoolExpression(expression_type);
         IRnode loop_node = new IRLoopNode();
-        scope_stack.push(new VariableList(scope_stack.peek()));
+        variable_scope_stack.push(new VariableList(variable_scope_stack.peek()));
         loop_stack.push(loop_node);
         visit(ctx.noScope_block());
-        scope_stack.pop();
+        variable_scope_stack.pop();
         loop_stack.pop();
         return null;
     }
@@ -332,12 +333,7 @@ public class ThirdVisitor extends MxBaseVisitor<IRnode> {
     public IRnode visitFUNCTION_USE(MxParser.FUNCTION_USEContext ctx) {
         String function_name = ctx.Identifier().getText();
         FunctionType function_type;
-        if (class_stack.empty())
-            function_type = function_list.getFunctionType(function_name);
-        else {
-            BaseType class_type = class_stack.peek().getType();
-            function_type = class_type.getFunctionType(function_name);
-        }
+        function_type = function_scope_stack.peek().getFunctionType(function_name);
         Vector<BaseType> parameters;
         if (ctx.expressionList() != null)
             parameters = ((IRParameterNode) visit(ctx.expressionList())).getParameterTypeList();
@@ -505,7 +501,7 @@ public class ThirdVisitor extends MxBaseVisitor<IRnode> {
 
     @Override
     public IRnode visitIDENTIFIER(MxParser.IDENTIFIERContext ctx) {
-        BaseType variable_type = scope_stack.peek().getVariableType(ctx.getText());
+        BaseType variable_type = variable_scope_stack.peek().getVariableType(ctx.getText());
         return new IRExpressionNode(variable_type, true);
     }
 

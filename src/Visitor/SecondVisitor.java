@@ -10,12 +10,12 @@ import Exception.*;
 public class SecondVisitor extends MxBaseVisitor<IRnode> {
     private MyException error = new MyException();
     private ClassList class_list;
-    private FunctionList function_list;
+    private FunctionList global_function_list;
     private Stack<IRnode> class_stack = new Stack<>();
 
-    public SecondVisitor(ClassList _class_list, FunctionList _function_list) {
+    public SecondVisitor(ClassList _class_list, FunctionList _global_function_list) {
         class_list = _class_list;
-        function_list = _function_list;
+        global_function_list = _global_function_list;
     }
 
     private void error(String errorMessage) {
@@ -51,7 +51,7 @@ public class SecondVisitor extends MxBaseVisitor<IRnode> {
 
     private void checkMainFunction() {
         try {
-            FunctionType main_function_type = function_list.getFunctionType("main");
+            FunctionType main_function_type = global_function_list.getFunctionType("main");
             if (main_function_type.getReturnType() != class_list.getClass("int"))
                 throw new FunctionException("main function is expected to have an int return type");
         } catch (Exception e) {
@@ -88,7 +88,7 @@ public class SecondVisitor extends MxBaseVisitor<IRnode> {
         }
         FunctionType function_type = new FunctionType(return_type, parameter_type_list);
         if (class_stack.empty()) {
-            function_list.insertFunction(function_name, function_type);
+            global_function_list.insertFunction(function_name, function_type);
         } else {
             BaseType class_type = class_stack.peek().getType();
             class_type.insertClassFunction(function_name, function_type);

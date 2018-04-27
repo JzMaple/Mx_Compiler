@@ -6,7 +6,7 @@ import Parser.*;
 
 public class Main {
     private static ClassList class_list = new ClassList();
-    private static FunctionList function_list = new FunctionList(class_list);
+    private static FunctionList global_function_list = new FunctionList(class_list, null, null);
 
     private static String readTestFile(String filePath) {
         String ans = "";
@@ -50,9 +50,9 @@ public class Main {
     private static void semanticAnalysis(ParseTree tree){
         FirstVisitor first_visitor = new FirstVisitor(class_list);
         first_visitor.visit(tree);
-        SecondVisitor second_visitor = new SecondVisitor(class_list,function_list);
+        SecondVisitor second_visitor = new SecondVisitor(class_list, global_function_list);
         second_visitor.visit(tree);
-        ThirdVisitor third_visitor = new ThirdVisitor(class_list, function_list);
+        ThirdVisitor third_visitor = new ThirdVisitor(class_list, global_function_list);
         third_visitor.visit(tree);
     }
 

@@ -8,7 +8,8 @@ import Exception.*;
 public class FunctionList {
     private MyException error = new MyException();
     private ClassList class_list;
-    private Map<String, FunctionType> function_list = new HashMap<>();
+    private Map<String, FunctionType> function_list;
+    private FunctionList outer;
 
     private FunctionType _getInt() {
         return new FunctionType(class_list.getClass("int"), new Vector<>());
@@ -36,13 +37,16 @@ public class FunctionList {
         return new FunctionType(class_list.getClass("string"), parameters);
     }
 
-    public FunctionList(ClassList _class_list) {
+    public FunctionList(ClassList _class_list, Map<String, FunctionType> _function_list, FunctionList _outer) {
         class_list = _class_list;
+        if (_function_list != null) function_list = _function_list;
+        else function_list = new HashMap<>();
         function_list.put("getInt", _getInt());
         function_list.put("getSting", _getString());
         function_list.put("print", _print());
         function_list.put("println", _println());
         function_list.put("toString", _toString());
+        outer = _outer;
     }
 
     private void error(String errorMessage) {
@@ -67,10 +71,12 @@ public class FunctionList {
     }
 
     private FunctionType _getFunctionType(String function_name) throws Exception {
-        if (!function_list.containsKey(function_name))
-            throw new FunctionException("have no such function named \"" + function_name + "\"");
-        else
+        if (function_list.containsKey(function_name))
             return function_list.get(function_name);
+        else if (outer != null)
+            return outer.getFunctionType(function_name);
+        else
+            throw new FunctionException("have no such function named \"" + function_name + "\"");
     }
 
     public FunctionType getFunctionType(String function_name) {
