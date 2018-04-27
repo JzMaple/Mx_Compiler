@@ -248,14 +248,14 @@ public class ThirdVisitor extends MxBaseVisitor<IRnode> {
         BaseType variable_type = class_list.getClass(variable_class_name);
         checkVoidInstantiation(variable_type);
         variable_scope_stack.peek().insertVariable(variable_identifier_name, variable_type);
-        BaseType expression_type = ((IRExpressionNode) visit(ctx.expression())).getType();
+        BaseType expression_type = visit(ctx.expression()).getType();
         checkTypeConsistent(variable_type, expression_type);
         return new IRVariableNode(variable_type, false);
     }
 
     @Override
     public IRnode visitIF_STATE(MxParser.IF_STATEContext ctx) {
-        BaseType expression_type = ((IRExpressionNode) visit(ctx.expression())).getType();
+        BaseType expression_type = visit(ctx.expression()).getType();
         checkBoolExpression(expression_type);
         variable_scope_stack.push(new VariableList(variable_scope_stack.peek()));
         visit(ctx.noScope_block());
@@ -265,7 +265,7 @@ public class ThirdVisitor extends MxBaseVisitor<IRnode> {
 
     @Override
     public IRnode visitIFELSE_STATE(MxParser.IFELSE_STATEContext ctx) {
-        BaseType expression_type = ((IRExpressionNode) visit(ctx.expression())).getType();
+        BaseType expression_type = visit(ctx.expression()).getType();
         checkBoolExpression(expression_type);
         variable_scope_stack.push(new VariableList(variable_scope_stack.peek()));
         visit(ctx.noScope_block(0));
@@ -280,7 +280,7 @@ public class ThirdVisitor extends MxBaseVisitor<IRnode> {
     public IRnode visitFOR_STATE(MxParser.FOR_STATEContext ctx) {
         if (ctx.first != null) visit(ctx.first);
         if (ctx.second != null) {
-            BaseType second_type = ((IRExpressionNode) visit(ctx.second)).getType();
+            BaseType second_type = visit(ctx.second).getType();
             checkBoolExpression(second_type);
         }
         if (ctx.third != null) visit(ctx.third);
@@ -295,7 +295,7 @@ public class ThirdVisitor extends MxBaseVisitor<IRnode> {
 
     @Override
     public IRnode visitWHILE_STATE(MxParser.WHILE_STATEContext ctx) {
-        BaseType expression_type = ((IRExpressionNode) visit(ctx.expression())).getType();
+        BaseType expression_type = visit(ctx.expression()).getType();
         checkBoolExpression(expression_type);
         IRnode loop_node = new IRLoopNode();
         variable_scope_stack.push(new VariableList(variable_scope_stack.peek()));
@@ -310,7 +310,7 @@ public class ThirdVisitor extends MxBaseVisitor<IRnode> {
     public IRnode visitRETURN_STATE(MxParser.RETURN_STATEContext ctx) {
         BaseType expression_type;
         if (ctx.expression() != null)
-            expression_type =((IRExpressionNode) visit(ctx.expression())).getType();
+            expression_type =visit(ctx.expression()).getType();
         else
             expression_type = null;
         checkInFunction();
@@ -378,8 +378,10 @@ public class ThirdVisitor extends MxBaseVisitor<IRnode> {
 
     @Override
     public IRnode visitARRAY(MxParser.ARRAYContext ctx) {
-        BaseType array_type = visit(ctx.expression(0)).getType();
+        IRnode array_node = visit(ctx.expression(0));
+        BaseType array_type = array_node.getType();
         BaseType subscript = visit(ctx.expression(1)).getType();
+        checkLeftValue(array_node);
         checkArrayType(array_type);
         checkTypeConsistent(subscript, class_list.getClass("int"));
         return new IRExpressionNode(((ArrayType) array_type).getBasicArrayType(), true);
@@ -387,15 +389,19 @@ public class ThirdVisitor extends MxBaseVisitor<IRnode> {
 
     @Override
     public IRnode visitPOSTFIX(MxParser.POSTFIXContext ctx) {
-        BaseType expression_type = visit(ctx.expression()).getType();
+        IRnode expression_node = visit(ctx.expression());
+        BaseType expression_type = expression_node.getType();
         checkTypeConsistent(expression_type, class_list.getClass("int"));
+        checkLeftValue(expression_node);
         return new IRExpressionNode(expression_type, false);
     }
 
     @Override
     public IRnode visitPREFIX(MxParser.PREFIXContext ctx) {
-        BaseType expression_type = visit(ctx.expression()).getType();
+        IRnode expression_node = visit(ctx.expression());
+        BaseType expression_type = expression_node.getType();
         checkTypeConsistent(expression_type, class_list.getClass("int"));
+        checkLeftValue(expression_node);
         return new IRExpressionNode(expression_type, false);
     }
 
@@ -423,6 +429,7 @@ public class ThirdVisitor extends MxBaseVisitor<IRnode> {
 
     @Override
     public IRnode visitCreator(MxParser.CreatorContext ctx) {
+        String s = ctx.getText();
         if (ctx.subCreator() != null) return visit(ctx.subCreator());
         else if (ctx.creator() != null) {
             BaseType basic_type = visit(ctx.creator()).getType();
