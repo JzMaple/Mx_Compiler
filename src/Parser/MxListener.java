@@ -48,15 +48,25 @@ public interface MxListener extends ParseTreeListener {
 	 */
 	void exitFunction(MxParser.FunctionContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link MxParser#block}.
+	 * Enter a parse tree produced by {@link MxParser#scope_block}.
 	 * @param ctx the parse tree
 	 */
-	void enterBlock(MxParser.BlockContext ctx);
+	void enterScope_block(MxParser.Scope_blockContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link MxParser#block}.
+	 * Exit a parse tree produced by {@link MxParser#scope_block}.
 	 * @param ctx the parse tree
 	 */
-	void exitBlock(MxParser.BlockContext ctx);
+	void exitScope_block(MxParser.Scope_blockContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link MxParser#noScope_block}.
+	 * @param ctx the parse tree
+	 */
+	void enterNoScope_block(MxParser.NoScope_blockContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link MxParser#noScope_block}.
+	 * @param ctx the parse tree
+	 */
+	void exitNoScope_block(MxParser.NoScope_blockContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link MxParser#parameter}.
 	 * @param ctx the parse tree
@@ -187,6 +197,18 @@ public interface MxListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitBLOCK_STATE(MxParser.BLOCK_STATEContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code NONE}
+	 * labeled alternative in {@link MxParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void enterNONE(MxParser.NONEContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code NONE}
+	 * labeled alternative in {@link MxParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void exitNONE(MxParser.NONEContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code LOGIC_ARI}
 	 * labeled alternative in {@link MxParser#expression}.

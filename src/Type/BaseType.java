@@ -21,14 +21,14 @@ abstract public class BaseType {
 
     private BaseType _variableQuery(String variableName) throws Exception {
         if (!class_member_variable.containsKey(variableName))
-            throw new ClassException("Undefined class member variable\"" + variableName + "\"");
+            throw new ClassException("Undefined class member variable \"" + variableName + "\"");
         else
             return class_member_variable.get(variableName);
     }
 
     private FunctionType _functionQuery(String functionName) throws Exception {
         if (!class_member_function.containsKey(functionName))
-            throw new ClassException("Undefined class member function\"" + functionName + "\"");
+            throw new ClassException("Undefined class member function \"" + functionName + "\"");
         else
             return class_member_function.get(functionName);
     }

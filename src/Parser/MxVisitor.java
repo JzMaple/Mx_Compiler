@@ -35,11 +35,17 @@ public interface MxVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitFunction(MxParser.FunctionContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link MxParser#block}.
+	 * Visit a parse tree produced by {@link MxParser#scope_block}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitBlock(MxParser.BlockContext ctx);
+	T visitScope_block(MxParser.Scope_blockContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link MxParser#noScope_block}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNoScope_block(MxParser.NoScope_blockContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link MxParser#parameter}.
 	 * @param ctx the parse tree
@@ -116,6 +122,13 @@ public interface MxVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitBLOCK_STATE(MxParser.BLOCK_STATEContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code NONE}
+	 * labeled alternative in {@link MxParser#statement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNONE(MxParser.NONEContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code LOGIC_ARI}
 	 * labeled alternative in {@link MxParser#expression}.

@@ -18,7 +18,7 @@ public class VariableList {
 
     private void _insertVariable(String variable_name, BaseType variable_type) throws Exception {
         if (variable_list.containsKey(variable_name))
-            throw new VariableException("already have a variable named\"" + variable_name + "\"");
+            throw new VariableException("already have a variable named \"" + variable_name + "\"");
         else
             variable_list.put(variable_name, variable_type);
     }

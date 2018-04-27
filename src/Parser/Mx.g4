@@ -11,11 +11,16 @@ typeDefine
     ;
 
 function
-    : class_statement? Identifier '(' parameter? ')' block
+    : class_statement? Identifier '(' parameter? ')' noScope_block
     ;
 
-block
+scope_block
     : '{' statement* '}'
+    ;
+
+noScope_block
+    : '{' statement* '}'
+    | statement
     ;
 
 parameter
@@ -24,17 +29,18 @@ parameter
     ;
 
 statement
-    : IF '(' expression ')' statement                                       #IF_STATE
-    | IF '(' expression ')' statement ELSE statement                        #IFELSE_STATE
-    | FOR '(' first = expression? ';' second = expression? ';' third =expression? ')' statement
+    : IF '(' expression ')' noScope_block                                   #IF_STATE
+    | IF '(' expression ')' noScope_block ELSE noScope_block                #IFELSE_STATE
+    | FOR '(' first = expression? ';' second = expression? ';' third =expression? ')' noScope_block
                                                                             #FOR_STATE
-    | WHILE '(' expression ')' statement                                    #WHILE_STATE
-    | RETURN expression? ';'                                                 #RETURN_STATE
+    | WHILE '(' expression ')' noScope_block                                #WHILE_STATE
+    | RETURN expression? ';'                                                #RETURN_STATE
     | BREAK ';'                                                             #BREAK_STATE
     | CONTINUE ';'                                                          #CONTINUE_STATE
     | expression ';'                                                        #EXPR_STATE
     | instantiation                                                         #INS_STATE
-    | block                                                                 #BLOCK_STATE
+    | scope_block                                                           #BLOCK_STATE
+    | ';'                                                                   #NONE
     ;
 
 

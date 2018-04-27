@@ -64,13 +64,25 @@ public class MxBaseListener implements MxListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterBlock(MxParser.BlockContext ctx) { }
+	@Override public void enterScope_block(MxParser.Scope_blockContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitBlock(MxParser.BlockContext ctx) { }
+	@Override public void exitScope_block(MxParser.Scope_blockContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterNoScope_block(MxParser.NoScope_blockContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitNoScope_block(MxParser.NoScope_blockContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -203,6 +215,18 @@ public class MxBaseListener implements MxListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitBLOCK_STATE(MxParser.BLOCK_STATEContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterNONE(MxParser.NONEContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitNONE(MxParser.NONEContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
