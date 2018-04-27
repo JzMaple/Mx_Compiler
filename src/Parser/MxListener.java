@@ -28,16 +28,6 @@ public interface MxListener extends ParseTreeListener {
 	 */
 	void exitProgram(MxParser.ProgramContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link MxParser#block}.
-	 * @param ctx the parse tree
-	 */
-	void enterBlock(MxParser.BlockContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link MxParser#block}.
-	 * @param ctx the parse tree
-	 */
-	void exitBlock(MxParser.BlockContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link MxParser#typeDefine}.
 	 * @param ctx the parse tree
 	 */
@@ -57,6 +47,16 @@ public interface MxListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitFunction(MxParser.FunctionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link MxParser#block}.
+	 * @param ctx the parse tree
+	 */
+	void enterBlock(MxParser.BlockContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link MxParser#block}.
+	 * @param ctx the parse tree
+	 */
+	void exitBlock(MxParser.BlockContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link MxParser#parameter}.
 	 * @param ctx the parse tree
@@ -260,6 +260,18 @@ public interface MxListener extends ParseTreeListener {
 	 */
 	void exitLOGIC_RELATION(MxParser.LOGIC_RELATIONContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code NEW_CREATOR}
+	 * labeled alternative in {@link MxParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterNEW_CREATOR(MxParser.NEW_CREATORContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code NEW_CREATOR}
+	 * labeled alternative in {@link MxParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitNEW_CREATOR(MxParser.NEW_CREATORContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code CONST_INT}
 	 * labeled alternative in {@link MxParser#expression}.
 	 * @param ctx the parse tree
@@ -344,18 +356,6 @@ public interface MxListener extends ParseTreeListener {
 	 */
 	void exitNOT(MxParser.NOTContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code DYNAMIC_INS}
-	 * labeled alternative in {@link MxParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void enterDYNAMIC_INS(MxParser.DYNAMIC_INSContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code DYNAMIC_INS}
-	 * labeled alternative in {@link MxParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void exitDYNAMIC_INS(MxParser.DYNAMIC_INSContext ctx);
-	/**
 	 * Enter a parse tree produced by the {@code BRACKET}
 	 * labeled alternative in {@link MxParser#expression}.
 	 * @param ctx the parse tree
@@ -439,6 +439,26 @@ public interface MxListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitMEMBER_FUNCTION(MxParser.MEMBER_FUNCTIONContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link MxParser#creator}.
+	 * @param ctx the parse tree
+	 */
+	void enterCreator(MxParser.CreatorContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link MxParser#creator}.
+	 * @param ctx the parse tree
+	 */
+	void exitCreator(MxParser.CreatorContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link MxParser#subCreator}.
+	 * @param ctx the parse tree
+	 */
+	void enterSubCreator(MxParser.SubCreatorContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link MxParser#subCreator}.
+	 * @param ctx the parse tree
+	 */
+	void exitSubCreator(MxParser.SubCreatorContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link MxParser#expressionList}.
 	 * @param ctx the parse tree

@@ -31,7 +31,6 @@ public class VariableList {
             System.exit(1);
         }
     }
-
     private BaseType _getVariableType(String variable_name) throws Exception {
         if (variable_list.containsKey(variable_name))
             return variable_list.get(variable_name);

@@ -39,7 +39,7 @@ statement
 
 
 expression
-    : Identifier '(' expressionList? ')'                                         #FUNCTION_USE
+    : Identifier '(' expressionList? ')'                                    #FUNCTION_USE
     | expression '[' expression ']'                                         #ARRAY
     | expression '.' Identifier                                             #MEMBER_VARIABLE
     | expression '.' Identifier '(' expressionList? ')'                     #MEMBER_FUNCTION
@@ -54,7 +54,7 @@ expression
     | op=('++'|'--') expression                                             #PREFIX
     | op=('+'|'-') expression                                               #UNARY
     | op=('!'|'~') expression                                               #NOT
-    | NEW class_name (('[' expression']') + ('[]')*)?                       #DYNAMIC_INS
+    | NEW creator                                                           #NEW_CREATOR
     | expression op=('*'|'/'|'%') expression                                #ARITHMETIC
     | expression op=('+'|'-') expression                                    #ARITHMETIC
     | expression op=('<<'|'>>') expression                                  #ARITHMETIC
@@ -69,6 +69,16 @@ expression
     | '(' expression ')'                                                    #BRACKET
     ;
 
+creator
+    : creator '[]'
+    | subCreator
+    ;
+
+subCreator
+    : subCreator '[' expression ']'
+    | class_name
+    ;
+
 expressionList
     : expression ',' expressionList
     | expression
@@ -81,7 +91,7 @@ instantiation
 
 class_statement
     : class_name                                                            #SINGLE_VAR
-    | class_statement ('['']')                                              #ARRAY_VAR
+    | class_statement '[]'                                                  #ARRAY_VAR
     ;
 
 class_name

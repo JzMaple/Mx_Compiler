@@ -48,7 +48,7 @@ public class ThirdVisitor extends MxBaseVisitor<IRnode> {
         try {
             if (!(class_type instanceof BoolType)) {
                 String class_name = class_type.getClassName();
-                throw new StatementException("A bool type return expression is expected here, but got a \"" + class_name +"\" type");
+                throw new StatementException("A bool type return expression is expected here, but got a \"" + class_name + "\" type");
             }
         } catch (Exception e) {
             error.printException();
@@ -59,13 +59,13 @@ public class ThirdVisitor extends MxBaseVisitor<IRnode> {
     private void checkIntStringCompare(BaseType a, BaseType b) {
         try {
             checkTypeConsistent(a, b);
-            if (!(a instanceof IntType) && !(a instanceof StringType)){
+            if (!(a instanceof IntType) && !(a instanceof StringType)) {
                 String a_class_name = a.getClassName();
-                throw new StatementException("A int or string type is expected here, but got a \"" + a_class_name +"\" type");
+                throw new StatementException("A int or string type is expected here, but got a \"" + a_class_name + "\" type");
             }
-            if (!(b instanceof IntType) && !(b instanceof StringType)){
+            if (!(b instanceof IntType) && !(b instanceof StringType)) {
                 String b_class_name = b.getClassName();
-                throw new StatementException("A int or string type is expected here, but got a \"" + b_class_name +"\" type");
+                throw new StatementException("A int or string type is expected here, but got a \"" + b_class_name + "\" type");
             }
         } catch (Exception e) {
             error.printException();
@@ -151,7 +151,7 @@ public class ThirdVisitor extends MxBaseVisitor<IRnode> {
             if (parameter.size() != _parameter.size())
                 throw new FunctionException("parameters' number is not consistent");
             else {
-                for (int i=0; i<parameter.size(); ++i)
+                for (int i = 0; i < parameter.size(); ++i)
                     checkTypeConsistent(_parameter.get(i), parameter.get(i));
             }
         } catch (Exception e) {
@@ -175,7 +175,7 @@ public class ThirdVisitor extends MxBaseVisitor<IRnode> {
     @Override
     public IRnode visitFunction(MxParser.FunctionContext ctx) {
         FunctionType function_type;
-        if (class_stack.empty()){
+        if (class_stack.empty()) {
             function_type = function_list.getFunctionType(ctx.Identifier().getText());
         } else {
             BaseType class_type = class_stack.peek().getType();
@@ -351,11 +351,11 @@ public class ThirdVisitor extends MxBaseVisitor<IRnode> {
 
     @Override
     public IRnode visitARRAY(MxParser.ARRAYContext ctx) {
-        BaseType array_type= visit(ctx.expression(0)).getType();
+        BaseType array_type = visit(ctx.expression(0)).getType();
         BaseType subscript = visit(ctx.expression(1)).getType();
         checkTypeConsistent(array_type, new ArrayType(null));
         checkTypeConsistent(subscript, class_list.getClass("int"));
-        return new IRExpressionNode(((ArrayType) array_type).getBasicArrayType(),true);
+        return new IRExpressionNode(((ArrayType) array_type).getBasicArrayType(), true);
     }
 
     @Override
@@ -387,6 +387,34 @@ public class ThirdVisitor extends MxBaseVisitor<IRnode> {
         else if (ctx.op.getText().equals("~"))
             checkTypeConsistent(expression_type, class_list.getClass("int"));
         return new IRExpressionNode(expression_type, false);
+    }
+
+    @Override
+    public IRnode visitNEW_CREATOR(MxParser.NEW_CREATORContext ctx) {
+        return visit(ctx.creator());
+    }
+
+    @Override
+    public IRnode visitCreator(MxParser.CreatorContext ctx) {
+        if (ctx.subCreator() != null) return visit(ctx.subCreator());
+        else if (ctx.creator() != null) {
+            BaseType basic_type = visit(ctx.creator()).getType();
+            BaseType creator_type = new ArrayType(basic_type);
+            return new IRExpressionNode(creator_type, false);
+        } else return null;
+    }
+
+    @Override
+    public IRnode visitSubCreator(MxParser.SubCreatorContext ctx) {
+        if (ctx.class_name() != null){
+            String class_name = ctx.class_name().getText();
+            BaseType class_type = class_list.getClass(class_name);
+            return new IRExpressionNode(class_type, false);
+        } else if (ctx.subCreator() != null) {
+            BaseType basic_type = visit(ctx.subCreator()).getType();
+            BaseType creator_type = new ArrayType(basic_type);
+            return new IRExpressionNode(creator_type, false);
+        } else return null;
     }
 
     @Override

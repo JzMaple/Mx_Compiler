@@ -23,12 +23,6 @@ public interface MxVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitProgram(MxParser.ProgramContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link MxParser#block}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitBlock(MxParser.BlockContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link MxParser#typeDefine}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -40,6 +34,12 @@ public interface MxVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitFunction(MxParser.FunctionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link MxParser#block}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBlock(MxParser.BlockContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link MxParser#parameter}.
 	 * @param ctx the parse tree
@@ -159,6 +159,13 @@ public interface MxVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitLOGIC_RELATION(MxParser.LOGIC_RELATIONContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code NEW_CREATOR}
+	 * labeled alternative in {@link MxParser#expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNEW_CREATOR(MxParser.NEW_CREATORContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code CONST_INT}
 	 * labeled alternative in {@link MxParser#expression}.
 	 * @param ctx the parse tree
@@ -208,13 +215,6 @@ public interface MxVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitNOT(MxParser.NOTContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code DYNAMIC_INS}
-	 * labeled alternative in {@link MxParser#expression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitDYNAMIC_INS(MxParser.DYNAMIC_INSContext ctx);
-	/**
 	 * Visit a parse tree produced by the {@code BRACKET}
 	 * labeled alternative in {@link MxParser#expression}.
 	 * @param ctx the parse tree
@@ -263,6 +263,18 @@ public interface MxVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitMEMBER_FUNCTION(MxParser.MEMBER_FUNCTIONContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link MxParser#creator}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCreator(MxParser.CreatorContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link MxParser#subCreator}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSubCreator(MxParser.SubCreatorContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link MxParser#expressionList}.
 	 * @param ctx the parse tree
