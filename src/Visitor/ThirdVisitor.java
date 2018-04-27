@@ -454,8 +454,8 @@ public class ThirdVisitor extends MxBaseVisitor<IRnode> {
     public IRnode visitLOGIC_RELATION(MxParser.LOGIC_RELATIONContext ctx) {
         BaseType left_expression_type = visit(ctx.expression(0)).getType();
         BaseType right_expression_type = visit(ctx.expression(1)).getType();
-        checkTypeConsistent(left_expression_type, class_list.getClass("int"));
-        checkTypeConsistent(right_expression_type, class_list.getClass("int"));
+        checkTypeConsistent(left_expression_type, class_list.getClass("bool"));
+        checkTypeConsistent(right_expression_type, class_list.getClass("bool"));
         return new IRExpressionNode(left_expression_type, false);
     }
 

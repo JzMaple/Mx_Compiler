@@ -1,43 +1,30 @@
-// Target: qsort
-// Possible optimization: Dead code elimination, common expression, strength reduction
-// REMARKS: nothing.
-//
-//
+int N = 15000;
+bool[] b = new bool[15001];
+int resultCount = 0;
 
-//int a[10100];
-int[] a = new int[10100];
-int n = 10000;
+int main()
+{
+  int i;
 
-int qsrt(int l, int r) {
-    int i = l;
-    int j = r;
-    int x = a[(l + r) / 2];
-    while (i <= j) {
-        while (a[i] < x) i++;
-        while (a[j] > x) j--;
-        if (i <= j) {
-            int temp = a[i];
-            a[i] = a[j];
-            a[j] = temp;
-            i++;
-            j--;
-        }
+  for (i = 1; i <= N; i++) b[i] = true;
+
+  for (i = 2; i <= N; i++) if (b[i])
+  {
+    int count = 2;
+
+    if (i>3 && b[i-2])
+    {
+      resultCount++;
+      println(toString(i-2) + " " + toString(i));
     }
-    if (l < j) qsrt(l, j);
-    if (i < r) qsrt(i, r);
-    return 0;
-}
 
-int main() {
-    int i;
-    for (i = 1; i <= n; i++)
-        a[i] = n + 1 - i;
-    qsrt(1, n);
-    for (i = 1; i <= n; i++) {
-//       printf("%d ", a[i]);
-		print(toString(a[i]));
-		print(" ");
-	}
-    print("\n");
-    return 0;
+    while (i*count <= N)
+    {
+      b[i*count] = false;
+      count++;
+    }
+  }
+
+  println("Total: " + toString(resultCount));
+  return 0;
 }
