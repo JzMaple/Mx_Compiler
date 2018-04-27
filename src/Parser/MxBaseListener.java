@@ -460,6 +460,18 @@ public class MxBaseListener implements MxListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterWRONG_CREATOR(MxParser.WRONG_CREATORContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitWRONG_CREATOR(MxParser.WRONG_CREATORContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterUNARY(MxParser.UNARYContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -479,6 +491,18 @@ public class MxBaseListener implements MxListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitMEMBER_FUNCTION(MxParser.MEMBER_FUNCTIONContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterWrongCreator(MxParser.WrongCreatorContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitWrongCreator(MxParser.WrongCreatorContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

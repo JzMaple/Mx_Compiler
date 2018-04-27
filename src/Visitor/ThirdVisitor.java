@@ -381,7 +381,6 @@ public class ThirdVisitor extends MxBaseVisitor<IRnode> {
         IRnode array_node = visit(ctx.expression(0));
         BaseType array_type = array_node.getType();
         BaseType subscript = visit(ctx.expression(1)).getType();
-        checkLeftValue(array_node);
         checkArrayType(array_type);
         checkTypeConsistent(subscript, class_list.getClass("int"));
         return new IRExpressionNode(((ArrayType) array_type).getBasicArrayType(), true);
@@ -420,6 +419,13 @@ public class ThirdVisitor extends MxBaseVisitor<IRnode> {
         else if (ctx.op.getText().equals("~"))
             checkTypeConsistent(expression_type, class_list.getClass("int"));
         return new IRExpressionNode(expression_type, false);
+    }
+
+    @Override
+    public IRnode visitWRONG_CREATOR(MxParser.WRONG_CREATORContext ctx) {
+        System.err.println("Statement Error: cannot have a new statement like this");
+        System.exit(1);
+        return null;
     }
 
     @Override

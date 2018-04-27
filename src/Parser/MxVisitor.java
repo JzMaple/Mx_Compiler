@@ -263,6 +263,13 @@ public interface MxVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitFUNCTION_USE(MxParser.FUNCTION_USEContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code WRONG_CREATOR}
+	 * labeled alternative in {@link MxParser#expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitWRONG_CREATOR(MxParser.WRONG_CREATORContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code UNARY}
 	 * labeled alternative in {@link MxParser#expression}.
 	 * @param ctx the parse tree
@@ -276,6 +283,12 @@ public interface MxVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitMEMBER_FUNCTION(MxParser.MEMBER_FUNCTIONContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link MxParser#wrongCreator}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitWrongCreator(MxParser.WrongCreatorContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link MxParser#creator}.
 	 * @param ctx the parse tree

@@ -46,6 +46,7 @@ statement
 
 expression
     : Identifier '(' expressionList? ')'                                    #FUNCTION_USE
+    | NEW wrongCreator                                                      #WRONG_CREATOR
     | expression '[' expression ']'                                         #ARRAY
     | expression '.' Identifier                                             #MEMBER_VARIABLE
     | expression '.' Identifier '(' expressionList? ')'                     #MEMBER_FUNCTION
@@ -75,8 +76,14 @@ expression
     | '(' expression ')'                                                    #BRACKET
     ;
 
+wrongCreator
+    : wrongCreator '[' ']'
+    | wrongCreator '[' expression ']'
+    | class_name ('[' expression ']')* ('['']')+  '[' expression ']'
+    ;
+
 creator
-    : creator '[]'
+    : creator '[' ']'
     | subCreator
     ;
 
@@ -97,7 +104,7 @@ instantiation
 
 class_statement
     : class_name                                                            #SINGLE_VAR
-    | class_statement '[]'                                                  #ARRAY_VAR
+    | class_statement '[' ']'                                               #ARRAY_VAR
     ;
 
 class_name
