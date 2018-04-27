@@ -2,6 +2,8 @@ package Type;
 
 import Exception.*;
 
+import java.util.Map;
+
 public class UserType extends BaseType {
     private String class_name;
 
@@ -44,5 +46,9 @@ public class UserType extends BaseType {
             error.printException();
             System.exit(1);
         }
+    }
+
+    public Map<String, FunctionType> getMemberFunctionList() {
+        return class_member_function;
     }
 }

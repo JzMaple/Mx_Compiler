@@ -19,7 +19,7 @@ public class ThirdVisitor extends MxBaseVisitor<IRnode> {
     private Stack<VariableList> variable_scope_stack;
     private MyException error = new MyException();
 
-    public ThirdVisitor(ClassList _class_list, FunctionList _function_list) {
+    public ThirdVisitor(ClassList _class_list, FunctionList global_function_list) {
         class_list = _class_list;
         class_stack = new Stack<IRnode>();
         function_stack = new Stack<IRnode>();
@@ -27,7 +27,7 @@ public class ThirdVisitor extends MxBaseVisitor<IRnode> {
         variable_scope_stack = new Stack<>();
         variable_scope_stack.push(new VariableList(null));
         function_scope_stack = new Stack<>();
-        function_scope_stack.push(_function_list);
+        function_scope_stack.push(global_function_list);
     }
 
 //    private void errorPrint() {
@@ -182,9 +182,11 @@ public class ThirdVisitor extends MxBaseVisitor<IRnode> {
         IRnode class_node = new IRClassNode(class_type);
         class_stack.push(class_node);
         variable_scope_stack.push(new VariableList(variable_scope_stack.peek()));
+        function_scope_stack.push(new FunctionList(class_list,((UserType) class_type).getMemberFunctionList(), function_scope_stack.peek()));
         if (ctx.program() != null) visit(ctx.program());
         class_stack.pop();
         variable_scope_stack.pop();
+        function_scope_stack.pop();
         return class_node;
     }
 

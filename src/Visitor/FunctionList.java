@@ -41,12 +41,14 @@ public class FunctionList {
         class_list = _class_list;
         if (_function_list != null) function_list = _function_list;
         else function_list = new HashMap<>();
-        function_list.put("getInt", _getInt());
-        function_list.put("getSting", _getString());
-        function_list.put("print", _print());
-        function_list.put("println", _println());
-        function_list.put("toString", _toString());
         outer = _outer;
+        if (outer == null) {
+            function_list.put("getInt", _getInt());
+            function_list.put("getString", _getString());
+            function_list.put("print", _print());
+            function_list.put("println", _println());
+            function_list.put("toString", _toString());
+        }
     }
 
     private void error(String errorMessage) {
