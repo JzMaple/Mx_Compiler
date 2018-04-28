@@ -22,7 +22,7 @@ import java.util.Vector;
 public class Main {
     private static ClassList class_list = new ClassList();
     private static FunctionList global_function_list = new FunctionList(null, null);
-    private static String[] program = new String[1000];
+    private static String[] program = new String[10000];
 
     public static ClassList getClassList() {return class_list;}
 
