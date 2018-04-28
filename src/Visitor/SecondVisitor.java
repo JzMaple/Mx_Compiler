@@ -45,7 +45,7 @@ public class SecondVisitor extends MxBaseVisitor<IRnode> {
                 errorReport("[FUNCTION ERROR] Incomplete Function Define: Lacking of return type definition.", ctx);
             else {
                 String class_name = class_stack.peek().getType().getClassName();
-                if (class_name != function_name)
+                if (!class_name.equals(function_name))
                     errorReport("[FUNCTION ERROR] Wrong Function Name: The construction function's name should be consistent with class name.",ctx);
             }
             return_type = class_list.getClassType("void");
@@ -115,6 +115,13 @@ public class SecondVisitor extends MxBaseVisitor<IRnode> {
             if (global_function_list.getFunctionType("main") == null) {
                 System.err.println("[FUNCTION ERROR] Lacking of Main Function: The main function cannot be found");
                 System.exit(1);
+            } else {
+                FunctionType main_type = global_function_list.getFunctionType("main");
+                String return_type_name = main_type.getReturnType().getClassName();
+                if (!(main_type.getReturnType() instanceof IntType)) {
+                    System.err.println("[FUNCTION ERROR] Wrong Main Function Return Type: The main function return type is expected to be int, but only get" + return_type_name + ".");
+                    System.exit(1);
+                }
             }
         }
         return null;

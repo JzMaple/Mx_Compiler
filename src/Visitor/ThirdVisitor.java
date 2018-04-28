@@ -197,15 +197,19 @@ public class ThirdVisitor extends MxBaseVisitor<IRnode> {
         if (function_stack.empty())
             errorReport("[STATEMENT ERROR] Invalidate RETURN Statement: The return statement should be in a function.", ctx);
         BaseType expression_type;
-        if (ctx.expression() != null)
+        String expression_type_name;
+        if (ctx.expression() != null) {
             expression_type = visit(ctx.expression()).getType();
-        else
+            expression_type_name = expression_type.getClassName();
+        } else {
             expression_type = null;
-        String expression_type_name = expression_type.getClassName();
+            expression_type_name = null;
+        }
         BaseType return_type = ((FunctionType) function_stack.peek().getType()).getReturnType();
-        if (return_type instanceof VoidType && expression_type != null)
-            errorReport("[STATEMENT ERROR] Wrong RETURN Type: A void return function cannot have a \"" + expression_type_name + "\" return statement", ctx);
-        else if (!return_type.assignment_check(expression_type))
+        if (return_type instanceof VoidType) {
+            if (expression_type != null)
+                errorReport("[STATEMENT ERROR] Wrong RETURN Type: A void return function cannot have a \"" + expression_type_name + "\" return statement", ctx);
+        } else if (!return_type.assignment_check(expression_type))
             errorReport("[STATEMENT ERROR] Wrong RETURN Type: The return type should be consistent with function define.", ctx);
         return new IRExpressionNode(expression_type, false);
     }
