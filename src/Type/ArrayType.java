@@ -20,7 +20,7 @@ public class ArrayType extends BaseType {
             System.exit(1);
         }
         basic_array_type = _basic_array_type;
-        class_member_function.put("size", new FunctionType(new IntType(), new Vector<>()));
+        class_member_function.setArrayInsideFunctionList();
     }
 
     public BaseType getBasicArrayType() {

@@ -1,12 +1,30 @@
-import java.io.*;
-import org.antlr.v4.runtime.*;
+package Main;
+
+import Parser.MxLexer;
+import Parser.MxParser;
+import Type.ClassList;
+import Type.FunctionList;
+import Visitor.FirstVisitor;
+import Visitor.SecondVisitor;
+import Visitor.ThirdVisitor;
+import org.antlr.v4.runtime.BailErrorStrategy;
+import org.antlr.v4.runtime.CharStream;
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
-import Visitor.*;
-import Parser.*;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Vector;
 
 public class Main {
     private static ClassList class_list = new ClassList();
-    private static FunctionList global_function_list = new FunctionList(class_list, null, null);
+    private static FunctionList global_function_list = new FunctionList(null, null);
+    private static Vector<String> program = new Vector<>();
+
+    public static ClassList getClassList() {return class_list;}
 
     private static String readTestFile(String filePath) {
         String ans = "";
@@ -17,6 +35,7 @@ public class Main {
             String tempString = null;
             while ((tempString = reader.readLine()) != null) {
                 ans += tempString + '\n';
+                program.add(tempString);
             }
             reader.close();
         } catch (IOException e) {
@@ -48,15 +67,17 @@ public class Main {
     }
 
     private static void semanticAnalysis(ParseTree tree){
-        FirstVisitor first_visitor = new FirstVisitor(class_list);
+        global_function_list.setGlobalInsideFunctionList();
+        FirstVisitor first_visitor = new FirstVisitor(class_list, program);
         first_visitor.visit(tree);
-        SecondVisitor second_visitor = new SecondVisitor(class_list, global_function_list);
+        SecondVisitor second_visitor = new SecondVisitor(class_list, global_function_list, program);
         second_visitor.visit(tree);
-        ThirdVisitor third_visitor = new ThirdVisitor(class_list, global_function_list);
+        ThirdVisitor third_visitor = new ThirdVisitor(class_list, global_function_list, program);
         third_visitor.visit(tree);
     }
 
     public static void main(String[] args) {
+        class_list.setClassList();
         String text;
         if (args.length == 1)
             text = readTestFile(args[0]);

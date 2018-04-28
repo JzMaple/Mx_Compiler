@@ -1,56 +1,38 @@
 package Type;
 
-import java.util.*;
-
 import Exception.*;
 
 abstract public class BaseType {
     protected MyException error = new MyException();
-    Map<String, BaseType> class_member_variable = new HashMap<>();
-    Map<String, FunctionType> class_member_function = new HashMap<>();
+    protected VariableList class_member_variable = new VariableList(null,null);
+    protected FunctionList class_member_function = new FunctionList(null,null);
 
     public BaseType() {}
 
     public abstract String getClassName();
 
-    public void insertClassFunction(String function_name, FunctionType function_type) {
+    public FunctionList getMemberFunctionList() {
+        return class_member_function;
     }
 
-    public void insertClassVariable(String variable_name, BaseType member_type) {
+    public VariableList getMemberVariableList() {
+        return class_member_variable;
     }
 
-    private BaseType _variableQuery(String variableName) throws Exception {
-        if (!class_member_variable.containsKey(variableName))
-            throw new ClassException("Undefined class member variable \"" + variableName + "\"");
-        else
-            return class_member_variable.get(variableName);
+    public Boolean insertMemberVariable(String variable_name, BaseType variable_type) {
+        return class_member_variable.insertVariable(variable_name, variable_type);
     }
 
-    private FunctionType _functionQuery(String functionName) throws Exception {
-        if (!class_member_function.containsKey(functionName))
-            throw new ClassException("Undefined class member function \"" + functionName + "\"");
-        else
-            return class_member_function.get(functionName);
+    public Boolean insertMemberFunction(String function_name, FunctionType function_type) {
+        return class_member_function.insertFunction(function_name, function_type);
     }
 
-    public BaseType getVariableType(String variableName) {
-        try {
-            return _variableQuery(variableName);
-        } catch (Exception e) {
-            error.printException();
-            System.exit(1);
-            return null;
-        }
+    public BaseType getMemberVariableType(String variable_name) {
+        return class_member_variable.getVariableType(variable_name);
     }
 
-    public FunctionType getFunctionType(String functionName) {
-        try {
-            return _functionQuery(functionName);
-        } catch (Exception e) {
-            error.printException();
-            System.exit(1);
-            return null;
-        }
+    public FunctionType getMemberFunctionType(String function_name) {
+        return class_member_function.getFunctionType(function_name);
     }
 
     public Boolean assignment_check(BaseType x) {
@@ -62,9 +44,5 @@ abstract public class BaseType {
         if (this instanceof ArrayType && x instanceof ArrayType )
             return ((ArrayType) this).getBasicArrayType().assignment_check(((ArrayType) x).getBasicArrayType());
         return this.getClass() == x.getClass();
-    }
-
-    public boolean contain(String name) {
-        return class_member_variable.containsKey(name) || class_member_function.containsKey(name);
     }
 }

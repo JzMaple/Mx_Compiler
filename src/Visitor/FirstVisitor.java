@@ -2,24 +2,29 @@ package Visitor;
 
 import Parser.*;
 import IRnode.*;
-import Exception.*;
+import Type.*;
+
+import java.util.Vector;
 
 public class FirstVisitor extends MxBaseVisitor {
     private ClassList class_list;
-    private MyException error = new MyException();
+    private Vector<String> program;
 
-    public FirstVisitor(ClassList _class_list) {
+    public FirstVisitor(ClassList _class_list, Vector<String> _program) {
         class_list = _class_list;
-    }
-
-    private void errorPrint() {
-        error.printException();
-        System.exit(1);
+        program = _program;
     }
 
     @Override
     public IRnode visitTypeDefine(MxParser.TypeDefineContext ctx) {
-        class_list.insertClass(ctx.Identifier().getText());
+        String class_name = ctx.Identifier().getText();
+        Boolean check = class_list.insertClass(class_name);
+        if (!check) {
+            System.err.println("[CLASS ERROR] Duplicated Class Name: The program has already had a class named \"" + class_name + "\".");
+            System.err.print("Line " + ctx.getStart().getLine() + ":");
+            System.err.println("             " + program.get(ctx.getStart().getLine()-1));
+            System.exit(1);
+        }
         return null;
     }
 
