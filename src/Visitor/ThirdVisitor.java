@@ -14,9 +14,9 @@ public class ThirdVisitor extends MxBaseVisitor<IRnode> {
     private Stack<IRnode> loop_stack;
     private Stack<FunctionList> function_scope_stack;
     private Stack<VariableList> variable_scope_stack;
-    private Vector<String> program;
+    private String[] program;
 
-    public ThirdVisitor(ClassList _class_list, FunctionList global_function_list, Vector<String> _program) {
+    public ThirdVisitor(ClassList _class_list, FunctionList global_function_list, String[] _program) {
         class_list = _class_list;
         class_stack = new Stack<IRnode>();
         function_stack = new Stack<IRnode>();
@@ -31,7 +31,7 @@ public class ThirdVisitor extends MxBaseVisitor<IRnode> {
     private void errorReport(String message, ParserRuleContext ctx) {
         System.err.println(message);
         System.err.print("Line" + ctx.getStart().getLine() + ":");
-        System.err.println("             " + program.get(ctx.getStart().getLine()-1));
+        System.err.println("             " + program[ctx.getStart().getLine()-1]);
         System.exit(1);
     }
 

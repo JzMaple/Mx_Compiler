@@ -11,9 +11,9 @@ public class SecondVisitor extends MxBaseVisitor<IRnode> {
     private ClassList class_list;
     private FunctionList global_function_list;
     private Stack<IRnode> class_stack = new Stack<>();
-    private Vector<String> program;
+    private String[] program;
 
-    public SecondVisitor(ClassList _class_list, FunctionList _global_function_list, Vector<String> _program) {
+    public SecondVisitor(ClassList _class_list, FunctionList _global_function_list, String[] _program) {
         class_list = _class_list;
         global_function_list = _global_function_list;
         program = _program;
@@ -22,7 +22,7 @@ public class SecondVisitor extends MxBaseVisitor<IRnode> {
     private void errorReport(String message, ParserRuleContext ctx) {
         System.err.println(message);
         System.err.print("Line" + ctx.getStart().getLine() + ":");
-        System.err.println("             " + program.get(ctx.getStart().getLine()-1));
+        System.err.println("             " + program[ctx.getStart().getLine()-1]);
         System.exit(1);
     }
 

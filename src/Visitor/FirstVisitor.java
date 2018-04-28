@@ -4,13 +4,11 @@ import Parser.*;
 import IRnode.*;
 import Type.*;
 
-import java.util.Vector;
-
 public class FirstVisitor extends MxBaseVisitor {
     private ClassList class_list;
-    private Vector<String> program;
+    private String[] program;
 
-    public FirstVisitor(ClassList _class_list, Vector<String> _program) {
+    public FirstVisitor(ClassList _class_list, String[] _program) {
         class_list = _class_list;
         program = _program;
     }
@@ -22,7 +20,7 @@ public class FirstVisitor extends MxBaseVisitor {
         if (!check) {
             System.err.println("[CLASS ERROR] Duplicated Class Name: The program has already had a class named \"" + class_name + "\".");
             System.err.print("Line " + ctx.getStart().getLine() + ":");
-            System.err.println("             " + program.get(ctx.getStart().getLine()-1));
+            System.err.println("             " + program[ctx.getStart().getLine()-1]);
             System.exit(1);
         }
         return null;

@@ -22,7 +22,7 @@ import java.util.Vector;
 public class Main {
     private static ClassList class_list = new ClassList();
     private static FunctionList global_function_list = new FunctionList(null, null);
-    private static Vector<String> program = new Vector<>();
+    private static String[] program = new String[1000];
 
     public static ClassList getClassList() {return class_list;}
 
@@ -33,9 +33,11 @@ public class Main {
         try {
             reader = new BufferedReader(new FileReader(file));
             String tempString = null;
+            int cnt = 0;
             while ((tempString = reader.readLine()) != null) {
                 ans += tempString + '\n';
-                program.add(tempString);
+                program[cnt] = tempString;
+                ++cnt;
             }
             reader.close();
         } catch (IOException e) {
