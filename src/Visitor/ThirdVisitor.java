@@ -118,11 +118,11 @@ public class ThirdVisitor extends MxBaseVisitor<IRnode> {
                 errorReport("[STATEMENT ERROR] Invalidate Instantiation Statement: Have no such class type as\"" + class_name + "\".", ctx);
             if (variable_type instanceof VoidType)
                 errorReport("[STATEMENT ERROR] Invalidate Instantiation Statement: Cannot have a void type variable.", ctx);
-            if (!variable_scope_stack.peek().insertVariable(variable_name, variable_type))
-                errorReport("[STATEMENT ERROR] Duplicated Variable Name: The scope has already had a variable named \"" + variable_name + "\".", ctx);
             BaseType expression_type = visit(ctx.expression()).getType();
             if (!variable_type.assignment_check(expression_type))
                 errorReport("[STATEMENT ERROR] Invalidate Instantiation Statement: The types on both sides of assign expression should be consistent with each other.", ctx);
+            if (!variable_scope_stack.peek().insertVariable(variable_name, variable_type))
+                errorReport("[STATEMENT ERROR] Duplicated Variable Name: The scope has already had a variable named \"" + variable_name + "\".", ctx);
             return new IRVariableNode(variable_type, false);
         }
     }
