@@ -552,7 +552,7 @@ public class ThirdVisitor extends MxBaseVisitor<IRnode> {
     public IRnode visitSELF_POINTER(MxParser.SELF_POINTERContext ctx) {
         if (class_stack.empty() || function_stack.empty())
             errorReport("[STATEMENT ERROR] Invalidate THIS: THIS is expected in a member function.", ctx);
-        return new IRExpressionNode(class_stack.peek().getType(), true);
+        return new IRExpressionNode(class_stack.peek().getType(), false);
     }
 
     @Override
