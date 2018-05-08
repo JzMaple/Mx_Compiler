@@ -32,7 +32,7 @@ public class SecondVisitor extends MxBaseVisitor<IRnode> {
         BaseType class_type = class_list.getClassType(class_name);
         IRnode class_node = new IRClassNode(class_type);
         class_stack.push(class_node);
-        global_function_list.insertFunction(class_name, new FunctionType(class_type, new Vector<>()));
+        global_function_list.insertFunction(class_name, new FunctionType(class_list.getClassType("void"), new Vector<>()));
         if (ctx.program() != null) visit(ctx.program());
         class_stack.pop();
         return class_node;
@@ -52,7 +52,7 @@ public class SecondVisitor extends MxBaseVisitor<IRnode> {
                     errorReport("[FUNCTION ERROR] Wrong Function Name: The construction function's name should be consistent with class name.",ctx);
             }
             construction_function = true;
-            return_type = class_stack.peek().getType();
+            return_type = class_list.getClassType("void");
         } else {
             String class_name = ctx.class_statement().getText();
             return_type = class_list.getClassType(class_name);
