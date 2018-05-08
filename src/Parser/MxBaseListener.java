@@ -520,13 +520,37 @@ public class MxBaseListener implements MxListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterSubCreator(MxParser.SubCreatorContext ctx) { }
+	@Override public void enterTYPE_NEW(MxParser.TYPE_NEWContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitSubCreator(MxParser.SubCreatorContext ctx) { }
+	@Override public void exitTYPE_NEW(MxParser.TYPE_NEWContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterFUNCTION_NEW(MxParser.FUNCTION_NEWContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitFUNCTION_NEW(MxParser.FUNCTION_NEWContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterSUB_CREATOR(MxParser.SUB_CREATORContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitSUB_CREATOR(MxParser.SUB_CREATORContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

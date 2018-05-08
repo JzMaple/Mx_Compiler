@@ -494,15 +494,41 @@ public interface MxListener extends ParseTreeListener {
 	 */
 	void exitCreator(MxParser.CreatorContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link MxParser#subCreator}.
+	 * Enter a parse tree produced by the {@code TYPE_NEW}
+	 * labeled alternative in {@link MxParser#subCreator}.
 	 * @param ctx the parse tree
 	 */
-	void enterSubCreator(MxParser.SubCreatorContext ctx);
+	void enterTYPE_NEW(MxParser.TYPE_NEWContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link MxParser#subCreator}.
+	 * Exit a parse tree produced by the {@code TYPE_NEW}
+	 * labeled alternative in {@link MxParser#subCreator}.
 	 * @param ctx the parse tree
 	 */
-	void exitSubCreator(MxParser.SubCreatorContext ctx);
+	void exitTYPE_NEW(MxParser.TYPE_NEWContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code FUNCTION_NEW}
+	 * labeled alternative in {@link MxParser#subCreator}.
+	 * @param ctx the parse tree
+	 */
+	void enterFUNCTION_NEW(MxParser.FUNCTION_NEWContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code FUNCTION_NEW}
+	 * labeled alternative in {@link MxParser#subCreator}.
+	 * @param ctx the parse tree
+	 */
+	void exitFUNCTION_NEW(MxParser.FUNCTION_NEWContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code SUB_CREATOR}
+	 * labeled alternative in {@link MxParser#subCreator}.
+	 * @param ctx the parse tree
+	 */
+	void enterSUB_CREATOR(MxParser.SUB_CREATORContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code SUB_CREATOR}
+	 * labeled alternative in {@link MxParser#subCreator}.
+	 * @param ctx the parse tree
+	 */
+	void exitSUB_CREATOR(MxParser.SUB_CREATORContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link MxParser#expressionList}.
 	 * @param ctx the parse tree

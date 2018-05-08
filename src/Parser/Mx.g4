@@ -79,7 +79,7 @@ expression
 wrongCreator
     : wrongCreator '[' ']'
     | wrongCreator '[' expression ']'
-    | class_name ('[' expression ']')* ('['']')+  '[' expression ']'
+    | subCreator ('['']')+  '[' expression ']'
     ;
 
 creator
@@ -88,8 +88,9 @@ creator
     ;
 
 subCreator
-    : subCreator '[' expression ']'
-    | class_name
+    : subCreator '[' expression ']'                                         #SUB_CREATOR
+    | class_name '(' expressionList? ')'                                    #FUNCTION_NEW
+    | class_name                                                            #TYPE_NEW
     ;
 
 expressionList

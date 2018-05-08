@@ -107,7 +107,8 @@ public class FunctionList {
 /****************************************************************************************************************
 
     FunctionList port:
-        void insertFunction(String function_name, FunctionType type)
+        Boolean insertFunction(String function_name, FunctionType function_type)
+        Boolean changeFunction(String function_name, FunctionType function_type)
         FunctionType getFunctionType(String function_name)
         Map<String, FunctionType> getFunctionList()
 
@@ -115,6 +116,15 @@ public class FunctionList {
 
     public Boolean insertFunction(String function_name, FunctionType function_type) {
         if (function_list.containsKey(function_name))
+            return false;
+        else {
+            function_list.put(function_name, function_type);
+            return true;
+        }
+    }
+
+    public Boolean changeFunction(String function_name, FunctionType function_type) {
+        if (!function_list.containsKey(function_name))
             return false;
         else {
             function_list.put(function_name, function_type);

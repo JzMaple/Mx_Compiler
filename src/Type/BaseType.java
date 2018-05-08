@@ -27,6 +27,10 @@ abstract public class BaseType {
         return class_member_function.insertFunction(function_name, function_type);
     }
 
+    public Boolean changeMemberFunction(String function_name, FunctionType function_type) {
+        return class_member_function.changeFunction(function_name, function_type);
+    }
+
     public BaseType getMemberVariableType(String variable_name) {
         return class_member_variable.getVariableType(variable_name);
     }

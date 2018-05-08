@@ -393,22 +393,49 @@ public class ThirdVisitor extends MxBaseVisitor<IRnode> {
     }
 
     @Override
-    public IRnode visitSubCreator(MxParser.SubCreatorContext ctx) {
-        if (ctx.class_name() != null) {
-            String class_name = ctx.class_name().getText();
-            BaseType class_type = class_list.getClassType(class_name);
-            if (class_type == null)
-                errorReport("[STATEMENT ERROR] Wrong Basic Type: The program has no such type \"" + class_name + "\".", ctx);
-            return new IRExpressionNode(class_type, false);
-        } else if (ctx.subCreator() != null) {
-            BaseType basic_type = visit(ctx.subCreator()).getType();
-            BaseType expression_type = visit(ctx.expression()).getType();
-            String expression_type_name = expression_type.getClassName();
-            if (!(expression_type instanceof IntType))
-                errorReport("[STATEMENT ERROR] Invalidate NEW Expression: A int expression is expected, but got a " + expression_type_name + ".", ctx);
-            BaseType creator_type = new ArrayType(basic_type);
-            return new IRExpressionNode(creator_type, false);
-        } else return null;
+    public IRnode visitSUB_CREATOR(MxParser.SUB_CREATORContext ctx) {
+        BaseType basic_type = visit(ctx.subCreator()).getType();
+        BaseType expression_type = visit(ctx.expression()).getType();
+        String expression_type_name = expression_type.getClassName();
+        if (!(expression_type instanceof IntType))
+            errorReport("[STATEMENT ERROR] Invalidate NEW Expression: A int expression is expected, but got a " + expression_type_name + ".", ctx);
+        BaseType creator_type = new ArrayType(basic_type);
+        return new IRExpressionNode(creator_type, false);
+    }
+
+    @Override
+    public IRnode visitTYPE_NEW(MxParser.TYPE_NEWContext ctx) {
+        String class_name = ctx.class_name().getText();
+        BaseType class_type = class_list.getClassType(class_name);
+        if (class_type == null)
+            errorReport("[STATEMENT ERROR] Wrong Basic Type: The program has no such type \"" + class_name + "\".", ctx);
+        if (class_type instanceof VoidType)
+            errorReport("[STATEMENT ERROR] Invalidate NEW Expression: Cannot new a void type.", ctx);
+        return new IRExpressionNode(class_type, false);
+    }
+
+    @Override
+    public IRnode visitFUNCTION_NEW(MxParser.FUNCTION_NEWContext ctx) {
+        String class_name = ctx.class_name().getText();
+        FunctionType function_type = function_scope_stack.peek().getFunctionType(class_name);
+        BaseType class_type = function_type.getReturnType();
+        Vector<BaseType> parameters;
+        if (ctx.expressionList() != null)
+            parameters = ((IRParameterNode) visit(ctx.expressionList())).getParameterTypeList();
+        else
+            parameters = new Vector<>();
+        Vector<BaseType> parameter_list = function_type.getParameterTypeList();
+        if (parameter_list == null) parameter_list = new Vector<>();
+        if (parameters.size() != parameter_list.size())
+            errorReport("[FUNCTION ERROR] Inconsistent Parameter List: The parameters' number is not consistent with member function define.", ctx);
+        for (int i = 0; i < parameters.size(); ++i) {
+            if (!parameter_list.get(i).assignment_check(parameters.get(i))) {
+                String type_left = parameter_list.get(i).getClassName();
+                String type_right = parameters.get(i).getClassName();
+                errorReport("[FUNCTION ERROR] Inconsistent Parameter List: A " + type_left + " type is expected, but got a " + type_right + " type.", ctx);
+            }
+        }
+        return new IRExpressionNode(class_type, false);
     }
 
     @Override

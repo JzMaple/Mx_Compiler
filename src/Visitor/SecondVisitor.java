@@ -28,9 +28,11 @@ public class SecondVisitor extends MxBaseVisitor<IRnode> {
 
     @Override
     public IRnode visitTypeDefine(MxParser.TypeDefineContext ctx) {
-        BaseType class_type = class_list.getClassType(ctx.Identifier().getText());
+        String class_name = ctx.Identifier().getText();
+        BaseType class_type = class_list.getClassType(class_name);
         IRnode class_node = new IRClassNode(class_type);
         class_stack.push(class_node);
+        global_function_list.insertFunction(class_name, new FunctionType(class_type, new Vector<>()));
         if (ctx.program() != null) visit(ctx.program());
         class_stack.pop();
         return class_node;
@@ -38,6 +40,7 @@ public class SecondVisitor extends MxBaseVisitor<IRnode> {
 
     @Override
     public IRnode visitFunction(MxParser.FunctionContext ctx) {
+        Boolean construction_function = false;
         String function_name = ctx.Identifier().getText();
         BaseType return_type;
         if (ctx.class_statement() == null) {
@@ -48,7 +51,8 @@ public class SecondVisitor extends MxBaseVisitor<IRnode> {
                 if (!class_name.equals(function_name))
                     errorReport("[FUNCTION ERROR] Wrong Function Name: The construction function's name should be consistent with class name.",ctx);
             }
-            return_type = class_list.getClassType("void");
+            construction_function = true;
+            return_type = class_stack.peek().getType();
         } else {
             String class_name = ctx.class_statement().getText();
             return_type = class_list.getClassType(class_name);
@@ -67,9 +71,13 @@ public class SecondVisitor extends MxBaseVisitor<IRnode> {
                 errorReport("[FUNCTION ERROR] Duplicated Function Name: The program already has a global function named \"" + function_name +"\".", ctx);
         } else {
             BaseType class_type = class_stack.peek().getType();
-            if (!class_type.insertMemberFunction(function_name, function_type)) {
-                String class_name = class_type.getClassName();
-                errorReport("[FUNCTION ERROR] Duplicated Function Name: The class " + class_name + "has already had a member function named \"" + function_name + "\".", ctx);
+            if (! construction_function) {
+                if (!class_type.insertMemberFunction(function_name, function_type)) {
+                    String class_name = class_type.getClassName();
+                    errorReport("[FUNCTION ERROR] Duplicated Function Name: The class " + class_name + "has already had a member function named \"" + function_name + "\".", ctx);
+                }
+            } else {
+                global_function_list.changeFunction(function_name, function_type);
             }
         }
         return null;
@@ -117,9 +125,14 @@ public class SecondVisitor extends MxBaseVisitor<IRnode> {
                 System.exit(1);
             } else {
                 FunctionType main_type = global_function_list.getFunctionType("main");
+                Vector<BaseType> parameters = main_type.getParameterTypeList();
                 String return_type_name = main_type.getReturnType().getClassName();
                 if (!(main_type.getReturnType() instanceof IntType)) {
                     System.err.println("[FUNCTION ERROR] Wrong Main Function Return Type: The main function return type is expected to be int, but only get" + return_type_name + ".");
+                    System.exit(1);
+                }
+                if (parameters.size() != 0) {
+                    System.err.println("[FUNCTION ERROR] Wrong Main Function Parameters: The main function should not have parameters.");
                     System.exit(1);
                 }
             }
