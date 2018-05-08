@@ -418,7 +418,7 @@ public class ThirdVisitor extends MxBaseVisitor<IRnode> {
     public IRnode visitFUNCTION_NEW(MxParser.FUNCTION_NEWContext ctx) {
         String class_name = ctx.class_name().getText();
         FunctionType function_type = function_scope_stack.peek().getFunctionType(class_name);
-        BaseType class_type = function_type.getReturnType();
+        BaseType class_type = class_list.getClassType(class_name);
         Vector<BaseType> parameters;
         if (ctx.expressionList() != null)
             parameters = ((IRParameterNode) visit(ctx.expressionList())).getParameterTypeList();
