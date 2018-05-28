@@ -4,19 +4,16 @@ import Parser.MxLexer;
 import Parser.MxParser;
 import Type.ClassList;
 import Type.FunctionList;
-import Visitor.FirstVisitor;
-import Visitor.SecondVisitor;
-import Visitor.ThirdVisitor;
+import Visitor.*;
 import org.antlr.v4.runtime.BailErrorStrategy;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
+
+import java.util.*;
 
 public class Main {
     private static ClassList class_list = new ClassList();
@@ -84,7 +81,32 @@ public class Main {
             text = readTestFile(args[0]);
         else
             text = readTestFile("program.txt");
+
         ParseTree tree = parser(text);
+
         semanticAnalysis(tree);
+
+        IRBuilder IR_builder = new IRBuilder(class_list, global_function_list);
+        IR_builder.visit(tree);
+
+        Translator translator = new Translator(IR_builder);
+        List<String> code = translator.translate();
+
+        if (args.length == 1) {
+            try {
+                FileWriter out = new FileWriter("test/code.asm");
+                for (String s : code) {
+                    out.write(s + "\n");
+                }
+                out.flush();
+                out.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            for (String s : code) {
+                System.out.println(s);
+            }
+        }
     }
 }

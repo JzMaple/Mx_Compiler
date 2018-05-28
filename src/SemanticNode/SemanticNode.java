@@ -1,10 +1,8 @@
-package IRnode;
-
-import java.util.*;
+package SemanticNode;
 
 import Type.*;
 
-abstract public class IRnode {
+abstract public class SemanticNode {
     protected Boolean leaf_value;
     public abstract BaseType getType();
     public Boolean getLeafValue() {

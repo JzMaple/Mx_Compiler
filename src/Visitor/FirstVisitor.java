@@ -1,10 +1,10 @@
 package Visitor;
 
 import Parser.*;
-import IRnode.*;
+import SemanticNode.*;
 import Type.*;
 
-public class FirstVisitor extends MxBaseVisitor {
+public class FirstVisitor extends MxBaseVisitor<SemanticNode> {
     private ClassList class_list;
     private String[] program;
 
@@ -14,7 +14,7 @@ public class FirstVisitor extends MxBaseVisitor {
     }
 
     @Override
-    public IRnode visitTypeDefine(MxParser.TypeDefineContext ctx) {
+    public SemanticNode visitTypeDefine(MxParser.TypeDefineContext ctx) {
         String class_name = ctx.Identifier().getText();
         Boolean check = class_list.insertClass(class_name);
         if (!check) {
@@ -27,7 +27,7 @@ public class FirstVisitor extends MxBaseVisitor {
     }
 
     @Override
-    public IRnode visitFunction(MxParser.FunctionContext ctx) {
+    public SemanticNode visitFunction(MxParser.FunctionContext ctx) {
         return null;
     }
 }

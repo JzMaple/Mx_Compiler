@@ -4,13 +4,13 @@ import java.util.*;
 
 import Type.*;
 import Parser.*;
-import IRnode.*;
+import SemanticNode.*;
 import org.antlr.v4.runtime.ParserRuleContext;
 
-public class SecondVisitor extends MxBaseVisitor<IRnode> {
+public class SecondVisitor extends MxBaseVisitor<SemanticNode> {
     private ClassList class_list;
     private FunctionList global_function_list;
-    private Stack<IRnode> class_stack = new Stack<>();
+    private Stack<SemanticNode> class_stack = new Stack<>();
     private String[] program;
 
     public SecondVisitor(ClassList _class_list, FunctionList _global_function_list, String[] _program) {
@@ -27,19 +27,19 @@ public class SecondVisitor extends MxBaseVisitor<IRnode> {
     }
 
     @Override
-    public IRnode visitTypeDefine(MxParser.TypeDefineContext ctx) {
+    public SemanticNode visitTypeDefine(MxParser.TypeDefineContext ctx) {
         String class_name = ctx.Identifier().getText();
         BaseType class_type = class_list.getClassType(class_name);
-        IRnode class_node = new IRClassNode(class_type);
+        SemanticNode class_node = new SemanticClassNode(class_type);
         class_stack.push(class_node);
-        global_function_list.insertFunction(class_name, new FunctionType(class_list.getClassType("void"), new Vector<>()));
+        global_function_list.insertFunction(class_name, new FunctionType(class_list.getClassType("void"), new Vector<>(), new Vector<>()));
         if (ctx.program() != null) visit(ctx.program());
         class_stack.pop();
         return class_node;
     }
 
     @Override
-    public IRnode visitFunction(MxParser.FunctionContext ctx) {
+    public SemanticNode visitFunction(MxParser.FunctionContext ctx) {
         Boolean construction_function = false;
         String function_name = ctx.Identifier().getText();
         BaseType return_type;
@@ -60,12 +60,16 @@ public class SecondVisitor extends MxBaseVisitor<IRnode> {
                 errorReport("[FUNCTION ERROR] Wrong Function Return Type: Have no such class type as \"" + class_name + "\".", ctx);
         }
         Vector<BaseType> parameter_type_list;
+        Vector<String> parameter_name_list;
         if (ctx.parameter() == null) {
             parameter_type_list = new Vector<>();
+            parameter_name_list = new Vector<>();
         } else {
-            parameter_type_list = ((IRParameterNode) visit(ctx.parameter())).getParameterTypeList();
+            SemanticParameterNode parameters = (SemanticParameterNode) visit(ctx.parameter());
+            parameter_type_list = parameters.getParameterTypeList();
+            parameter_name_list = parameters.getParameterNameList();
         }
-        FunctionType function_type = new FunctionType(return_type, parameter_type_list);
+        FunctionType function_type = new FunctionType(return_type, parameter_type_list, parameter_name_list);
         if (class_stack.empty()) {
             if (!global_function_list.insertFunction(function_name, function_type))
                 errorReport("[FUNCTION ERROR] Duplicated Function Name: The program already has a global function named \"" + function_name +"\".", ctx);
@@ -84,22 +88,27 @@ public class SecondVisitor extends MxBaseVisitor<IRnode> {
     }
 
     @Override
-    public IRnode visitParameter(MxParser.ParameterContext ctx) {
+    public SemanticNode visitParameter(MxParser.ParameterContext ctx) {
         Vector<BaseType> parameter_type_list = new Vector<>();
+        Vector<String> parameter_name_list = new Vector<>();
         String class_name = ctx.class_statement().getText();
-        BaseType class_type = class_list.getClassType(class_name);
-        if (class_type == null)
-            errorReport("[FUNCTION ERROR] Invalidation Parameter List: Have no such class type as\"" + class_name + "\".", ctx);
-        if (class_type instanceof VoidType)
-            errorReport("[FUNCTION ERROR] Invalidation Parameter List: Cannot have a void type parameter.", ctx);
-        parameter_type_list.add(class_type);
-        if (ctx.parameter() != null)
-            parameter_type_list.addAll(((IRParameterNode) visit(ctx.parameter())).getParameterTypeList());
-        return new IRParameterNode(parameter_type_list);
+        BaseType variable_type = class_list.getClassType(class_name);
+        String variable_name = ctx.Identifier().getText();
+        if (variable_type == null)
+            errorReport("[FUNCTION ERROR] Invalidate Parameter List: Have no such class type as\"" + class_name + "\".", ctx);
+        if (variable_type instanceof VoidType)
+            errorReport("[FUNCTION ERROR] Invalidate Parameter List: Cannot have a void type parameter.", ctx);
+        parameter_type_list.add(variable_type);
+        parameter_name_list.add(variable_name);
+        if (ctx.parameter() != null) {
+            parameter_type_list.addAll(((SemanticParameterNode) visit(ctx.parameter())).getParameterTypeList());
+            parameter_name_list.addAll(((SemanticParameterNode) visit(ctx.parameter())).getParameterNameList());
+        }
+        return new SemanticParameterNode(parameter_type_list, parameter_name_list);
     }
 
     @Override
-    public IRnode visitNORMAL_INS(MxParser.NORMAL_INSContext ctx) {
+    public SemanticNode visitNORMAL_INS(MxParser.NORMAL_INSContext ctx) {
         String class_name = ctx.class_statement().getText();
         String variable_name = ctx.Identifier().getText();
         BaseType variable_type = class_list.getClassType(class_name);
@@ -113,11 +122,11 @@ public class SecondVisitor extends MxBaseVisitor<IRnode> {
             if (!_class_type.insertMemberVariable(variable_name, variable_type))
                 errorReport("[CLASS ERROR] Duplicated Variable Name: The class "+ _class_name + "has already had a member variable named \"" + variable_name + "\".", ctx);
         }
-        return new IRExpressionNode(variable_type, false);
+        return new SemanticExpressionNode(variable_type, false);
     }
 
     @Override
-    public IRnode visitProgram(MxParser.ProgramContext ctx) {
+    public SemanticNode visitProgram(MxParser.ProgramContext ctx) {
         visitChildren(ctx);
         if (class_stack.empty()) {
             if (global_function_list.getFunctionType("main") == null) {

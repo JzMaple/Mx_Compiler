@@ -29,30 +29,36 @@ public class FunctionList {
     // Global Inside Function Set
     private FunctionType _getInt() {
         Vector<BaseType> parameters = new Vector<>();
-        return new FunctionType(class_list.getClassType("int"), parameters);
+        return new FunctionType(class_list.getClassType("int"), parameters, new Vector<>());
     }
 
     private FunctionType _getString() {
         Vector<BaseType> parameters = new Vector<>();
-        return new FunctionType(class_list.getClassType("string"), parameters);
+        return new FunctionType(class_list.getClassType("string"), parameters, new Vector<>());
     }
 
     private FunctionType _print() {
         Vector<BaseType> parameters = new Vector<>();
         parameters.add(class_list.getClassType("string"));
-        return new FunctionType(class_list.getClassType("void"), parameters);
+        Vector<String> parameters_name = new Vector<>();
+        parameters_name.add("str");
+        return new FunctionType(class_list.getClassType("void"), parameters, parameters_name);
     }
 
     private FunctionType _println() {
         Vector<BaseType> parameters = new Vector<>();
         parameters.add(class_list.getClassType("string"));
-        return new FunctionType(class_list.getClassType("void"), parameters);
+        Vector<String> parameters_name = new Vector<>();
+        parameters_name.add("str");
+        return new FunctionType(class_list.getClassType("void"), parameters, parameters_name);
     }
 
     private FunctionType _toString() {
         Vector<BaseType> parameters = new Vector<>();
         parameters.add(class_list.getClassType("int"));
-        return new FunctionType(class_list.getClassType("string"), parameters);
+        Vector<String> parameters_name = new Vector<>();
+        parameters_name.add("i");
+        return new FunctionType(class_list.getClassType("string"), parameters, parameters_name);
     }
 
     public void setGlobalInsideFunctionList() {
@@ -66,7 +72,7 @@ public class FunctionList {
     // Array Inside Function Set
     private FunctionType _size() {
         Vector<BaseType> parameters = new Vector<>();
-        return new FunctionType(class_list.getClassType("int"), parameters);
+        return new FunctionType(class_list.getClassType("int"), parameters, new Vector<>());
     }
 
     public void setArrayInsideFunctionList() {
@@ -76,25 +82,30 @@ public class FunctionList {
     // String Inside Function Set
     private FunctionType _length() {
         Vector<BaseType> parameters = new Vector<>();
-        return new FunctionType(class_list.getClassType("int"), parameters);
+        return new FunctionType(class_list.getClassType("int"), parameters, new Vector<>());
     }
 
     private FunctionType _substring(StringType it) {
         Vector<BaseType> parameters = new Vector<>();
         parameters.add(class_list.getClassType("int"));
         parameters.add(class_list.getClassType("int"));
-        return new FunctionType(it, parameters);
+        Vector<String> parameters_name = new Vector<>();
+        parameters_name.add("left");
+        parameters_name.add("right");
+        return new FunctionType(it, parameters, parameters_name);
     }
 
     private FunctionType _parseInt() {
         Vector<BaseType> parameters = new Vector<>();
-        return new FunctionType(class_list.getClassType("int"), parameters);
+        return new FunctionType(class_list.getClassType("int"), parameters, new Vector<>());
     }
 
     private FunctionType _ord() {
         Vector<BaseType> parameters = new Vector<>();
         parameters.add(class_list.getClassType("int"));
-        return new FunctionType(class_list.getClassType("int"), parameters);
+        Vector<String> parameters_name = new Vector<>();
+        parameters_name.add("pos");
+        return new FunctionType(class_list.getClassType("int"), parameters, parameters_name);
     }
 
     public void setStringInsideFunctionList(StringType it) {
@@ -123,13 +134,8 @@ public class FunctionList {
         }
     }
 
-    public Boolean changeFunction(String function_name, FunctionType function_type) {
-        if (!function_list.containsKey(function_name))
-            return false;
-        else {
-            function_list.put(function_name, function_type);
-            return true;
-        }
+    public void changeFunction(String function_name, FunctionType function_type) {
+        function_list.put(function_name, function_type);
     }
 
     public FunctionType getFunctionType(String function_name) {

@@ -1,11 +1,11 @@
-package IRnode;
+package SemanticNode;
 
 import Type.*;
 
-public class IRClassNode extends IRnode{
+public class SemanticClassNode extends SemanticNode {
     private BaseType class_type;
 
-    public IRClassNode(BaseType _class_type) {
+    public SemanticClassNode(BaseType _class_type) {
         class_type = _class_type;
         leaf_value = false;
     }

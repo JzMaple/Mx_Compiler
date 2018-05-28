@@ -39,4 +39,8 @@ public class ClassList {
             return null;
         }
     }
+
+    public Map<String, BaseType> getClassList() {
+        return class_list;
+    }
 }

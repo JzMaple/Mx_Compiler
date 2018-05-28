@@ -1,9 +1,9 @@
-package IRnode;
+package SemanticNode;
 
 import Type.BaseType;
 
-public class IRLoopNode extends IRnode {
-    public IRLoopNode() {
+public class SemanticLoopNode extends SemanticNode {
+    public SemanticLoopNode() {
         leaf_value = false;
     }
 

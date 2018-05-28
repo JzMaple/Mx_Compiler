@@ -1,0 +1,81 @@
+package IR.IRNode;
+
+import IR.IRInstruction.IRInstruction;
+import IR.IRInstruction.Label;
+import IR.IRInstruction.Operand.Operand;
+import IR.IRInstruction.Operand.Register;
+import IR.IRInstruction.Operand.Variable;
+import NasmTranslate.StackAlloc;
+import Type.FunctionType;
+import Type.VoidType;
+
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Vector;
+
+public class IRFunction extends IRNode {
+    private String function_name;
+    private String function_AsmName;
+    private FunctionType function_type;
+    private Label begin_label;
+    private Label end_label;
+    private StackAlloc stackAlloc;
+    private List<IRInstruction> statements;
+    private List<Variable> parameters;
+
+    public IRFunction(String function_name, FunctionType function_type, String function_AsmName){
+        this.function_name = function_name;
+        this.function_type = function_type;
+        this.function_AsmName = function_AsmName;
+        this.statements = new LinkedList<>();
+        this.begin_label = new Label(function_AsmName + "begin");
+        this.end_label = new Label(function_AsmName + "_end");
+        setParameters(null);
+        stackAlloc = new StackAlloc();
+        this.parameters = new Vector<>();
+    }
+
+    public FunctionType getFunctionType() {
+        return function_type;
+    }
+
+    public Label getBeginLabel() {
+        return begin_label;
+    }
+
+    public Label getEndLabel() {
+        return end_label;
+    }
+
+    public void setStatements(List<IRInstruction> statements) {
+        this.statements = statements;
+    }
+
+    public List<IRInstruction> getStatements() {
+        return statements;
+    }
+
+    public void setParameters(List<Variable> parameters) {
+        this.parameters = parameters;
+    }
+
+    public List<Variable> getParameters() {
+        return parameters;
+    }
+
+    public Variable getParameter(int i) {
+        return parameters.get(i);
+    }
+
+    public void setFunction_AsmName(String name) {
+        this.function_AsmName = name;
+    }
+
+    public StackAlloc getStackAlloc() {
+        return stackAlloc;
+    }
+
+    public String getFunction_name() {
+        return function_name;
+    }
+}

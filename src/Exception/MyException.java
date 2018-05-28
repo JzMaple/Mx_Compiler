@@ -18,7 +18,6 @@ public class MyException extends Exception {
     }
 
     public void printException(){
-        //todo: print Exception
         while (exception_print_number < exception_number) {
             ++exception_print_number;
             System.err.println(exception_list.get(exception_print_number).getMessage());

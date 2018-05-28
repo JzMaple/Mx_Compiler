@@ -1,12 +1,11 @@
-package IRnode;
+package SemanticNode;
 
-import Type.BaseType;
 import Type.FunctionType;
 
-public class IRFunctionNode extends IRnode {
+public class SemanticFunctionNode extends SemanticNode {
     private FunctionType function_type;
 
-    public IRFunctionNode(FunctionType _function_type) {
+    public SemanticFunctionNode(FunctionType _function_type) {
         function_type = _function_type;
         leaf_value = false;
     }

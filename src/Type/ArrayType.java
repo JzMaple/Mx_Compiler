@@ -4,6 +4,7 @@ import java.util.*;
 import Exception.*;
 
 public class ArrayType extends BaseType {
+    private MyException error = new MyException();
     private BaseType basic_array_type;
 
     @Override
