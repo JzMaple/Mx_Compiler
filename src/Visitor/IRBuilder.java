@@ -285,6 +285,7 @@ public class IRBuilder extends MxBaseVisitor<IR> {
         addLabel(then_label);
         variable_scope.push(new IRScope(variable_scope.peek()));
         visit(ctx.noScope_block(0));
+        statements.add(new Jump(end_label));
         variable_scope.pop();
         addLabel(else_label);
         variable_scope.push(new IRScope(variable_scope.peek()));
@@ -359,7 +360,7 @@ public class IRBuilder extends MxBaseVisitor<IR> {
         else if (pointer instanceof Memory && ((Memory) pointer).getType() instanceof ArrayType)
             type = ((ArrayType) ((Memory) pointer).getType()).getBasicArrayType();
         else return null;
-        return new Memory(pointer, offset, 1, 0, type);
+        return new Memory(pointer, offset, 8, 0, type);
     }
 
     @Override
@@ -683,10 +684,14 @@ public class IRBuilder extends MxBaseVisitor<IR> {
                 statements.add(new Move(var_tmp, dim));
                 Mul mul = new Mul(var_tmp, new Immediate(class_type.getSize()));
                 statements.add(mul);
-                parameters.add(mul.getDest());
+                Add add = new Add(mul.getDest(), new Immediate(8));
+                statements.add(add);
+                parameters.add(add.getDest());
                 Call stmt = new Call(functions.get("malloc"), new IRParameter(parameters));
                 statements.add(stmt);
                 statements.add(new Move(base, stmt.getTmp_return()));
+                statements.add(new Move(new Memory(base, null, 1,0, null), dim));
+                statements.add(new Add(base, new Immediate(8)));
             } else {
                 IRFunction function = functions.get(class_type.getClassName() + "_func__");
                 statements.add(new Move(var_tmp, dim));
@@ -794,5 +799,19 @@ public class IRBuilder extends MxBaseVisitor<IR> {
 
     static public StackAlloc getCurrent_stackAlloc() {
         return current_stackAlloc;
+    }
+
+    @Override
+    public IR visitINS_STATE(MxParser.INS_STATEContext ctx) {
+        statements.add(new Label(";" + ctx.getText()));
+        visitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public IR visitEXPR_STATE(MxParser.EXPR_STATEContext ctx) {
+        statements.add(new Label(";" + ctx.getText()));
+        visitChildren(ctx);
+        return null;
     }
 }
