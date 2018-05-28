@@ -88,9 +88,9 @@ public class Translator {
 
     private void load(RegX86 reg, Operand var) {
         if (var instanceof Immediate)
-            code.add("\tmove\t" + reg + ", " + var);
+            code.add("\tmov\t" + reg + ", " + var);
         else
-            code.add("\tmove\t" + reg + ", " + address(var));
+            code.add("\tmov\t" + reg + ", " + address(var));
     }
 
     private void addIns(Add add) {
@@ -105,7 +105,7 @@ public class Translator {
             load(RegX86.rcx, lhs);
             code.add("\tadd \trcx, " + rhs);
         }
-        code.add("\tmove\t" + address(dest) + ", rcx");
+        code.add("\tmov\t" + address(dest) + ", rcx");
     }
 
     private void addIns(And and) {
@@ -120,19 +120,18 @@ public class Translator {
             load(RegX86.rcx, lhs);
             code.add("\tand \trcx, " + rhs);
         }
-        code.add("\tmove\t" + address(dest) + ", rcx");
+        code.add("\tmov\t" + address(dest) + ", rcx");
     }
 
     private void addIns(Call call) {
         IRFunction function = call.getFunction();
         Vector<Operand> parameters = call.getParameters().getParameters();
         int len = parameters.size() < 6 ? parameters.size() : 6;
-        System.out.println(parameters);
         for (int i = 0; i < len; ++i)
             load(RegX86.getParameter(i), parameters.get(i));
         code.add("\tcall\t" + function.getBeginLabel().getName());
         if (call.getTmp_return() != null)
-            code.add("\tmove\t" + address(call.getTmp_return()) + ", rax");
+            code.add("\tmov\t" + address(call.getTmp_return()) + ", rax");
     }
 
     private void addIns(CJump cJump) {
@@ -154,27 +153,27 @@ public class Translator {
             code.add("\tcmp \tr10, r11");
             switch (op) {
                 case "==":
-                    code.add("\tjz  \t" + false_label.getName());
+                    code.add("\tjne \t" + false_label.getName());
 //                    code.add("\tjmp \t" + true_label.getName());
                     break;
                 case "!=":
-                    code.add("\tjnz \t" + false_label.getName());
+                    code.add("\tje  \t" + false_label.getName());
 //                    code.add("\tjmp \t" + true_label.getName());
                     break;
                 case "<":
-                    code.add("\tjna \t" + false_label.getName());
+                    code.add("\tjge \t" + false_label.getName());
 //                    code.add("\tjmp \t" + true_label.getName());
                     break;
                 case ">=":
-                    code.add("\tja  \t" + false_label.getName());
+                    code.add("\tjl  \t" + false_label.getName());
 //                    code.add("\tjmp \t" + true_label.getName());
                     break;
                 case ">":
-                    code.add("\tjnb \t" + false_label.getName());
+                    code.add("\tjle \t" + false_label.getName());
 //                    code.add("\tjmp \t" + true_label.getName());
                     break;
                 case "<=":
-                    code.add("\tjb  \t" + false_label.getName());
+                    code.add("\tjg  \t" + false_label.getName());
 //                    code.add("\tjmp \t" + true_label.getName());
                     break;
             }
@@ -208,14 +207,14 @@ public class Translator {
                 code.add("\tsetae\trcx");
                 break;
         }
-        code.add("\tmove\t" + address(dest) + ", rcx");
+        code.add("\tmov\t" + address(dest) + ", rcx");
     }
 
     private void addIns(Dec dec){
         Operand expr = dec.getExpr();
         load(RegX86.rcx, expr);
         code.add("\tsub \trcx, 1");
-        code.add("\tmove\t" + address(expr) + ", rcx");
+        code.add("\tmov\t" + address(expr) + ", rcx");
     }
 
     private void addIns(Div div) {
@@ -227,14 +226,14 @@ public class Translator {
         code.add("\txor \trdx, rdx");
         code.add("\tcqo");
         code.add("\tidiv\trcx\n");
-        code.add("\tmove\t" + address(dest) + ", rax");
+        code.add("\tmov\t" + address(dest) + ", rax");
     }
 
     private void addIns(Inc inc) {
         Operand expr = inc.getExpr();
         load(RegX86.rcx, expr);
         code.add("\tadd \trcx, 1");
-        code.add("\tmove\t" + address(expr) + ", rcx");
+        code.add("\tmov\t" + address(expr) + ", rcx");
     }
 
     private void addIns(Jump jump) {
@@ -255,17 +254,17 @@ public class Translator {
         code.add("\txor \trdx, rdx");
         code.add("\tcqo");
         code.add("\tidiv\trcx\n");
-        code.add("\tmove\t" + address(dest) + ", rdx");
+        code.add("\tmov\t" + address(dest) + ", rdx");
     }
 
     private void addIns(Move move) {
         Operand lhs = move.getLhs();
         Operand rhs = move.getRhs();
         if (rhs instanceof Immediate)
-            code.add("\tmove\t" + address(lhs) + ", " + rhs);
+            code.add("\tmov\t" + address(lhs) + ", " + rhs);
         else {
             load(RegX86.rcx, rhs);
-            code.add("\tmove\t" + address(lhs) + ", rcx");
+            code.add("\tmov\t" + address(lhs) + ", rcx");
         }
     }
 
@@ -281,7 +280,7 @@ public class Translator {
             load(RegX86.rcx, lhs);
             code.add("\tmul \trcx, " + rhs);
         }
-        code.add("\tmove\t" + address(dest) + ", rcx");
+        code.add("\tmov\t" + address(dest) + ", rcx");
     }
 
     private void addIns(Neg neg){
@@ -289,7 +288,7 @@ public class Translator {
         Operand dest = neg.getDest();
         load(RegX86.r10, expr);
         code.add("\tneg \tr10");
-        code.add("\tmove" + address(dest) + ", r10");
+        code.add("\tmov" + address(dest) + ", r10");
     }
 
     private void addIns(Not not){
@@ -297,7 +296,7 @@ public class Translator {
         Operand dest = not.getDest();
         load(RegX86.r10, expr);
         code.add("\tnot \tr10");
-        code.add("\tmove" + address(dest) + ", r10");
+        code.add("\tmov" + address(dest) + ", r10");
     }
 
     private void addIns(Or or){
@@ -312,7 +311,7 @@ public class Translator {
             load(RegX86.rcx, lhs);
             code.add("\tor  \trcx, " + rhs);
         }
-        code.add("\tmove\t" + address(dest) + ", rcx");
+        code.add("\tmov\t" + address(dest) + ", rcx");
     }
 
     private void addIns(Return ret){
@@ -327,7 +326,7 @@ public class Translator {
         load(RegX86.rax, lhs);
         load(RegX86.rcx, rhs);
         code.add("\tsal \trax, cl");
-        code.add("\tmove\t" + address(dest) + ", rax");
+        code.add("\tmov\t" + address(dest) + ", rax");
     }
 
     private void addIns(Sar sar){
@@ -337,7 +336,7 @@ public class Translator {
         load(RegX86.rax, lhs);
         load(RegX86.rcx, rhs);
         code.add("\tsar \trax, cl");
-        code.add("\tmove\t" + address(dest) + ", rax");
+        code.add("\tmov\t" + address(dest) + ", rax");
     }
 
     private void addIns(Sub sub){
@@ -352,7 +351,7 @@ public class Translator {
             load(RegX86.rcx, lhs);
             code.add("\tsub \trcx, " + rhs);
         }
-        code.add("\tmove\t" + address(dest) + ", rcx");
+        code.add("\tmov\t" + address(dest) + ", rcx");
     }
 
     private void addIns(Xor xor){
@@ -367,7 +366,7 @@ public class Translator {
             load(RegX86.rcx, lhs);
             code.add("\txor \trcx, " + rhs);
         }
-        code.add("\tmove\t" + address(dest) + ", rcx");
+        code.add("\tmov\t" + address(dest) + ", rcx");
     }
 
     private void resetMain(IRFunction main) {
@@ -386,7 +385,7 @@ public class Translator {
         for (int i = 0; i < len; ++i) {
             RegX86 regX86 = RegX86.getParameter(i);
             Variable var = parameters.get(i);
-            code.add("\tmove\t" + address(var) + ", " + regX86);
+            code.add("\tmov\t" + address(var) + ", " + regX86);
         }
         code.add("");
     }

@@ -28,7 +28,7 @@ public class IRFunction extends IRNode {
         this.function_type = function_type;
         this.function_AsmName = function_AsmName;
         this.statements = new LinkedList<>();
-        this.begin_label = new Label(function_AsmName + "begin");
+        this.begin_label = new Label(function_name);
         this.end_label = new Label(function_AsmName + "_end");
         setParameters(null);
         stackAlloc = new StackAlloc();

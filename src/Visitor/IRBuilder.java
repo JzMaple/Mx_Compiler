@@ -149,7 +149,6 @@ public class IRBuilder extends MxBaseVisitor<IR> {
         variable_scope.pop();
         if (inc != null) visit(inc);
         addLabel(condition_label);
-        addLabel(end_label);
         Operand cond = (Operand) visit(condition);
         if (!(cond instanceof Immediate))
             addCJump(cond, begin_label, end_label);
