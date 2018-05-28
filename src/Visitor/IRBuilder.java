@@ -452,24 +452,39 @@ public class IRBuilder extends MxBaseVisitor<IR> {
         Operand expr = (Operand) visit(ctx.expression());
         if (ctx.op.getText().equals("-")) {
             if (!(expr instanceof Immediate)) {
-                statements.add(new Neg(expr));
+                Neg neg = new Neg(expr);
+                statements.add(neg);
+                return neg.getDest();
             } else {
                 int value = ((Immediate) expr).getValue();
                 return new Immediate(-value);
             }
         }
-        return expr;
+        else return expr;
     }
 
     @Override
     public IR visitNOT(MxParser.NOTContext ctx) {
         Operand expr = (Operand) visit(ctx.expression());
-        if (expr instanceof Immediate) {
-            int value = ((Immediate) expr).getValue();
-            return new Immediate(~value);
+        String op = ctx.op.getText();
+        if (op.equals("~")) {
+            if (expr instanceof Immediate) {
+                int value = ((Immediate) expr).getValue();
+                return new Immediate(~value);
+            } else {
+                Not not = new Not(expr);
+                statements.add(not);
+                return not.getDest();
+            }
         } else {
-            statements.add(new Not(expr));
-            return expr;
+            if (expr instanceof Immediate) {
+                int value = ((Immediate) expr).getValue();
+                return new Immediate(value == 0 ? 1 : 0);
+            } else {
+                Xor xor = new Xor(expr, new Immediate(1));
+                statements.add(xor);
+                return xor.getDest();
+            }
         }
     }
 
@@ -666,8 +681,9 @@ public class IRBuilder extends MxBaseVisitor<IR> {
         if (array_creator.empty()) {
             if (!isFunctionNew) {
                 statements.add(new Move(var_tmp, dim));
-                statements.add(new Mul(var_tmp, new Immediate(class_type.getSize())));
-                parameters.add(var_tmp);
+                Mul mul = new Mul(var_tmp, new Immediate(class_type.getSize()));
+                statements.add(mul);
+                parameters.add(mul.getDest());
                 Call stmt = new Call(functions.get("malloc"), new IRParameter(parameters));
                 statements.add(stmt);
                 statements.add(new Move(base, stmt.getTmp_return()));
@@ -675,8 +691,9 @@ public class IRBuilder extends MxBaseVisitor<IR> {
                 IRFunction function = functions.get(class_type.getClassName() + "_func__");
                 statements.add(new Move(var_tmp, dim));
                 statements.add(new Sal(var_tmp, new Immediate(3)));
-                statements.add(new Add(var_tmp, new Immediate(8)));
-                parameters.add(var_tmp);
+                Add add = new Add(var_tmp, new Immediate(8));
+                statements.add(add);
+                parameters.add(add.getDest());
                 Call stmt = new Call(functions.get("malloc"), new IRParameter(parameters));
                 statements.add(stmt);
                 statements.add(new Move(base, stmt.getTmp_return()));
