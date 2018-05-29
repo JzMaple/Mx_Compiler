@@ -423,7 +423,7 @@ public class IRBuilder extends MxBaseVisitor<IR> {
         else if (pointer instanceof Memory && ((Memory) pointer).getType() instanceof ArrayType)
             type = ((ArrayType) ((Memory) pointer).getType()).getBasicArrayType();
         else return null;
-        Memory mem = new Memory(pointer, offset, 1, 0, type);
+        Memory mem = new Memory(pointer, offset, 8, 0, type);
         if (type instanceof StringType) mem.setIsString(true);
         return mem;
     }
