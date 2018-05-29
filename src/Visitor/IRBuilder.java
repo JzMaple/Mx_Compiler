@@ -785,19 +785,49 @@ public class IRBuilder extends MxBaseVisitor<IR> {
         Variable var_tmp = getNewVar("tmp", class_list.getClassType("int"));
         if (array_creator.empty()) {
             if (!isFunctionNew) {
-                statements.add(new Move(var_tmp, dim));
-                Mul mul = new Mul(var_tmp, new Immediate(class_type.getSize()));
-                statements.add(mul);
-                Add add = new Add(mul.getDest(), new Immediate(8));
-                statements.add(add);
-                parameters.add(add.getDest());
-                Call stmt = new Call(inFunctions.get("malloc"), new IRParameter(parameters));
-                statements.add(stmt);
-                statements.add(new Move(base, stmt.getTmp_return()));
-                statements.add(new Move(new Memory(base, null, 1,0, null), dim));
-                add = new Add(base, new Immediate(8));
-                statements.add(add);
-                statements.add(new Move(base, add.getDest()));
+                if (class_type instanceof UserType) {
+                    statements.add(new Move(var_tmp, dim));
+                    Sal sal = new Sal(var_tmp, new Immediate(3));
+                    statements.add(sal);
+                    Add add = new Add(sal.getDest(), new Immediate(8));
+                    statements.add(add);
+                    parameters.add(add.getDest());
+                    Call stmt = new Call(inFunctions.get("malloc"), new IRParameter(parameters));
+                    statements.add(stmt);
+                    statements.add(new Move(base, stmt.getTmp_return()));
+                    statements.add(new Move(new Memory(base, null, 8, 0, null), dim));
+                    add = new Add(base, new Immediate(8));
+                    statements.add(add);
+                    statements.add(new Move(base, add.getDest()));
+                    parameters = new Vector<>();
+                    parameters.add(new Immediate(class_type.getSize()));
+                    statements.add(new Move(var_cnt, const_zero));
+                    addLabel(begin_label);
+                    stmt = new Call(inFunctions.get("malloc"), new IRParameter(parameters));
+                    statements.add(stmt);
+                    statements.add(new Move(new Memory(base, var_cnt, 8, 0, null), stmt.getTmp_return()));
+                    statements.add(new Add(new Memory(base, var_cnt, 8, 0, null), new Immediate(8)));
+                    add = new Add(var_cnt, const_one);
+                    statements.add(add);
+                    statements.add(new Move(var_cnt, add.getDest()));
+                    addLabel(condition_label);
+                    statements.add(new CJump(new Cmp(var_cnt, dim, "<"), begin_label, end_label));
+                    addLabel(end_label);
+                } else {
+                    statements.add(new Move(var_tmp, dim));
+                    Mul mul = new Mul(var_tmp, new Immediate(class_type.getSize()));
+                    statements.add(mul);
+                    Add add = new Add(mul.getDest(), new Immediate(8));
+                    statements.add(add);
+                    parameters.add(add.getDest());
+                    Call stmt = new Call(inFunctions.get("malloc"), new IRParameter(parameters));
+                    statements.add(stmt);
+                    statements.add(new Move(base, stmt.getTmp_return()));
+                    statements.add(new Move(new Memory(base, null, 1, 0, null), dim));
+                    add = new Add(base, new Immediate(8));
+                    statements.add(add);
+                    statements.add(new Move(base, add.getDest()));
+                }
             } else {
                 IRFunction function = functions.get(class_type.getClassName() + "_func__");
                 statements.add(new Move(var_tmp, dim));

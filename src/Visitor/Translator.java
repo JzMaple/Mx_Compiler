@@ -55,6 +55,8 @@ public class Translator {
         } else if (op instanceof Memory) {
             Operand base = ((Memory) op).getBase();
             Operand index = ((Memory) op).getIndex();
+            Variable base_var = ((Memory) op).getBase_var();
+            Variable index_var = ((Memory) op).getIndex_var();
             String base_str = "0";
             String index_str = "0";
             int scale = ((Memory) op).getScale();
@@ -62,12 +64,16 @@ public class Translator {
             String number_str = number < 0 ? Integer.toString(number) : "+" + Integer.toString(number);
             if (base != null) {
                 load(RegX86.r14, base);
+                code.add("\tmov \t" + address(base_var) + ", r14");
                 base_str = "r14";
             }
             if (index != null) {
                 load(RegX86.r15, index);
+                code.add("\tmov \t" + address(index_var) + ", r15");
                 index_str = "r15";
             }
+            load(RegX86.r14, base_var);
+            load(RegX86.r15, index_var);
             return "qword [" + base_str + "+" + index_str + "*" + scale + number_str + "]";
         }
         return "";

@@ -3,11 +3,13 @@ package IR.IRInstruction.Operand;
 import Type.BaseType;
 
 public class Memory extends Operand {
-    Operand base;
-    Operand index;
-    int scale;
-    int number;
-    BaseType type;
+    private Operand base;
+    private Operand index;
+    private int scale;
+    private int number;
+    private BaseType type;
+    private Variable base_var;
+    private Variable index_var;
 
     public Memory(Operand base, Operand index, int scale, int number, BaseType type) {
         this.base = base;
@@ -16,6 +18,8 @@ public class Memory extends Operand {
         this.number = number;
         this.type = type;
         this.isString = false;
+        this.base_var = new Variable("base", null, false);
+        this.index_var = new Variable("index", null, false);
     }
 
     public Operand getBase() {
@@ -36,5 +40,13 @@ public class Memory extends Operand {
 
     public BaseType getType() {
         return type;
+    }
+
+    public Variable getBase_var() {
+        return base_var;
+    }
+
+    public Variable getIndex_var() {
+        return index_var;
     }
 }
