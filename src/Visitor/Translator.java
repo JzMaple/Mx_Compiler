@@ -8,6 +8,7 @@ import IR.IRInstruction.Operand.Variable;
 import NasmTranslate.RegX86;
 import NasmTranslate.StackAlloc;
 
+import java.io.*;
 import java.util.*;
 import java.util.Vector;
 
@@ -15,51 +16,37 @@ public class Translator {
     private Vector<IRFunction> functions = new Vector<>();
     private IRScope global_scope;
     private List<IRInstruction> global_init;
+    private Map<Variable, String> global_string;
+    private Set<String> inFunction = new HashSet<>();
     private List<String>code = new LinkedList<>();
-    private Map<RegX86, Variable> regMap;
     private IRFunction main;
     private StackAlloc current_stackAlloc;
-
-    private void setRegMap() {
-        regMap = new HashMap<>();
-        regMap.put(RegX86.rax, null);
-        regMap.put(RegX86.rcx, null);
-        regMap.put(RegX86.rdx, null);
-        regMap.put(RegX86.rbx, null);
-        regMap.put(RegX86.rsp, null);
-        regMap.put(RegX86.rbp, null);
-        regMap.put(RegX86.rsi, null);
-        regMap.put(RegX86.rdi, null);
-        regMap.put(RegX86.r8 , null);
-        regMap.put(RegX86.r9 , null);
-        regMap.put(RegX86.r10, null);
-        regMap.put(RegX86.r11, null);
-        regMap.put(RegX86.r12, null);
-        regMap.put(RegX86.r13, null);
-        regMap.put(RegX86.r14, null);
-        regMap.put(RegX86.r15, null);
-    }
 
     public Translator(IRBuilder IR_Builder) {
         Map<String, IRFunction> functions = IR_Builder.getFunctions();
         for (String func_name : functions.keySet()) {
-            if (func_name.equals("print") || func_name.equals("println") || func_name.equals("getString")
-                    || func_name.equals("getInt") || func_name.equals("toString") || func_name.equals("malloc"))
-                continue;
-            if (func_name.equals("main_func__"))
+            if (func_name.equals("main"))
                 main = functions.get(func_name);
             else
                 this.functions.add(functions.get(func_name));
         }
+        functions = IR_Builder.getInFunctions();
+        for (String func_name : functions.keySet()) {
+            this.functions.add(functions.get(func_name));
+            this.inFunction.add(func_name);
+        }
         this.global_scope = IR_Builder.getGlobalScope();
         this.global_init = IR_Builder.getGlobalStatements();
-        setRegMap();
+        this.global_string = IR_Builder.getConst_string();
     }
 
     private String address(Operand op) {
         if (op instanceof Variable){
             if (((Variable) op).isGlobal()) {
-                return "qword [" + ((Variable) op).getName() + "]";
+                if (((Variable) op).getIsString())
+                    return ((Variable) op).getName();
+                else
+                    return "qword [" + ((Variable) op).getName() + "]";
             } else {
                 int offset = current_stackAlloc.getOffset(op);
                 String offset_str = offset < 0 ? Integer.toString(offset) : "+" + Integer.toString(offset);
@@ -143,7 +130,7 @@ public class Translator {
             load(RegX86.rcx, cond);
             code.add("\tcmp \trcx, 0");
             code.add("\tjz  \t" + false_label.getName());
-//            code.add("\tjmp \t" + true_label.getName());
+            code.add("\tjmp \t" + true_label.getName());
         } else {
             Operand lhs = cmp.getLhs();
             Operand rhs = cmp.getRhs();
@@ -154,27 +141,21 @@ public class Translator {
             switch (op) {
                 case "==":
                     code.add("\tjne \t" + false_label.getName());
-//                    code.add("\tjmp \t" + true_label.getName());
                     break;
                 case "!=":
                     code.add("\tje  \t" + false_label.getName());
-//                    code.add("\tjmp \t" + true_label.getName());
                     break;
                 case "<":
                     code.add("\tjge \t" + false_label.getName());
-//                    code.add("\tjmp \t" + true_label.getName());
                     break;
                 case ">=":
                     code.add("\tjl  \t" + false_label.getName());
-//                    code.add("\tjmp \t" + true_label.getName());
                     break;
                 case ">":
                     code.add("\tjle \t" + false_label.getName());
-//                    code.add("\tjmp \t" + true_label.getName());
                     break;
                 case "<=":
                     code.add("\tjg  \t" + false_label.getName());
-//                    code.add("\tjmp \t" + true_label.getName());
                     break;
             }
             code.add("\tjmp \t" + true_label.getName());
@@ -371,12 +352,6 @@ public class Translator {
         code.add("\tmov \t" + address(dest) + ", rcx");
     }
 
-    private void resetMain(IRFunction main) {
-        Label begin = main.getBeginLabel();
-        begin.setName("main");
-        main.setFunction_AsmName("main");
-    }
-
     private void initFunction(IRFunction function) {
         current_stackAlloc = function.getStackAlloc();
         code.add("\tpush\trbp");
@@ -451,23 +426,95 @@ public class Translator {
         code.add("");
     }
 
+    private String dealStr(String str){
+        StringBuilder ans = new StringBuilder();
+        for (int i = 0; i < str.length(); i++) {
+            int x = 0;
+            if (str.charAt(i) == '\\') {
+                i++;
+                switch (str.charAt(i)) {
+                    case 'n':
+                        x = 10;
+                        break;
+                    case '\\':
+                        x = 92;
+                        break;
+                    case '\"':
+                        x = 34;
+                        break;
+                }
+            }
+            else {
+                x = (int) str.charAt(i);
+            }
+            String tmp = Long.toHexString(x).toUpperCase();
+            if (tmp.length() < 2)
+                ans.append("0" + tmp + "H, ");
+            else
+                ans.append(tmp + "H, ");
+        }
+        ans.append("00H");
+        return ans.toString();
+    }
+
+    private void loadAsm(String fileName) {
+        File file = new File(fileName);
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(file));
+            String tempString;
+            while ((tempString = reader.readLine()) != null) {
+                code.add(tempString);
+            }
+        } catch (IOException e) {
+            System.out.println(fileName + "loading failed");
+        }
+        code.add("");
+    }
+
     public List<String> translate() {
         code.add("\tglobal main");
         code.add("\textern malloc");
+        code.add("\textern puts");
+        code.add("\textern printf");
+        code.add("\textern sprintf");
+        code.add("\textern scanf");
+        code.add("\textern strlen");
+        code.add("\textern strcpy");
+        code.add("\textern strncpy");
+        code.add("\textern strcat");
+        code.add("\textern getline");
+        code.add("\textern stdin");
+        code.add("\textern strcmp");
+        code.add("\textern __stack_chk_fail");
+        code.add("");
+        code.add("\tsection .text");
+        addFunction(main);
+        for (IRFunction function : functions) {
+            String func_name = function.getFunction_name();
+            if (inFunction.contains(func_name)) continue;
+            addFunction(function);
+        }
+
+        loadAsm("inFunction.asm");
         code.add("");
 
-        code.add("\tsection .text");
-        resetMain(main);
-        addFunction(main);
-        for (IRFunction function : functions)
-            addFunction(function);
+        code.add("\tsection\t.data");
+        for (Variable var : global_string.keySet()) {
+            code.add(var.getName() + ":");
+            code.add("\tdb\t" + dealStr(global_string.get(var)));
+        }
+        code.add("");
 
-        code.add("\tsection .bss");
+        code.add("\tsection\t.bss");
         Map<String, Variable> global_def = global_scope.getScope();
         for (String name : global_def.keySet()) {
             Variable var = global_def.get(name);
             code.add(var.getName() + ":\tresq\t1");
         }
+        code.add("");
+
+        code.add("\tsection\t.rodata");
+        loadAsm("rodata.asm");
 
         return code;
     }

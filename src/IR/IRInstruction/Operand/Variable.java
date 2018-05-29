@@ -8,7 +8,8 @@ import Visitor.IRBuilder;
 public class Variable extends Operand {
     private String variable_name;
     private BaseType variable_type;
-    private Boolean isGlobal = false;
+    private Boolean isGlobal;
+    private Boolean isString = false;
     private StackAlloc current_stackAlloc = IRBuilder.getCurrent_stackAlloc();
 
     public Variable(String variable_name, BaseType variable_type, Boolean isGlobal) {
@@ -29,5 +30,13 @@ public class Variable extends Operand {
 
     public Boolean isGlobal() {
         return isGlobal;
+    }
+
+    public void setIsString(Boolean isString) {
+        this.isString = isString;
+    }
+
+    public Boolean getIsString() {
+        return isString;
     }
 }

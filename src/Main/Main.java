@@ -101,7 +101,7 @@ public class Main {
                 out.flush();
                 out.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                System.out.println("code print error");
             }
         } else {
             for (String s : code) {
