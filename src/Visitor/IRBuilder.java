@@ -197,13 +197,21 @@ public class IRBuilder extends MxBaseVisitor<IR> {
         variable_scope.pop();
         if (inc != null) visit(inc);
         addLabel(condition_label);
-        Operand cond = (Operand) visit(condition);
-        if (!(cond instanceof Immediate))
-            addCJump(cond, begin_label, end_label);
-        else {
-            int value = ((Immediate) cond).getValue();
-            if (value == 1)
-                statements.add(new Jump(begin_label));
+        Operand cond;
+        if (condition == null)
+            cond = null;
+        else
+            cond = (Operand) visit(condition);
+        if (cond == null) {
+            statements.add(new Jump(begin_label));
+        } else {
+            if (!(cond instanceof Immediate))
+                addCJump(cond, begin_label, end_label);
+            else {
+                int value = ((Immediate) cond).getValue();
+                if (value == 1)
+                    statements.add(new Jump(begin_label));
+            }
         }
         addLabel(end_label);
         current_loop_condition = old_condition;
@@ -249,6 +257,7 @@ public class IRBuilder extends MxBaseVisitor<IR> {
             String class_name = parameters_type.get(i).getClassName();
             BaseType class_type = class_list.getClassType(class_name);
             Variable para = getNewVar(parameter_name, class_type);
+            if (class_type instanceof StringType) para.setIsString(true);
             parameters.add(para);
             scope.insert(parameter_name, para);
 //            System.out.println(parameter_name);

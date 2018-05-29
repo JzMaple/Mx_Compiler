@@ -1,30 +1,30 @@
-int N = 15000;
-bool[] b = new bool[15001];
-int resultCount = 0;
+int main() {
+	int a = 10000;
+	int b = 0;
+	int c = 2800;
+	int d = 0;
+	int e = 0;
+	int[] f = new int[2801];
+	int g = 0;
 
-int main()
-{
-  int i;
+	for (;b-c!=0;)
+		f[b++] = a/5;
+	for (;; e = d%a){
+		d = 0;
+		g = c*2;
+		if (g==0) break;
 
-  for (i = 1; i <= N; i++) b[i] = true;
+		for (b=c;;d=d*b){
+			d=d+f[b]*a;
+			f[b] = d%--g;
+			d=d/g--;
+			if (--b==0) break;
+		}
 
-  for (i = 2; i <= N; i++) if (b[i])
-  {
-    int count = 2;
+		c = c-14;
+		print(toString(e+d/a));
+	}
 
-    if (i>3 && b[i-2])
-    {
-      resultCount++;
-      println(toString(i-2) + " " + toString(i));
-    }
-
-    while (i*count <= N)
-    {
-      b[i*count] = false;
-      count++;
-    }
-  }
-
-  println("Total: " + toString(resultCount));
+  print("\n");
   return 0;
 }

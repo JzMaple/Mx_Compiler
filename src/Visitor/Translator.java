@@ -502,6 +502,7 @@ public class Translator {
         for (Variable var : global_string.keySet()) {
             code.add(var.getName() + ":");
             code.add("\tdb\t" + dealStr(global_string.get(var)));
+//            System.out.println(global_string.get(var));
         }
         code.add("");
 
