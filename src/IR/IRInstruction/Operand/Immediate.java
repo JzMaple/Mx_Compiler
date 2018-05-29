@@ -5,6 +5,7 @@ public class Immediate extends Operand {
 
     public Immediate(int int_value) {
         this.value = int_value;
+        this.isString = false;
     }
 
     public int getValue() {

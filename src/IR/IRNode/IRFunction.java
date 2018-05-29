@@ -2,12 +2,9 @@ package IR.IRNode;
 
 import IR.IRInstruction.IRInstruction;
 import IR.IRInstruction.Label;
-import IR.IRInstruction.Operand.Operand;
-import IR.IRInstruction.Operand.Register;
 import IR.IRInstruction.Operand.Variable;
 import NasmTranslate.StackAlloc;
 import Type.FunctionType;
-import Type.VoidType;
 
 import java.util.LinkedList;
 import java.util.List;

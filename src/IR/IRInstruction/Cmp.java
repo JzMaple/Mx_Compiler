@@ -1,9 +1,7 @@
 package IR.IRInstruction;
 
 import IR.IRInstruction.Operand.Operand;
-import IR.IRInstruction.Operand.Register;
 import IR.IRInstruction.Operand.Variable;
-import Type.StringType;
 
 public class Cmp extends Bin {
     private String op;

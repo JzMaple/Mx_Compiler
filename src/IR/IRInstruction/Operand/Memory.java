@@ -15,6 +15,7 @@ public class Memory extends Operand {
         this.scale = scale;
         this.number = number;
         this.type = type;
+        this.isString = false;
     }
 
     public Operand getBase() {

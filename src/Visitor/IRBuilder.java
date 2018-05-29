@@ -21,6 +21,7 @@ public class IRBuilder extends MxBaseVisitor<IR> {
     private ClassList class_list;
     private Set<String> variable_rename_set = new HashSet<>();
     private Stack<IRScope> variable_scope = new Stack<>();
+    private StackAlloc global_stackAlloc;
     static private StackAlloc current_stackAlloc;
     private BaseType current_class;
     private IRFunction current_function;
@@ -31,7 +32,7 @@ public class IRBuilder extends MxBaseVisitor<IR> {
 
     private Variable getNewVar(String name, BaseType class_type) {
         String tmp_rename = variableRename(name);
-        return new Variable(tmp_rename, class_type, current_function == null && current_class == null);
+        return new Variable(tmp_rename, class_type, false);
     }
 
     private void setMalloc() {
@@ -75,6 +76,12 @@ public class IRBuilder extends MxBaseVisitor<IR> {
         inFunctions.put(toString_name, toString_func);
     }
 
+    private void setLength() {
+        String length_name = "strlen";
+        IRFunction length_func = new IRFunction(length_name, null);
+        inFunctions.put(length_name, length_func);
+    }
+
     private void setParseInt() {
         String parseInt_name = "parseInt";
         IRFunction parseInt_func = new IRFunction(parseInt_name, null);
@@ -106,6 +113,7 @@ public class IRBuilder extends MxBaseVisitor<IR> {
         setGetString();
         setGetInt();
         setToString();
+        setLength();
         setParseInt();
         setOrd();
         setSubString();
@@ -127,6 +135,7 @@ public class IRBuilder extends MxBaseVisitor<IR> {
             FunctionType function_type = global_function_list.get(function_name);
             IRFunction function_node = new IRFunction(function_name, function_type);
             functions.put(function_name, function_node);
+            if (function_name.equals("main")) global_stackAlloc = function_node.getStackAlloc();
         }
         for (String class_name : class_list.keySet()) {
             BaseType class_type = class_list.get(class_name);
@@ -141,7 +150,7 @@ public class IRBuilder extends MxBaseVisitor<IR> {
             }
         }
         variable_scope.push(new IRScope(null));
-        current_stackAlloc = null;
+        current_stackAlloc = global_stackAlloc;
     }
 
     private int labelCounter = 0;
@@ -249,7 +258,7 @@ public class IRBuilder extends MxBaseVisitor<IR> {
         variable_scope.push(scope);
         visit(ctx.noScope_block());
         current_function = null;
-        current_stackAlloc = null;
+        current_stackAlloc = global_stackAlloc;
         variable_scope.pop();
         function_node.setStatements(statements);
         statements = new LinkedList<>();
@@ -269,7 +278,8 @@ public class IRBuilder extends MxBaseVisitor<IR> {
         if (current_class != null) return null;
         String variable_name = ctx.Identifier().getText();
         BaseType class_type = class_list.getClassType(ctx.class_statement().getText());
-        Variable var = getNewVar(variable_name, class_type);
+        Boolean isGlobal = current_function == null && current_class == null;
+        Variable var = new Variable(variableRename(variable_name), class_type, isGlobal);
         IRScope scope = variable_scope.peek();
         scope.insert(variable_name, var);
         return null;
@@ -280,7 +290,9 @@ public class IRBuilder extends MxBaseVisitor<IR> {
         if (current_class != null) return null;
         String variable_name = ctx.Identifier().getText();
         BaseType class_type = class_list.getClassType(ctx.class_statement().getText());
-        Variable var = getNewVar(variable_name, class_type);
+        Boolean isGlobal = current_function == null && current_class == null;
+        Variable var = new Variable(variableRename(variable_name), class_type, isGlobal);
+        if (class_type instanceof StringType) var.setIsString(true);
         IRScope scope = variable_scope.peek();
         scope.insert(variable_name, var);
         Operand init = (Operand) visit(ctx.expression());
@@ -597,7 +609,7 @@ public class IRBuilder extends MxBaseVisitor<IR> {
             }
         } else {
             Bin stmt;
-            if (lhs instanceof Variable && ((Variable) lhs).getIsString() && op.equals("+")) {
+            if (lhs.getIsString() && op.equals("+")) {
                 Vector<Operand> parameters = new Vector<>();
                 parameters.add(lhs);
                 parameters.add(rhs);
@@ -712,6 +724,8 @@ public class IRBuilder extends MxBaseVisitor<IR> {
         Operand lhs = (Operand) visit(ctx.expression(0));
         Move stmt = new Move(lhs, rhs);
         statements.add(stmt);
+        if (rhs.getIsString())
+            lhs.setIsString(true);
         return stmt.getLhs();
     }
 
@@ -856,7 +870,7 @@ public class IRBuilder extends MxBaseVisitor<IR> {
             return var_tmp;
         } else {
             Variable var_tmp = getNewVar("tmp", class_list.getClassType("int"));
-            parameters.add(new Register());
+            parameters.add(null);
             if (ctx.expressionList() != null)
                 parameters.addAll(((IRParameter) visit(ctx.expressionList())).getParameters());
             create(var_tmp, class_node, true, parameters);
@@ -888,17 +902,17 @@ public class IRBuilder extends MxBaseVisitor<IR> {
         return current_stackAlloc;
     }
 
-//    @Override
-//    public IR visitINS_STATE(MxParser.INS_STATEContext ctx) {
-//        statements.add(new Label(";" + ctx.getText()));
-//        visitChildren(ctx);
-//        return null;
-//    }
-//
-//    @Override
-//    public IR visitEXPR_STATE(MxParser.EXPR_STATEContext ctx) {
-//        statements.add(new Label(";" + ctx.getText()));
-//        visitChildren(ctx);
-//        return null;
-//    }
+    @Override
+    public IR visitINS_STATE(MxParser.INS_STATEContext ctx) {
+        statements.add(new Label(";" + ctx.getText()));
+        visitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public IR visitEXPR_STATE(MxParser.EXPR_STATEContext ctx) {
+        statements.add(new Label(";" + ctx.getText()));
+        visitChildren(ctx);
+        return null;
+    }
 }
