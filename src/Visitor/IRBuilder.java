@@ -423,7 +423,9 @@ public class IRBuilder extends MxBaseVisitor<IR> {
         else if (pointer instanceof Memory && ((Memory) pointer).getType() instanceof ArrayType)
             type = ((ArrayType) ((Memory) pointer).getType()).getBasicArrayType();
         else return null;
-        return new Memory(pointer, offset, 8, 0, type);
+        Memory mem = new Memory(pointer, offset, 1, 0, type);
+        if (type instanceof StringType) mem.setIsString(true);
+        return mem;
     }
 
     @Override
@@ -436,7 +438,9 @@ public class IRBuilder extends MxBaseVisitor<IR> {
         String member_variable_name = ctx.Identifier().getText();
         Immediate offset = new Immediate(class_type.getOffset(member_variable_name));
         BaseType type = class_type.offsetToType(class_type.getOffset(member_variable_name));
-        return new Memory(pointer, offset, 1, 0, type);
+        Memory mem = new Memory(pointer, offset, 1, 0, type);
+        if (type instanceof StringType) mem.setIsString(true);
+        return mem;
     }
 
     @Override
@@ -621,16 +625,13 @@ public class IRBuilder extends MxBaseVisitor<IR> {
             Bin stmt;
             Vector<Operand> parameters = new Vector<>();
             Call call;
-            if (lhs.getIsString() && rhs.getIsString()) {
-                switch (op) {
-                    case "+" :
-                        parameters.add(lhs);
-                        parameters.add(rhs);
-                        call = new Call(inFunctions.get("strCombine"), new IRParameter(parameters));
-                        statements.add(call);
-                        call.getTmp_return().setIsString(true);
-                        return call.getTmp_return();
-                }
+            if (lhs.getIsString() && rhs.getIsString() && op.equals("+")) {
+                parameters.add(lhs);
+                parameters.add(rhs);
+                call = new Call(inFunctions.get("strCombine"), new IRParameter(parameters));
+                statements.add(call);
+                call.getTmp_return().setIsString(true);
+                return call.getTmp_return();
             }
             switch (op) {
                 case "+":

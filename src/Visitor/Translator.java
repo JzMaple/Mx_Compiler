@@ -158,6 +158,7 @@ public class Translator {
                         code.add("\tjg  \t" + false_label.getName());
                         break;
                 }
+                code.add("\tjmp \t" + true_label.getName());
             } else {
                 load(RegX86.r10, lhs);
                 load(RegX86.r11, rhs);
@@ -527,7 +528,7 @@ public class Translator {
         for (Variable var : global_string.keySet()) {
             code.add(var.getName() + ":");
             code.add("\tdb\t" + dealStr(global_string.get(var)));
-//            System.out.println(global_string.get(var));
+//            System.out.println(var.getName() + "," +global_string.get(var));
         }
         code.add("");
 
