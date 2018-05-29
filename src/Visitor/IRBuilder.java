@@ -501,6 +501,7 @@ public class IRBuilder extends MxBaseVisitor<IR> {
     public IR visitCONST_STRING(MxParser.CONST_STRINGContext ctx) {
         Variable tmp = new Variable(variableRename("str"), class_list.getClassType("string"), true);
         tmp.setIsString(true);
+        tmp.setIsConstant(true);
         String str = ctx.getText();
         const_string.put(tmp, str.substring(1,str.length()-1));
         return tmp;
@@ -618,14 +619,18 @@ public class IRBuilder extends MxBaseVisitor<IR> {
             }
         } else {
             Bin stmt;
-            if (lhs.getIsString() && op.equals("+")) {
-                Vector<Operand> parameters = new Vector<>();
-                parameters.add(lhs);
-                parameters.add(rhs);
-                Call call = new Call(inFunctions.get("strCombine"), new IRParameter(parameters));
-                statements.add(call);
-                call.getTmp_return().setIsString(true);
-                return call.getTmp_return();
+            Vector<Operand> parameters = new Vector<>();
+            Call call;
+            if (lhs.getIsString() && rhs.getIsString()) {
+                switch (op) {
+                    case "+" :
+                        parameters.add(lhs);
+                        parameters.add(rhs);
+                        call = new Call(inFunctions.get("strCombine"), new IRParameter(parameters));
+                        statements.add(call);
+                        call.getTmp_return().setIsString(true);
+                        return call.getTmp_return();
+                }
             }
             switch (op) {
                 case "+":

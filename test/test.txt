@@ -1,30 +1,36 @@
-int main() {
-	int a = 10000;
-	int b = 0;
-	int c = 2800;
-	int d = 0;
-	int e = 0;
-	int[] f = new int[2801];
-	int g = 0;
+string A;
+string B;
+string C;
+int N;
 
-	for (;b-c!=0;)
-		f[b++] = a/5;
-	for (;; e = d%a){
-		d = 0;
-		g = c*2;
-		if (g==0) break;
-
-		for (b=c;;d=d*b){
-			d=d+f[b]*a;
-			f[b] = d%--g;
-			d=d/g--;
-			if (--b==0) break;
-		}
-
-		c = c-14;
-		print(toString(e+d/a));
+string calc(string A)
+{
+	int len = A.length();
+	if (1 == len) return A;
+	int mid = len/2;
+	string L = calc(A.substring(0,mid-1));
+	string R = calc(A.substring(mid,len-1));
+	if (L < R) return L + R;
+	else if (L == R) {
+		int l = L.ord(0);
+		int r = R.ord(0);
+		if (l < r) return L + R;
+		return R + L;
 	}
+	else if (L > R) return R + L;
+	println("Never Ever!");
+}
 
-  print("\n");
-  return 0;
+int main()
+{
+	A = getString();
+	B = getString();
+	N = B.parseInt();
+	if (A.length() < N) {
+		println("length error!");
+		return 0;
+	}
+	C = calc(A.substring(0,N-1));
+	println(C);
+	return 0;
 }

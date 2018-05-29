@@ -43,7 +43,7 @@ public class Translator {
     private String address(Operand op) {
         if (op instanceof Variable){
             if (((Variable) op).isGlobal()) {
-                if (((Variable) op).getIsString())
+                if (((Variable) op).getIsConstant())
                     return ((Variable) op).getName();
                 else
                     return "qword [" + ((Variable) op).getName() + "]";
@@ -135,30 +135,55 @@ public class Translator {
             Operand lhs = cmp.getLhs();
             Operand rhs = cmp.getRhs();
             String op = cmp.getOp();
-            load(RegX86.r10, lhs);
-            load(RegX86.r11, rhs);
-            code.add("\tcmp \tr10, r11");
-            switch (op) {
-                case "==":
-                    code.add("\tjne \t" + false_label.getName());
-                    break;
-                case "!=":
-                    code.add("\tje  \t" + false_label.getName());
-                    break;
-                case "<":
-                    code.add("\tjge \t" + false_label.getName());
-                    break;
-                case ">=":
-                    code.add("\tjl  \t" + false_label.getName());
-                    break;
-                case ">":
-                    code.add("\tjle \t" + false_label.getName());
-                    break;
-                case "<=":
-                    code.add("\tjg  \t" + false_label.getName());
-                    break;
+            if (lhs.getIsString() && rhs.getIsString()) {
+                code.add("\tcall\tstrcmp");
+                code.add("\tcmp\trax, 0");
+                switch (op) {
+                    case "==":
+                        code.add("\tjne \t" + false_label.getName());
+                        break;
+                    case "!=":
+                        code.add("\tje  \t" + false_label.getName());
+                        break;
+                    case "<":
+                        code.add("\tjge \t" + false_label.getName());
+                        break;
+                    case ">=":
+                        code.add("\tjl  \t" + false_label.getName());
+                        break;
+                    case ">":
+                        code.add("\tjle \t" + false_label.getName());
+                        break;
+                    case "<=":
+                        code.add("\tjg  \t" + false_label.getName());
+                        break;
+                }
+            } else {
+                load(RegX86.r10, lhs);
+                load(RegX86.r11, rhs);
+                code.add("\tcmp \tr10, r11");
+                switch (op) {
+                    case "==":
+                        code.add("\tjne \t" + false_label.getName());
+                        break;
+                    case "!=":
+                        code.add("\tje  \t" + false_label.getName());
+                        break;
+                    case "<":
+                        code.add("\tjge \t" + false_label.getName());
+                        break;
+                    case ">=":
+                        code.add("\tjl  \t" + false_label.getName());
+                        break;
+                    case ">":
+                        code.add("\tjle \t" + false_label.getName());
+                        break;
+                    case "<=":
+                        code.add("\tjg  \t" + false_label.getName());
+                        break;
+                }
+                code.add("\tjmp \t" + true_label.getName());
             }
-            code.add("\tjmp \t" + true_label.getName());
         }
     }
 
