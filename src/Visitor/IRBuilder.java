@@ -37,7 +37,8 @@ public class IRBuilder extends MxBaseVisitor<IR> {
 
     private void setMalloc() {
         String malloc_name = "malloc";
-        IRFunction malloc_func = new IRFunction(malloc_name, null);
+        FunctionType functionType = new FunctionType(class_list.getClassType("int"), null, null);
+        IRFunction malloc_func = new IRFunction(malloc_name, functionType);
         inFunctions.put(malloc_name, malloc_func);
     }
 
@@ -78,31 +79,36 @@ public class IRBuilder extends MxBaseVisitor<IR> {
 
     private void setLength() {
         String length_name = "strlen";
-        IRFunction length_func = new IRFunction(length_name, null);
+        FunctionType functionType = new FunctionType(class_list.getClassType("int"), null, null);
+        IRFunction length_func = new IRFunction(length_name, functionType);
         inFunctions.put(length_name, length_func);
     }
 
     private void setParseInt() {
         String parseInt_name = "parseInt";
-        IRFunction parseInt_func = new IRFunction(parseInt_name, null);
+        FunctionType functionType = new FunctionType(class_list.getClassType("int"), null, null);
+        IRFunction parseInt_func = new IRFunction(parseInt_name, functionType);
         inFunctions.put(parseInt_name, parseInt_func);
     }
 
     private void setOrd() {
         String ord_name = "ord";
-        IRFunction ord_func = new IRFunction(ord_name, null);
+        FunctionType functionType = new FunctionType(class_list.getClassType("int"), null, null);
+        IRFunction ord_func = new IRFunction(ord_name, functionType);
         inFunctions.put(ord_name, ord_func);
     }
 
     private void setSubString() {
         String subString_name = "substring";
-        IRFunction subString_func = new IRFunction(subString_name, null);
+        FunctionType functionType = new FunctionType(class_list.getClassType("string"), null, null);
+        IRFunction subString_func = new IRFunction(subString_name, functionType);
         inFunctions.put(subString_name, subString_func);
     }
 
     private void getStrCombine() {
         String strCombine_name = "strCombine";
-        IRFunction strCombine_func = new IRFunction(strCombine_name, null);
+        FunctionType functionType = new FunctionType(class_list.getClassType("string"), null, null);
+        IRFunction strCombine_func = new IRFunction(strCombine_name, functionType);
         inFunctions.put(strCombine_name, strCombine_func);
     }
 
@@ -370,8 +376,10 @@ public class IRBuilder extends MxBaseVisitor<IR> {
     @Override
     public IR visitRETURN_STATE(MxParser.RETURN_STATEContext ctx) {
         statements.add(new Label(";"+ctx.getText()));
-        Operand ret = (Operand) visit(ctx.expression());
-        statements.add(new Return(ret));
+        if (ctx.expression() != null) {
+            Operand ret = (Operand) visit(ctx.expression());
+            statements.add(new Return(ret));
+        }
         statements.add(new Jump(current_function.getEndLabel()));
         return null;
     }

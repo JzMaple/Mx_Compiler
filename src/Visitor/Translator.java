@@ -119,12 +119,26 @@ public class Translator {
     private void addIns(Call call) {
         IRFunction function = call.getFunction();
         Vector<Operand> parameters = call.getParameters().getParameters();
-        int len = parameters.size() < 6 ? parameters.size() : 6;
-        for (int i = 0; i < len; ++i)
-            load(RegX86.getParameter(i), parameters.get(i));
+        int len = parameters.size();
+        if (len <= 6) {
+            for (int i = 0; i < len; ++i)
+                load(RegX86.getParameter(i), parameters.get(i));
+        } else {
+            for (int i = 0; i < 6; ++i)
+                load(RegX86.getParameter(i), parameters.get(i));
+            for (int i = len-1; i >= 6; --i) {
+                load(RegX86.r10, parameters.get(i));
+                code.add("\tpush\tr10");
+            }
+        }
         code.add("\tcall\t" + function.getBeginLabel().getName());
         if (call.getTmp_return() != null)
             code.add("\tmov \t" + address(call.getTmp_return()) + ", rax");
+        if (len > 6) {
+            for (int i = len-1; i >= 6; --i) {
+                code.add("\tpop\tr10");
+            }
+        }
     }
 
     private void addIns(CJump cJump) {
@@ -390,11 +404,19 @@ public class Translator {
         code.add("\tmov  \trbp, rsp");
         code.add("\tsub \trsp, " + Integer.toString(current_stackAlloc.size()));
         List<Variable> parameters = function.getParameters();
-        int len = parameters.size() < 6 ? parameters.size() : 6;
+        int len = parameters.size();
+        int offset = 8;
         for (int i = 0; i < len; ++i) {
-            RegX86 regX86 = RegX86.getParameter(i);
-            Variable var = parameters.get(i);
-            code.add("\tmov \t" + address(var) + ", " + regX86);
+            if (i < 6) {
+                RegX86 regX86 = RegX86.getParameter(i);
+                Variable var = parameters.get(i);
+                code.add("\tmov \t" + address(var) + ", " + regX86);
+            } else {
+                offset = offset + 8;
+                Variable var = parameters.get(i);
+                code.add("\tmov \tr10, [rbp + " + offset +"]");
+                code.add("\tmov \t" + address(var) + ", r10");
+            }
         }
         code.add("");
     }

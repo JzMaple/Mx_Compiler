@@ -12,7 +12,7 @@ public class Call extends IRInstruction {
     public Call(IRFunction function, IRParameter parameters) {
         this.function = function;
         this.parameters = parameters;
-        this.tmp_return = new Variable("return", null, false);
+        this.tmp_return = new Variable("return", function.getFunctionType().getReturnType(), false);
     }
 
     public IRFunction getFunction() {
