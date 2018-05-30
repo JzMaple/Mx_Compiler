@@ -17,8 +17,10 @@ public class IRScope {
     public Variable get(String name){
         if (scope.containsKey(name))
             return scope.get(name);
-        else
+        else if (outer != null)
             return outer.get(name);
+        else
+            return null;
     }
 
     public void insert(String name, Variable node){

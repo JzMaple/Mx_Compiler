@@ -266,9 +266,7 @@ public class IRBuilder extends MxBaseVisitor<IR> {
             if (class_type instanceof StringType) para.setIsString(true);
             parameters.add(para);
             scope.insert(parameter_name, para);
-//            System.out.println(parameter_name);
         }
-//        System.out.println(parameters_type.size());
         function_node.setParameters(parameters);
         variable_scope.push(scope);
         visit(ctx.noScope_block());
@@ -290,7 +288,7 @@ public class IRBuilder extends MxBaseVisitor<IR> {
 
     @Override
     public IR visitNORMAL_INS(MxParser.NORMAL_INSContext ctx) {
-        if (current_class != null) return null;
+        if (current_class != null && current_function == null) return null;
         String variable_name = ctx.Identifier().getText();
         BaseType class_type = class_list.getClassType(ctx.class_statement().getText());
         Boolean isGlobal = current_function == null && current_class == null;
@@ -302,7 +300,7 @@ public class IRBuilder extends MxBaseVisitor<IR> {
 
     @Override
     public IR visitASSIGN_INS(MxParser.ASSIGN_INSContext ctx) {
-        if (current_class != null) return null;
+        if (current_class != null && current_function == null) return null;
         String variable_name = ctx.Identifier().getText();
         BaseType class_type = class_list.getClassType(ctx.class_statement().getText());
         Boolean isGlobal = current_function == null && current_class == null;
@@ -493,7 +491,19 @@ public class IRBuilder extends MxBaseVisitor<IR> {
 
     @Override
     public IR visitIDENTIFIER(MxParser.IDENTIFIERContext ctx) {
-        return variable_scope.peek().get(ctx.getText());
+        Variable id = variable_scope.peek().get(ctx.getText());
+        if (id != null)
+            return id;
+        else if (current_class != null) {
+            String var_name = ctx.getText();
+            Operand pointer = current_function.getParameter(0);
+            Immediate offset = new Immediate(current_class.getOffset(var_name));
+            BaseType type = current_class.offsetToType(current_class.getOffset(var_name));
+            Memory mem = new Memory(pointer, offset, 1, 0, type);
+            if (type instanceof StringType) mem.setIsString(true);
+            return mem;
+        } else
+            return null;
     }
 
     @Override
