@@ -493,9 +493,6 @@ public class IRBuilder extends MxBaseVisitor<IR> {
 
     @Override
     public IR visitIDENTIFIER(MxParser.IDENTIFIERContext ctx) {
-//        System.out.println(ctx.getText());
-//        while (!variable_scope.empty())
-//            System.out.println(variable_scope.pop().getScope());
         return variable_scope.peek().get(ctx.getText());
     }
 
@@ -507,6 +504,11 @@ public class IRBuilder extends MxBaseVisitor<IR> {
     @Override
     public IR visitCONST_BOOL(MxParser.CONST_BOOLContext ctx) {
         return new Immediate(ctx.getText().equals("true") ? 1 : 0);
+    }
+
+    @Override
+    public IR visitNull(MxParser.NullContext ctx) {
+        return new Immediate(0);
     }
 
     @Override
@@ -747,8 +749,7 @@ public class IRBuilder extends MxBaseVisitor<IR> {
         Operand lhs = (Operand) visit(ctx.expression(0));
         Move stmt = new Move(lhs, rhs);
         statements.add(stmt);
-        if (rhs.getIsString())
-            lhs.setIsString(true);
+        if (rhs.getIsString()) lhs.setIsString(true);
         return stmt.getLhs();
     }
 
