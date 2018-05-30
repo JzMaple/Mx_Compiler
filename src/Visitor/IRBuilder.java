@@ -244,7 +244,11 @@ public class IRBuilder extends MxBaseVisitor<IR> {
         if (current_class == null) {
             function_rename = function_name;
         } else {
-            function_rename =  current_class.getClassName() + "_" + function_name;
+            String class_name = current_class.getClassName();
+            if (function_name.equals(class_name))
+                function_rename = function_name;
+            else
+                function_rename =  current_class.getClassName() + "_" + function_name;
         }
         IRFunction function_node = functions.get(function_rename);
         current_function = function_node;
@@ -396,13 +400,19 @@ public class IRBuilder extends MxBaseVisitor<IR> {
 
     @Override
     public IR visitFUNCTION_USE(MxParser.FUNCTION_USEContext ctx) {
+//        System.out.println(ctx.getText());
         String function_name = ctx.Identifier().getText();
+        Vector<Operand> parameters = new Vector<>();
         IRFunction function_node = functions.get(function_name);
         if (function_node == null) function_node = inFunctions.get(function_name);
-        IRParameter parameters = new IRParameter(new Vector<>());
+        if (function_node == null && current_class != null) {
+            function_name = current_class.getClassName() + "_" + function_name;
+            function_node = functions.get(function_name);
+            parameters.add(current_function.getParameter(0));
+        }
         if (ctx.expressionList() != null)
-            parameters = (IRParameter) visit(ctx.expressionList());
-        Call stmt = new Call(function_node, parameters);
+            parameters.addAll(((IRParameter) visit(ctx.expressionList())).getParameters());
+        Call stmt = new Call(function_node, new IRParameter(parameters));
         statements.add(stmt);
         if (function_node.getFunctionType().getReturnType() instanceof StringType)
             stmt.getTmp_return().setIsString(true);
@@ -451,6 +461,7 @@ public class IRBuilder extends MxBaseVisitor<IR> {
 
     @Override
     public IR visitMEMBER_FUNCTION(MxParser.MEMBER_FUNCTIONContext ctx) {
+//        System.out.println(ctx.getText());
         Operand pointer = (Operand) visit(ctx.expression());
         BaseType class_type;
         if (pointer instanceof Variable) class_type = ((Variable) pointer).getType();
@@ -711,6 +722,7 @@ public class IRBuilder extends MxBaseVisitor<IR> {
 
     @Override
     public IR visitARITHMETIC(MxParser.ARITHMETICContext ctx) {
+//        System.out.println(ctx.getText());
         Operand rhs = (Operand) visit(ctx.expression(1));
         Operand lhs = (Operand) visit(ctx.expression(0));
         return visitBinary(lhs, rhs, ctx.op.getText());

@@ -68,10 +68,13 @@ public class Main {
         global_function_list.setGlobalInsideFunctionList();
         FirstVisitor first_visitor = new FirstVisitor(class_list, program);
         first_visitor.visit(tree);
+//        System.out.println("first semantic analysis finish");
         SecondVisitor second_visitor = new SecondVisitor(class_list, global_function_list, program);
         second_visitor.visit(tree);
+//        System.out.println("second semantic analysis finish");
         ThirdVisitor third_visitor = new ThirdVisitor(class_list, global_function_list, program);
         third_visitor.visit(tree);
+//        System.out.println("third semantic analysis finish");
     }
 
     public static void main(String[] args) {
@@ -83,14 +86,18 @@ public class Main {
             text = readTestFile("program.txt");
 
         ParseTree tree = parser(text);
+//        System.out.println("parse finish");
 
         semanticAnalysis(tree);
+//        System.out.println("semantic analysis finish");
 
         IRBuilder IR_builder = new IRBuilder(class_list, global_function_list);
         IR_builder.visit(tree);
+//        System.out.println("IR build finish");
 
         Translator translator = new Translator(IR_builder);
         List<String> code = translator.translate();
+//        System.out.println("translate finish");
 
         if (args.length == 1) {
             try {

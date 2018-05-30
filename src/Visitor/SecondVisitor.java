@@ -89,6 +89,7 @@ public class SecondVisitor extends MxBaseVisitor<SemanticNode> {
 
     @Override
     public SemanticNode visitParameter(MxParser.ParameterContext ctx) {
+//        System.out.println(ctx.getText());
         Vector<BaseType> parameter_type_list = new Vector<>();
         Vector<String> parameter_name_list = new Vector<>();
         String class_name = ctx.class_statement().getText();
@@ -101,8 +102,9 @@ public class SecondVisitor extends MxBaseVisitor<SemanticNode> {
         parameter_type_list.add(variable_type);
         parameter_name_list.add(variable_name);
         if (ctx.parameter() != null) {
-            parameter_type_list.addAll(((SemanticParameterNode) visit(ctx.parameter())).getParameterTypeList());
-            parameter_name_list.addAll(((SemanticParameterNode) visit(ctx.parameter())).getParameterNameList());
+            SemanticParameterNode para = (SemanticParameterNode) visit(ctx.parameter());
+            parameter_type_list.addAll(para.getParameterTypeList());
+            parameter_name_list.addAll(para.getParameterNameList());
         }
         return new SemanticParameterNode(parameter_type_list, parameter_name_list);
     }

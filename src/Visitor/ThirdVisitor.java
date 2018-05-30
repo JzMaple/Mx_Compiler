@@ -380,7 +380,7 @@ public class ThirdVisitor extends MxBaseVisitor<SemanticNode> {
             return visit(ctx.subCreator());
         else if (ctx.creator() != null) {
             BaseType basic_type = visit(ctx.creator()).getType();
-            BaseType creator_type = new ArrayType(basic_type);
+            BaseType creator_type = new ArrayType(basic_type, basic_type.getClassName() + "[]");
             return new SemanticExpressionNode(creator_type, false);
         } else return null;
     }
@@ -392,7 +392,7 @@ public class ThirdVisitor extends MxBaseVisitor<SemanticNode> {
         String expression_type_name = expression_type.getClassName();
         if (!(expression_type instanceof IntType))
             errorReport("[STATEMENT ERROR] Invalidate NEW Expression: A int expression is expected, but got a " + expression_type_name + ".", ctx);
-        BaseType creator_type = new ArrayType(basic_type);
+        BaseType creator_type = new ArrayType(basic_type, basic_type.getClassName() + "[]");
         return new SemanticExpressionNode(creator_type, false);
     }
 

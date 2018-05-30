@@ -32,7 +32,7 @@ public class ClassList {
             return class_list.get(class_name);
         else if (class_name.length() > 2 && class_name.substring(class_name.length() - 2).equals("[]")) {
             BaseType basic_array_type = getClassType(class_name.substring(0, class_name.length() - 2));
-            BaseType new_type = new ArrayType(basic_array_type);
+            BaseType new_type = new ArrayType(basic_array_type, class_name);
             class_list.put(class_name, new_type);
             return new_type;
         } else {
