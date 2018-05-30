@@ -5,9 +5,9 @@ import IR.IRNode.IRFunction;
 import IR.IRNode.IRParameter;
 
 public class Call extends IRInstruction {
-    IRFunction function;
-    IRParameter parameters;
-    Variable tmp_return;
+    private IRFunction function;
+    private IRParameter parameters;
+    private Variable tmp_return;
 
     public Call(IRFunction function, IRParameter parameters) {
         this.function = function;

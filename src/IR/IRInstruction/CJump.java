@@ -3,10 +3,10 @@ package IR.IRInstruction;
 import IR.IRInstruction.Operand.Operand;
 
 public class CJump extends IRInstruction {
-    Operand condition;
-    Cmp cond;
-    Label true_label;
-    Label false_label;
+    private Operand condition;
+    private Cmp cond;
+    private Label true_label;
+    private Label false_label;
 
     public CJump(Operand condition, Label true_label, Label false_label) {
         this.condition = condition;
