@@ -439,7 +439,25 @@ public class IRBuilder extends MxBaseVisitor<IR> {
         else if (pointer instanceof Memory && ((Memory) pointer).getType() instanceof ArrayType)
             type = ((ArrayType) ((Memory) pointer).getType()).getBasicArrayType();
         else return null;
-        Memory mem = new Memory(pointer, offset, 8, 0, type);
+        Variable var_pointer = null;
+        Variable var_offset = null;
+        if (pointer instanceof Memory) {
+            var_pointer = getNewVar("base", null);
+            statements.add(new Move(var_pointer, pointer));
+        }
+        if (offset instanceof Memory) {
+            var_offset = getNewVar("base", null);
+            statements.add(new Move(var_offset, offset));
+        }
+        Memory mem;
+        if (pointer instanceof Memory && offset instanceof Memory)
+            mem = new Memory(var_pointer, var_offset, 8, 0, type);
+        else if (pointer instanceof Memory)
+            mem = new Memory(var_pointer, offset, 8, 0, type);
+        else if (offset instanceof Memory)
+            mem = new Memory(pointer, var_offset, 8, 0, type);
+        else
+            mem = new Memory(pointer, offset, 8, 0, type);
         if (type instanceof StringType) mem.setIsString(true);
         return mem;
     }
@@ -447,16 +465,30 @@ public class IRBuilder extends MxBaseVisitor<IR> {
     @Override
     public IR visitMEMBER_VARIABLE(MxParser.MEMBER_VARIABLEContext ctx) {
         Operand pointer = (Operand) visit(ctx.expression());
+
         BaseType class_type;
-        if (pointer instanceof Variable) class_type = ((Variable) pointer).getType();
-        else if (pointer instanceof Memory) class_type = ((Memory) pointer).getType();
+        if (pointer instanceof Variable)
+            class_type = ((Variable) pointer).getType();
+        else if (pointer instanceof Memory)
+            class_type = ((Memory) pointer).getType();
         else return null;
         String member_variable_name = ctx.Identifier().getText();
-        Immediate offset = new Immediate(class_type.getOffset(member_variable_name));
+        int offset = class_type.getOffset(member_variable_name);
         BaseType type = class_type.offsetToType(class_type.getOffset(member_variable_name));
-        Memory mem = new Memory(pointer, offset, 1, 0, type);
-        if (type instanceof StringType) mem.setIsString(true);
-        return mem;
+
+        Variable var;
+        if (pointer instanceof Memory) {
+            var = getNewVar("base", class_type);
+            Move move = new Move(var, pointer);
+            statements.add(move);
+            Memory mem = new Memory(var, null, 8, offset, type);
+            if (type instanceof StringType) mem.setIsString(true);
+            return mem;
+        } else {
+            Memory mem = new Memory(pointer, null, 8, offset, type);
+            if (type instanceof StringType) mem.setIsString(true);
+            return mem;
+        }
     }
 
     @Override
@@ -475,7 +507,12 @@ public class IRBuilder extends MxBaseVisitor<IR> {
             parameters.addAll(((IRParameter) visit(ctx.expressionList())).getParameters());
         if (class_type instanceof ArrayType) {
             if (function_name.equals("size")) {
-                return new Memory(pointer, null, 1, -8, class_list.getClassType("int"));
+                if (pointer instanceof Memory) {
+                    Variable var = getNewVar("base", null);
+                    statements.add(new Move(var, pointer));
+                    return new Memory(var, null, 1, -8, class_list.getClassType("int"));
+                } else
+                    return new Memory(pointer, null, 1, -8, class_list.getClassType("int"));
             }
         }
         if (class_type instanceof StringType) {
@@ -804,7 +841,7 @@ public class IRBuilder extends MxBaseVisitor<IR> {
         return visit(ctx.subCreator());
     }
 
-    private void create(Operand base, BaseType class_type, Boolean isFunctionNew, Vector<Operand> args) {
+    private void create(Variable base, BaseType class_type, Boolean isFunctionNew, Vector<Operand> args) {
         Operand dim = array_creator.pop();
         Vector<Operand> parameters = new Vector<>();
         Variable var_cnt = getNewVar("cnt", class_list.getClassType("int"));
@@ -903,7 +940,9 @@ public class IRBuilder extends MxBaseVisitor<IR> {
             statements.add(new Move(base, add.getDest()));
             statements.add(new Move(var_cnt, const_zero));
             addLabel(begin_label);
-            create(new Memory(base, var_cnt, 8, 0, null), class_type, isFunctionNew, args);
+            Variable base_tmp = getNewVar("base", null);
+            statements.add(new Move(base_tmp, new Memory(base, var_cnt, 8, 0, null)));
+            create(base_tmp, class_type, isFunctionNew, args);
             add = new Add(var_cnt, const_one);
             statements.add(add);
             statements.add(new Move(var_cnt, add.getDest()));

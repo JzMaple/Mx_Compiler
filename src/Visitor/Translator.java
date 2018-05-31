@@ -68,45 +68,11 @@ public class Translator {
 
             Operand base = ((Memory) op).getBase();
             Operand index = ((Memory) op).getIndex();
-            Variable base_var = ((Memory) op).getBase_var();
-            Variable index_var = ((Memory) op).getIndex_var();
-            String base_str = "";
-            String index_str = "";
-            if (base != null) {
-                RegX86 reg = base_var.getReg();
-                if (reg != null) {
-                    load(reg, base);
-                    base_str = reg + "+";
-                } else {
-                    load(RegX86.rbx, base);
-                    store(base_var, RegX86.rbx);
-                    base_str = "rbx+";
-                }
-            }
-            if (index != null) {
-                RegX86 reg = index_var.getReg();
-                if (reg != null) {
-                    load(reg, index);
-                    index_str = reg + "+";
-                } else {
-                    load(RegX86.rdx, index);
-                    store(index_var, RegX86.rdx);
-                    index_str = "rdx+";
-                }
-            }
-            if (base_str.equals("rbx+")) {
-                load(RegX86.rbx, base_var);
-            }
-            if (index_str.equals("rdx+")) {
-                load(RegX86.rdx, index_var);
-            }
-            if (index_str.equals(""))
-                if (number_str.equals(""))
-                    return "qword [" + base_str.substring(0, base_str.length()-1) + "]";
-                else
-                    return "qword [" + base_str + number_str + "]";
-            else
-                return "qword [" + base_str + index_str + "*" + scale + number_str + "]";
+            RegX86 reg_base = getReg(base, RegX86.rbx);
+            RegX86 reg_index = getReg(index, RegX86.rcx);
+            if (index == null) return "qword[" + reg_base + number_str + "]";
+            else return "qword[" + reg_base + "+" + reg_index + "*" + scale + number_str + "]";
+
         } else if (op instanceof Immediate) {
             return op.toString();
         }
@@ -138,6 +104,7 @@ public class Translator {
     }
 
     private RegX86 getReg(Operand op, RegX86 reg) {
+        if (op == null) return null;
         if (op instanceof Variable && ((Variable) op).getReg() != null)
             return ((Variable) op).getReg();
         else {
@@ -390,7 +357,9 @@ public class Translator {
             code.add("\tmov \t" + address(lhs) + ", " + rhs);
         else {
             RegX86 reg_rhs = getReg(rhs, RegX86.rcx);
-            code.add("\tmov \t" + address(lhs) + ", " + reg_rhs);
+            String str_lhs = address(lhs);
+            if (!str_lhs.equals(reg_rhs.toString()))
+                code.add("\tmov \t" + address(lhs) + ", " + reg_rhs);
         }
     }
 

@@ -11,8 +11,6 @@ public class Memory extends Operand {
     private int scale;
     private int number;
     private BaseType type;
-    private Variable base_var;
-    private Variable index_var;
 
     public Memory(Operand base, Operand index, int scale, int number, BaseType type) {
         this.base = base;
@@ -21,8 +19,6 @@ public class Memory extends Operand {
         this.number = number;
         this.type = type;
         this.isString = false;
-        this.base_var = new Variable("base", null, false);
-        this.index_var = new Variable("index", null, false);
     }
 
     public Operand getBase() {
@@ -45,35 +41,15 @@ public class Memory extends Operand {
         return type;
     }
 
-    public Variable getBase_var() {
-        return base_var;
-    }
-
-    public Variable getIndex_var() {
-        return index_var;
-    }
-
     @Override
     public Set<Variable> getDef() {
         Set<Variable> def = new HashSet<>();
-        def.add(base_var);
-        def.add(index_var);
-        if (base instanceof Memory)
-            def.addAll(base.getDef());
-        if (index instanceof Memory)
-            def.addAll(index.getDef());
         return def;
     }
 
     @Override
     public Set<Variable> getUse() {
         Set<Variable> use = new HashSet<>();
-        use.add(base_var);
-        use.add(index_var);
-        if (base != null)
-            use.addAll(base.getUse());
-        if (index != null)
-            use.addAll(index.getUse());
         return use;
     }
 }

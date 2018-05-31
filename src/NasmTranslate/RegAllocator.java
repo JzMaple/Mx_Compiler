@@ -2,6 +2,7 @@ package NasmTranslate;
 
 import IR.IRInstruction.*;
 import IR.IRInstruction.IRInstruction;
+import IR.IRInstruction.Operand.Memory;
 import IR.IRInstruction.Operand.Operand;
 import IR.IRInstruction.Operand.Variable;
 import IR.IRNode.IRFunction;
@@ -19,36 +20,51 @@ public class RegAllocator {
         call.setSuccessor(inst.get(index + 1));
     }
 
-    private void set(Bin bin, int index) {
-        if (bin instanceof Move) {
-            if (bin.getLhs() instanceof Variable)
-                bin.setDef(bin.getLhs());
-            else
-                bin.setUse(bin.getLhs());
-            bin.setUse(bin.getRhs());
-            bin.setSuccessor(inst.get(index + 1));
-        } else {
-            bin.setDef(bin.getDest());
-            bin.setUse(bin.getLhs());
-            bin.setUse(bin.getRhs());
-            bin.setSuccessor(inst.get(index + 1));
+    private void setUse(IRInstruction ins, Operand op) {
+        if (op == null) return;
+        if (op instanceof Variable) {
+            ins.setUse(op);
+        } else if (op instanceof Memory) {
+            ins.setUse(op);
+            ins.setDef(op);
         }
     }
 
+    private void setDef(IRInstruction ins, Operand op) {
+        if (op == null) return;
+        if (op instanceof Variable) {
+            ins.setDef(op);
+        } else if (op instanceof Memory) {
+            ins.setUse(op);
+            ins.setDef(op);
+        }
+    }
+
+    private void set(Bin bin, int index) {
+        if (bin instanceof Move) {
+            setDef(bin, bin.getLhs());
+            setUse(bin, bin.getRhs());
+        } else {
+            setUse(bin, bin.getLhs());
+            setUse(bin, bin.getRhs());
+            setDef(bin, bin.getRhs());
+        }
+        bin.setSuccessor(inst.get(index + 1));
+    }
+
     private void set(UnBin unBin, int index) {
-        if (unBin.getDest() != null)
-            unBin.setDef(unBin.getDest());
-        unBin.setUse(unBin.getExpr());
+        setUse(unBin, unBin.getExpr());
+        setDef(unBin, unBin.getDest());
         unBin.setSuccessor(inst.get(index + 1));
     }
 
     private void set(CJump cJump, int index) {
         if (cJump.getCond() == null) {
-            cJump.setUse(cJump.getCondition());
+            setUse(cJump, cJump.getCondition());
         } else {
             Cmp cmp = cJump.getCond();
-            cJump.setUse(cmp.getLhs());
-            cJump.setUse(cmp.getRhs());
+            setUse(cJump, cmp.getLhs());
+            setUse(cJump, cmp.getRhs());
         }
         cJump.setSuccessor(cJump.getTrue_label());
         cJump.setSuccessor(cJump.getFalse_label());
@@ -63,7 +79,7 @@ public class RegAllocator {
     }
 
     private void set(Return ret, int index) {
-        ret.setUse(ret.getRet());
+        setUse(ret, ret.getRet());
         ret.setSuccessor(inst.get(index + 1));
     }
 
