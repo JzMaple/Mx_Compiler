@@ -7,6 +7,6 @@ public class And extends Bin {
     public And(Operand lhs, Operand rhs) {
         this.lhs = lhs;
         this.rhs = rhs;
-        this.dest = new Variable("tmp", null, false);
+        this.dest = new Variable("and_tmp", null, false);
     }
 }

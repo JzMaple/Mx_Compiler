@@ -60,7 +60,7 @@ public class Memory extends Operand {
         def.add(index_var);
         if (base instanceof Memory)
             def.addAll(base.getDef());
-        if (base instanceof Memory)
+        if (index instanceof Memory)
             def.addAll(index.getDef());
         return def;
     }
@@ -70,8 +70,10 @@ public class Memory extends Operand {
         Set<Variable> use = new HashSet<>();
         use.add(base_var);
         use.add(index_var);
-        use.addAll(base.getUse());
-        use.addAll(index.getUse());
+        if (base != null)
+            use.addAll(base.getUse());
+        if (index != null)
+            use.addAll(index.getUse());
         return use;
     }
 }

@@ -7,6 +7,6 @@ public class Mul extends Bin {
     public Mul(Operand lhs, Operand rhs) {
         this.lhs = lhs;
         this.rhs = rhs;
-        this.dest = new Variable("tmp", null, false);
+        this.dest = new Variable("mul_tmp", null, false);
     }
 }

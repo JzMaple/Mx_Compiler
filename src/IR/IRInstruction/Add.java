@@ -7,6 +7,6 @@ public class Add extends Bin {
     public Add(Operand lhs, Operand rhs) {
         this.lhs = lhs;
         this.rhs = rhs;
-        this.dest = new Variable("tmp", null, false);
+        this.dest = new Variable("add_tmp", null, false);
     }
 }

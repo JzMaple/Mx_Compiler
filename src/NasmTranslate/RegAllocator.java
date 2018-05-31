@@ -21,7 +21,10 @@ public class RegAllocator {
 
     private void set(Bin bin, int index) {
         if (bin instanceof Move) {
-            bin.setDef(bin.getLhs());
+            if (bin.getLhs() instanceof Variable)
+                bin.setDef(bin.getLhs());
+            else
+                bin.setUse(bin.getLhs());
             bin.setUse(bin.getRhs());
             bin.setSuccessor(inst.get(index + 1));
         } else {
@@ -83,6 +86,29 @@ public class RegAllocator {
                 flag = flag && inst.get(i).update();
 //            System.out.println("yes");
         }
+//        for (int i = 0; i < size; ++i) {
+//            IRInstruction ins = inst.get(i);
+//            System.out.println(ins);
+//            System.out.print("def : ");
+//            for (Variable var : ins.getDef())
+//                System.out.print(var.getName() + " ");
+//            System.out.print("\n");
+//            System.out.print("use : ");
+//            for (Variable var : ins.getUse())
+//                System.out.print(var.getName() + " ");
+//            System.out.print("\n");
+//            System.out.print("in : ");
+//            for (Variable var : ins.getIn())
+//                System.out.print(var.getName() + " ");
+//            System.out.print("\n");
+//            System.out.print("out : ");
+//            for (Variable var : ins.getOut())
+//                System.out.print(var.getName() + " ");
+//            System.out.print("\n");
+////            System.out.println("succ");
+////            for (IRInstruction inss : ins.getSuccessor())
+////                System.out.print(inss);
+//        }
     }
 
     private void BuildConflictGraph() {
@@ -104,6 +130,8 @@ public class RegAllocator {
                         conflictGraph[index_d][index_o] = true;
                     }
         }
+//        for (int i = 1; i < num; ++i)
+//            System.out.print(stackAlloc.getVar(i).getName() + ":" + conflictGraph[1][i] + " ");
     }
 
     private void RegisterAllocate() {

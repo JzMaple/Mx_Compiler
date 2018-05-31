@@ -377,7 +377,7 @@ public class IRBuilder extends MxBaseVisitor<IR> {
 
     @Override
     public IR visitRETURN_STATE(MxParser.RETURN_STATEContext ctx) {
-        statements.add(new Label(";"+ctx.getText()));
+//        statements.add(new Label(";"+ctx.getText()));
         if (ctx.expression() != null) {
             Operand ret = (Operand) visit(ctx.expression());
             statements.add(new Return(ret));
@@ -918,7 +918,7 @@ public class IRBuilder extends MxBaseVisitor<IR> {
         String class_name = ctx.class_name().getText();
         BaseType class_type = class_list.getClassType(class_name);
         if (array_creator.empty()) {
-            Variable var_tmp = getNewVar("tmp", class_list.getClassType("int"));
+            Variable var_tmp = getNewVar("base", class_list.getClassType("int"));
             Vector<Operand> parameters = new Vector<>();
             parameters.add(new Immediate(class_type.getSize()));
             Call stmt = new Call(inFunctions.get("malloc"), new IRParameter(parameters));
@@ -926,7 +926,7 @@ public class IRBuilder extends MxBaseVisitor<IR> {
             statements.add(new Move(var_tmp, stmt.getTmp_return()));
             return var_tmp;
         } else {
-            Variable var_tmp = getNewVar("tmp", class_list.getClassType("int"));
+            Variable var_tmp = getNewVar("base", class_list.getClassType("int"));
             create(var_tmp, class_type, false, null);
             return var_tmp;
         }
@@ -938,7 +938,7 @@ public class IRBuilder extends MxBaseVisitor<IR> {
         BaseType class_node = class_list.getClassType(class_name);
         Vector<Operand> parameters = new Vector<>();
         if (array_creator.empty()) {
-            Variable var_tmp = getNewVar("tmp", class_list.getClassType("int"));
+            Variable var_tmp = getNewVar("base", class_list.getClassType("int"));
             parameters.add(new Immediate(class_node.getSize()));
             Call stmt = new Call(inFunctions.get("malloc"), new IRParameter(parameters));
             statements.add(stmt);
@@ -951,7 +951,7 @@ public class IRBuilder extends MxBaseVisitor<IR> {
             statements.add(new Call(function, new IRParameter(parameters)));
             return var_tmp;
         } else {
-            Variable var_tmp = getNewVar("tmp", class_list.getClassType("int"));
+            Variable var_tmp = getNewVar("base", class_list.getClassType("int"));
             parameters.add(null);
             if (ctx.expressionList() != null)
                 parameters.addAll(((IRParameter) visit(ctx.expressionList())).getParameters());
