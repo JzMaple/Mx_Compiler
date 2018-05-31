@@ -33,7 +33,8 @@ public class RegAllocator {
     }
 
     private void set(UnBin unBin, int index) {
-        unBin.setDef(unBin.getDest());
+        if (unBin.getDest() != null)
+            unBin.setDef(unBin.getDest());
         unBin.setUse(unBin.getExpr());
         unBin.setSuccessor(inst.get(index + 1));
     }
@@ -80,7 +81,7 @@ public class RegAllocator {
             flag = true;
             for (int i = size -1; i >= 0; --i)
                 flag = flag && inst.get(i).update();
-            System.out.println("yes");
+//            System.out.println("yes");
         }
     }
 

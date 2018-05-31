@@ -1,7 +1,14 @@
 int main() {
-    int a = 1;
-    int b = 2;
-    int c = 3;
-    int d = 4;
-    return a+b+c+d;
+    int la = 5;
+    int[] a = new int[la];
+
+    int cnt = 0;
+    int i;
+    for (i = 0; i < la; ++i)
+        a[i] = ++cnt;
+
+    int sum = 0;
+    for (i = 0; i < la; ++i) sum = sum + a[i];
+
+    return sum;
 }

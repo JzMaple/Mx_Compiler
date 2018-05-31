@@ -101,7 +101,10 @@ public class Translator {
                 load(RegX86.rdx, index_var);
             }
             if (index_str.equals(""))
-                return "qword [" + base_str + number_str + "]";
+                if (number_str.equals(""))
+                    return "qword [" + base_str.substring(0, base_str.length()-1) + "]";
+                else
+                    return "qword [" + base_str + number_str + "]";
             else
                 return "qword [" + base_str + index_str + "*" + scale + number_str + "]";
         } else if (op instanceof Immediate) {
