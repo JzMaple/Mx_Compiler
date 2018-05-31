@@ -1,10 +1,6 @@
 package Type;
 
-import java.util.*;
-import Exception.*;
-
 public class ArrayType extends BaseType {
-    private MyException error = new MyException();
     private String class_name;
     private BaseType basic_array_type;
 
@@ -14,11 +10,8 @@ public class ArrayType extends BaseType {
     }
 
     public ArrayType(BaseType _basic_array_type, String class_name) {
-        try {
-            if (_basic_array_type instanceof VoidType)
-                throw new VariableException("Cannot have a void type array");
-        } catch (Exception e) {
-            error.printException();
+        if (_basic_array_type instanceof VoidType) {
+            System.err.println("Cannot have a void type array");
             System.exit(1);
         }
         basic_array_type = _basic_array_type;

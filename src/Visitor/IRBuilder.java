@@ -5,7 +5,7 @@ import IR.IRInstruction.Operand.*;
 import IR.IRNode.*;
 import IR.IR;
 import IR.IRInstruction.Operand.Variable;
-import NasmTranslate.StackAlloc;
+import NasmTranslate.StackAllocator;
 import Parser.*;
 import Type.*;
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -13,16 +13,16 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import java.util.*;
 
 public class IRBuilder extends MxBaseVisitor<IR> {
-    private List<IRInstruction> statements = new LinkedList<>();
-    private List<IRInstruction> global_statements = new LinkedList<>();
+    private List<IRInstruction> statements = new ArrayList<>();
+    private List<IRInstruction> global_statements = new ArrayList<>();
     private Map<String, IRFunction> functions = new HashMap<>();
     private Map<String, IRFunction> inFunctions = new HashMap<>();
     private Map<Variable, String> const_string = new HashMap<>();
     private ClassList class_list;
     private Set<String> variable_rename_set = new HashSet<>();
     private Stack<IRScope> variable_scope = new Stack<>();
-    private StackAlloc global_stackAlloc;
-    static private StackAlloc current_stackAlloc;
+    private StackAllocator global_stackAlloc;
+    static private StackAllocator current_stackAlloc;
     private BaseType current_class;
     private IRFunction current_function;
     private Label current_loop_condition = null;
@@ -176,9 +176,9 @@ public class IRBuilder extends MxBaseVisitor<IR> {
     }
 
     private void addCJump(Operand condition, Label true_label, Label false_label) {
-        IRInstruction ins = ((LinkedList<IRInstruction>) statements).getLast();
+        IRInstruction ins = statements.get(statements.size() - 1);
         if (ins instanceof Cmp) {
-            ((LinkedList<IRInstruction>) statements).removeLast();
+            statements.remove(ins);
             statements.add(new CJump((Cmp) ins, true_label, false_label));
         } else {
             statements.add(new CJump(condition, true_label, false_label));
@@ -980,7 +980,7 @@ public class IRBuilder extends MxBaseVisitor<IR> {
         return const_string;
     }
 
-    static public StackAlloc getCurrent_stackAlloc() {
+    static public StackAllocator getCurrent_stackAlloc() {
         return current_stackAlloc;
     }
 }

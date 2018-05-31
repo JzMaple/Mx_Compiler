@@ -2,6 +2,9 @@ package IR.IRInstruction.Operand;
 
 import Type.BaseType;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class Memory extends Operand {
     private Operand base;
     private Operand index;
@@ -48,5 +51,27 @@ public class Memory extends Operand {
 
     public Variable getIndex_var() {
         return index_var;
+    }
+
+    @Override
+    public Set<Variable> getDef() {
+        Set<Variable> def = new HashSet<>();
+        def.add(base_var);
+        def.add(index_var);
+        if (base instanceof Memory)
+            def.addAll(base.getDef());
+        if (base instanceof Memory)
+            def.addAll(index.getDef());
+        return def;
+    }
+
+    @Override
+    public Set<Variable> getUse() {
+        Set<Variable> use = new HashSet<>();
+        use.add(base_var);
+        use.add(index_var);
+        use.addAll(base.getUse());
+        use.addAll(index.getUse());
+        return use;
     }
 }

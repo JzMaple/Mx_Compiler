@@ -3,7 +3,7 @@ package IR.IRNode;
 import IR.IRInstruction.IRInstruction;
 import IR.IRInstruction.Label;
 import IR.IRInstruction.Operand.Variable;
-import NasmTranslate.StackAlloc;
+import NasmTranslate.StackAllocator;
 import Type.FunctionType;
 
 import java.util.LinkedList;
@@ -15,7 +15,7 @@ public class IRFunction extends IRNode {
     private FunctionType function_type;
     private Label begin_label;
     private Label end_label;
-    private StackAlloc stackAlloc;
+    private StackAllocator stackAlloc;
     private List<IRInstruction> statements;
     private List<Variable> parameters;
 
@@ -26,7 +26,7 @@ public class IRFunction extends IRNode {
         this.begin_label = new Label(function_name);
         this.end_label = new Label(function_name + "_end");
         setParameters(null);
-        stackAlloc = new StackAlloc();
+        stackAlloc = new StackAllocator();
         this.parameters = new Vector<>();
     }
 
@@ -62,7 +62,7 @@ public class IRFunction extends IRNode {
         return parameters.get(i);
     }
 
-    public StackAlloc getStackAlloc() {
+    public StackAllocator getStackAlloc() {
         return stackAlloc;
     }
 

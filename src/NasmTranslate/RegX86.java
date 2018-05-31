@@ -2,11 +2,9 @@ package NasmTranslate;
 
 public class RegX86 {
     private String name;
-    private int index;
 
-    private RegX86(String name, Integer index) {
+    private RegX86(String name) {
         this.name = name;
-        this.index = index;
     }
 
     public static RegX86 get(int index) {
@@ -48,20 +46,37 @@ public class RegX86 {
         return name;
     }
 
-    public static RegX86 rax = new RegX86("rax", 0);
-    public static RegX86 rcx = new RegX86("rcx", 1);
-    public static RegX86 rdx = new RegX86("rdx", 2);
-    public static RegX86 rbx = new RegX86("rbx", 3);
-    public static RegX86 rsp = new RegX86("rsp", 4);
-    public static RegX86 rbp = new RegX86("rbp", 5);
-    public static RegX86 rsi = new RegX86("rsi", 6);
-    public static RegX86 rdi = new RegX86("rdi", 7);
-    public static RegX86 r8 = new RegX86("r8", 8);
-    public static RegX86 r9 = new RegX86("r9", 9);
-    public static RegX86 r10 = new RegX86("r10", 10);
-    public static RegX86 r11 = new RegX86("r11", 11);
-    public static RegX86 r12 = new RegX86("r12", 12);
-    public static RegX86 r13 = new RegX86("r13", 13);
-    public static RegX86 r14 = new RegX86("r14", 14);
-    public static RegX86 r15 = new RegX86("r15", 15);
+    public static int allocNum = 8;
+
+    public static RegX86 allocReg(int index) {
+        switch (index) {
+            case -1: return null;
+            case 0 : return r8;
+            case 1 : return r9;
+            case 2 : return r10;
+            case 3 : return r11;
+            case 4 : return r12;
+            case 5 : return r13;
+            case 6 : return r14;
+            case 7 : return r15;
+            default : return null;
+        }
+    }
+
+    public static RegX86 rax = new RegX86("rax");
+    public static RegX86 rcx = new RegX86("rcx");
+    public static RegX86 rdx = new RegX86("rdx");
+    public static RegX86 rbx = new RegX86("rbx");
+    public static RegX86 rsp = new RegX86("rsp");
+    public static RegX86 rbp = new RegX86("rbp");
+    public static RegX86 rsi = new RegX86("rsi");
+    public static RegX86 rdi = new RegX86("rdi");
+    public static RegX86 r8 = new RegX86("r8");
+    public static RegX86 r9 = new RegX86("r9");
+    public static RegX86 r10 = new RegX86("r10");
+    public static RegX86 r11 = new RegX86("r11");
+    public static RegX86 r12 = new RegX86("r12");
+    public static RegX86 r13 = new RegX86("r13");
+    public static RegX86 r14 = new RegX86("r14");
+    public static RegX86 r15 = new RegX86("r15");
 }
