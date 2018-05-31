@@ -1,9 +1,5 @@
 package Type;
 
-import Exception.*;
-
-import java.util.Map;
-
 public class UserType extends BaseType {
     private String class_name;
 
