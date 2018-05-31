@@ -50,6 +50,10 @@ public class Memory extends Operand {
     @Override
     public Set<Variable> getUse() {
         Set<Variable> use = new HashSet<>();
+        if (base instanceof Variable)
+            use.add((Variable) base);
+        if (index instanceof Variable)
+            use.add((Variable) index);
         return use;
     }
 }

@@ -18,22 +18,14 @@ public class RegAllocator {
 
     private void setUse(IRInstruction ins, Operand op) {
         if (op == null) return;
-        if (op instanceof Variable) {
-            ins.setUse(op);
-        } else if (op instanceof Memory) {
-            ins.setUse(op);
-            ins.setDef(op);
-        }
+        ins.setUse(op);
     }
 
     private void setDef(IRInstruction ins, Operand op) {
         if (op == null) return;
-        if (op instanceof Variable) {
-            ins.setDef(op);
-        } else if (op instanceof Memory) {
+        ins.setDef(op);
+        if (op instanceof Memory)
             ins.setUse(op);
-            ins.setDef(op);
-        }
     }
 
     private void set(Call call, int index) {
@@ -51,7 +43,7 @@ public class RegAllocator {
         } else {
             setUse(bin, bin.getLhs());
             setUse(bin, bin.getRhs());
-            setDef(bin, bin.getRhs());
+            setDef(bin, bin.getDest());
         }
         bin.setSuccessor(inst.get(index + 1));
     }
@@ -125,9 +117,6 @@ public class RegAllocator {
 //            for (Variable var : ins.getOut())
 //                System.out.print(var.getName() + " ");
 //            System.out.print("\n");
-////           System.out.println("succ");
-////           for (IRInstruction inss : ins.getSuccessor())
-////               System.out.print(inss);
 //        }
     }
 
