@@ -2,6 +2,7 @@ package NasmTranslate;
 
 import IR.IRInstruction.*;
 import IR.IRInstruction.IRInstruction;
+import IR.IRInstruction.Operand.Immediate;
 import IR.IRInstruction.Operand.Memory;
 import IR.IRInstruction.Operand.Operand;
 import IR.IRInstruction.Operand.Variable;
@@ -14,11 +15,6 @@ public class RegAllocator {
     private StackAllocator stackAlloc;
     private Boolean[][] conflictGraph;
     private int[] color;
-
-    private void set(Call call, int index) {
-        call.setDef(call.getTmp_return());
-        call.setSuccessor(inst.get(index + 1));
-    }
 
     private void setUse(IRInstruction ins, Operand op) {
         if (op == null) return;
@@ -38,6 +34,14 @@ public class RegAllocator {
             ins.setUse(op);
             ins.setDef(op);
         }
+    }
+
+    private void set(Call call, int index) {
+        call.setDef(call.getTmp_return());
+        List<Operand> parameters = call.getParameters().getParameters();
+        for (int i = 0; i < parameters.size(); ++i)
+            setUse(call, parameters.get(i));
+        call.setSuccessor(inst.get(index + 1));
     }
 
     private void set(Bin bin, int index) {
@@ -121,9 +125,9 @@ public class RegAllocator {
 //            for (Variable var : ins.getOut())
 //                System.out.print(var.getName() + " ");
 //            System.out.print("\n");
-////            System.out.println("succ");
-////            for (IRInstruction inss : ins.getSuccessor())
-////                System.out.print(inss);
+////           System.out.println("succ");
+////           for (IRInstruction inss : ins.getSuccessor())
+////               System.out.print(inss);
 //        }
     }
 
@@ -146,8 +150,6 @@ public class RegAllocator {
                         conflictGraph[index_d][index_o] = true;
                     }
         }
-//        for (int i = 1; i < num; ++i)
-//            System.out.print(stackAlloc.getVar(i).getName() + ":" + conflictGraph[1][i] + " ");
     }
 
     private void RegisterAllocate() {
@@ -174,8 +176,19 @@ public class RegAllocator {
         }
     }
 
+    private void initInst(IRFunction function) {
+        List<Variable> parameters = function.getParameters();
+        inst = new ArrayList<>();
+        int len = parameters.size();
+        for (int i = 0; i < len; ++i)
+            inst.add(new Move(parameters.get(i), new Immediate(0)));
+        inst.addAll(function.getStatements());
+        inst.add(new Jump(function.getEndLabel()));
+    }
+
     public void allocate(IRFunction function) {
-        inst = function.getStatements();
+        initInst(function);
+//        System.out.println(function.getFunction_name());
         stackAlloc = function.getStackAlloc();
         LivenessAnalysis();
         BuildConflictGraph();

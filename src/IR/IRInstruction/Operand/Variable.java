@@ -61,14 +61,14 @@ public class Variable extends Operand {
     @Override
     public Set<Variable> getDef() {
         Set<Variable> def = new HashSet<>();
-        def.add(this);
+        if (!isGlobal) def.add(this);
         return def;
     }
 
     @Override
     public Set<Variable> getUse() {
         Set<Variable> use = new HashSet<>();
-        use.add(this);
+        if (!isGlobal) use.add(this);
         return use;
     }
 }

@@ -1,12 +1,6 @@
-class C2 {
-    int x;
-    int y;
-    bool b;
-    int z;
-}
-
 int main() {
-    C2 obj = new C2;
-    obj.x = 10;
-    return obj.x;
+    string s1 = "aaa";
+    string s2 = "bbbbb";
+    string s3 = s1 + s2;
+    return s3.length() + s3.ord(5);
 }
