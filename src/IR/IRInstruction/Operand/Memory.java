@@ -50,9 +50,9 @@ public class Memory extends Operand {
     @Override
     public Set<Variable> getUse() {
         Set<Variable> use = new HashSet<>();
-        if (base instanceof Variable)
+        if (base instanceof Variable && !((Variable) base).isGlobal())
             use.add((Variable) base);
-        if (index instanceof Variable)
+        if (index instanceof Variable && !((Variable) index).isGlobal())
             use.add((Variable) index);
         return use;
     }

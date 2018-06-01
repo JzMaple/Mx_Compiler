@@ -130,13 +130,13 @@ public class Translator {
         Operand rhs = add.getRhs();
         Variable dest = add.getDest();
         RegX86 reg_dest = dest.getReg();
-        RegX86 reg = getReg(lhs, RegX86.rcx);
-        code.add("\tadd \t" + reg + ", " + address(rhs));
+        load(RegX86.rcx, lhs);
+        code.add("\tadd \t" + RegX86.rcx + ", " + address(rhs));
         if (reg_dest != null) {
-            if (reg_dest != reg)
-                code.add("\tmov \t" + reg_dest + "," + reg);
+            if (reg_dest != RegX86.rcx)
+                code.add("\tmov \t" + reg_dest + "," + RegX86.rcx);
         } else
-            store(dest, reg);
+            store(dest, RegX86.rcx);
     }
 
     private void addIns(And and) {
@@ -144,13 +144,13 @@ public class Translator {
         Operand rhs = and.getRhs();
         Variable dest = and.getDest();
         RegX86 reg_dest = dest.getReg();
-        RegX86 reg = getReg(lhs, RegX86.rcx);
-        code.add("\tand \t" + reg + ", " + address(rhs));
+        load(RegX86.rcx, lhs);
+        code.add("\tand \t" + RegX86.rcx + ", " + address(rhs));
         if (reg_dest != null) {
-            if (reg_dest != reg)
-                code.add("\tmov \t" + reg_dest + "," + reg);
+            if (reg_dest != RegX86.rcx)
+                code.add("\tmov \t" + reg_dest + "," + RegX86.rcx);
         } else
-            store(dest, reg);
+            store(dest, RegX86.rcx);
     }
 
     private void addIns(Call call) {
@@ -358,39 +358,39 @@ public class Translator {
         Operand rhs = mul.getRhs();
         Variable dest = mul.getDest();
         RegX86 reg_dest = dest.getReg();
-        RegX86 reg = getReg(lhs, RegX86.rcx);
-        code.add("\timul\t" + reg + ", " + address(rhs));
+        load(RegX86.rcx, lhs);
+        code.add("\timul\t" + RegX86.rcx + ", " + address(rhs));
         if (reg_dest != null) {
-            if (reg_dest != reg)
-                code.add("\tmov \t" + reg_dest + "," + reg);
+            if (reg_dest != RegX86.rcx)
+                code.add("\tmov \t" + reg_dest + "," + RegX86.rcx);
         } else
-            store(dest, reg);
+            store(dest, RegX86.rcx);
     }
 
     private void addIns(Neg neg){
         Operand expr = neg.getExpr();
         Variable dest = neg.getDest();
         RegX86 reg_dest = dest.getReg();
-        RegX86 reg_expr = getReg(expr, RegX86.rcx);
-        code.add("\tneg \t" + reg_dest);
+        load(RegX86.rcx, expr);
+        code.add("\tneg \t" + RegX86.rcx);
         if (reg_dest != null) {
-            if (reg_dest != reg_expr)
-                code.add("\tmov \t" + reg_dest + "," + reg_expr);
+            if (reg_dest != RegX86.rcx)
+                code.add("\tmov \t" + reg_dest + "," + RegX86.rcx);
         } else
-            store(dest, reg_expr);
+            store(dest, RegX86.rcx);
     }
 
     private void addIns(Not not){
         Operand expr = not.getExpr();
         Variable dest = not.getDest();
         RegX86 reg_dest = dest.getReg();
-        RegX86 reg_expr = getReg(expr, RegX86.rcx);
-        code.add("\tnot \t" + reg_dest);
+        load(RegX86.rcx, expr);
+        code.add("\tnot \t" + RegX86.rcx);
         if (reg_dest != null) {
-            if (reg_dest != reg_expr)
-                code.add("\tmov \t" + reg_dest + "," + reg_expr);
+            if (reg_dest != RegX86.rcx)
+                code.add("\tmov \t" + reg_dest + "," + RegX86.rcx);
         } else
-            store(dest, reg_expr);
+            store(dest, RegX86.rcx);
     }
 
     private void addIns(Or or){
@@ -398,14 +398,13 @@ public class Translator {
         Operand rhs = or.getRhs();
         Variable dest = or.getDest();
         RegX86 reg_dest = dest.getReg();
+        load(RegX86.rcx, lhs);
+        code.add("\tor  \t" + RegX86.rcx + ", " + address(rhs));
         if (reg_dest != null) {
-            load(reg_dest, lhs);
-            code.add("\tor  \t" + reg_dest + ", " + address(rhs));
-        } else {
-            load(RegX86.rcx, lhs);
-            code.add("\tor  \trcx, " + address(rhs));
+            if (reg_dest != RegX86.rcx)
+                code.add("\tmov \t" + reg_dest + "," + RegX86.rcx);
+        } else
             store(dest, RegX86.rcx);
-        }
     }
 
     private void addIns(Return ret){
@@ -438,13 +437,13 @@ public class Translator {
         Operand rhs = sub.getRhs();
         Variable dest = sub.getDest();
         RegX86 reg_dest = dest.getReg();
-        RegX86 reg = getReg(lhs, RegX86.rcx);
-        code.add("\tsub \t" + reg + ", " + address(rhs));
+        load(RegX86.rcx, lhs);
+        code.add("\tsub \t" + RegX86.rcx + ", " + address(rhs));
         if (reg_dest != null) {
-            if (reg_dest != reg)
-                code.add("\tmov \t" + reg_dest + "," + reg);
+            if (reg_dest != RegX86.rcx)
+                code.add("\tmov \t" + reg_dest + "," + RegX86.rcx);
         } else
-            store(dest, reg);
+            store(dest, RegX86.rcx);
     }
 
     private void addIns(Xor xor){
@@ -452,13 +451,13 @@ public class Translator {
         Operand rhs = xor.getRhs();
         Variable dest = xor.getDest();
         RegX86 reg_dest = dest.getReg();
-        RegX86 reg = getReg(lhs, RegX86.rcx);
-        code.add("\txor \t" + reg + ", " + address(rhs));
+        load(RegX86.rcx, lhs);
+        code.add("\txor \t" + RegX86.rcx + ", " + address(rhs));
         if (reg_dest != null) {
-            if (reg_dest != reg)
-                code.add("\tmov \t" + reg_dest + "," + reg);
+            if (reg_dest != RegX86.rcx)
+                code.add("\tmov \t" + reg_dest + "," + RegX86.rcx);
         } else
-            store(dest, reg);
+            store(dest, RegX86.rcx);
     }
 
     private void initFunction(IRFunction function) {
