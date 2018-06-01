@@ -20,6 +20,7 @@ import java.util.*;
 
 public class Translator {
     private Vector<IRFunction> functions = new Vector<>();
+    private List<IRInstruction> instructions;
     private IRScope global_scope;
     private List<IRInstruction> global_init;
     private Map<Variable, String> global_string;
@@ -206,7 +207,10 @@ public class Translator {
                 code.add("\tcmp \trcx, 0");
             }
             code.add("\tjz  \t" + false_label.getName());
-            code.add("\tjmp \t" + true_label.getName());
+            int index = instructions.indexOf(cJump);
+            IRInstruction next = instructions.get(index + 1);
+            if (next != true_label)
+                code.add("\tjmp \t" + true_label.getName());
         } else {
             Operand lhs = cmp.getLhs();
             Operand rhs = cmp.getRhs();
@@ -238,11 +242,13 @@ public class Translator {
                         code.add("\tjg  \t" + false_label.getName());
                         break;
                 }
-                code.add("\tjmp \t" + true_label.getName());
+                int index = instructions.indexOf(cJump);
+                IRInstruction next = instructions.get(index + 1);
+                if (next != true_label)
+                    code.add("\tjmp \t" + true_label.getName());
             } else {
                 RegX86 reg_lhs = getReg(lhs, RegX86.rdi);
-                RegX86 reg_rhs = getReg(rhs, RegX86.rsi);
-                code.add("\tcmp \t" + reg_lhs + ", " + reg_rhs);
+                code.add("\tcmp \t" + reg_lhs + ", " + address(rhs));
                 switch (op) {
                     case "==":
                         code.add("\tjne \t" + false_label.getName());
@@ -263,7 +269,10 @@ public class Translator {
                         code.add("\tjg  \t" + false_label.getName());
                         break;
                 }
-                code.add("\tjmp \t" + true_label.getName());
+                int index = instructions.indexOf(cJump);
+                IRInstruction next = instructions.get(index + 1);
+                if (next != true_label)
+                    code.add("\tjmp \t" + true_label.getName());
             }
         }
     }
@@ -273,8 +282,7 @@ public class Translator {
         Operand rhs = cmp.getRhs();
         Variable dest = cmp.getDest();
         RegX86 reg_lhs = getReg(lhs, RegX86.rdi);
-        RegX86 reg_rhs = getReg(rhs, RegX86.rsi);
-        code.add("\tcmp \t" + reg_lhs + ", " + reg_rhs);
+        code.add("\tcmp \t" + reg_lhs + ", " + address(rhs));
         switch (cmp.getOp()) {
             case "==":
                 code.add("\tsete\tcl");
@@ -333,7 +341,10 @@ public class Translator {
     }
 
     private void addIns(Jump jump) {
-        code.add("\tjmp \t" + jump.getLabel().getName());
+        int index = instructions.indexOf(jump);
+        IRInstruction next = instructions.get(index + 1);
+        if (jump.getLabel() != next)
+            code.add("\tjmp \t" + jump.getLabel().getName());
     }
 
     private void addIns(Label label) {
@@ -528,7 +539,8 @@ public class Translator {
     private void addFunction(IRFunction function) {
         addIns(function.getBeginLabel());
         initFunction(function);
-        List<IRInstruction> instructions = function.getStatements();
+        instructions = function.getStatements();
+        instructions.add(function.getEndLabel());
         for (IRInstruction ins : instructions) {
             if (ins instanceof Add) addIns((Add) ins);
             if (ins instanceof And) addIns((And) ins);
@@ -552,7 +564,6 @@ public class Translator {
             if (ins instanceof Sub) addIns((Sub) ins);
             if (ins instanceof Xor) addIns((Xor) ins);
         }
-        addIns(function.getEndLabel());
         //callee-save
         code.add("\tpop \tr15");
         code.add("\tpop \tr14");
