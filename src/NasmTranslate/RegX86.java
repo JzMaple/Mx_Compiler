@@ -51,14 +51,14 @@ public class RegX86 {
     public static RegX86 allocReg(int index) {
         switch (index) {
             case -1: return null;
-            case 0 : return r10;
-            case 1 : return r11;
-            case 2 : return r12;
-            case 3 : return r13;
-            case 4 : return r14;
-            case 5 : return r15;
-            case 6 : return r8;
-            case 7 : return r9;
+            case 0 : return r8;
+            case 1 : return r9;
+            case 2 : return r10;
+            case 3 : return r11;
+            case 4 : return r12;
+            case 5 : return r13;
+            case 6 : return r14;
+            case 7 : return r15;
             default : return null;
         }
     }

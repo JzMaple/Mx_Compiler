@@ -2,7 +2,7 @@ package Type;
 
 import java.util.Vector;
 
-public class FunctionType extends BaseType{
+public class FunctionType extends BaseType {
     private BaseType return_type;
     private Vector<BaseType> parameter_type_list;
     private Vector<String> parameter_name_list;

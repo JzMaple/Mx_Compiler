@@ -1,12 +1,17 @@
 package Visitor;
 
-import IR.IRInstruction.*;
-import IR.IRInstruction.Operand.*;
-import IR.IRNode.*;
 import IR.IR;
+import IR.IRInstruction.*;
+import IR.IRInstruction.Operand.Immediate;
+import IR.IRInstruction.Operand.Memory;
+import IR.IRInstruction.Operand.Operand;
 import IR.IRInstruction.Operand.Variable;
+import IR.IRNode.IRFunction;
+import IR.IRNode.IRParameter;
+import IR.IRNode.IRScope;
 import NasmTranslate.StackAllocator;
-import Parser.*;
+import Parser.MxBaseVisitor;
+import Parser.MxParser;
 import Type.*;
 import org.antlr.v4.runtime.ParserRuleContext;
 

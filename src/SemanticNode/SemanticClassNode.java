@@ -1,6 +1,6 @@
 package SemanticNode;
 
-import Type.*;
+import Type.BaseType;
 
 public class SemanticClassNode extends SemanticNode {
     private BaseType class_type;

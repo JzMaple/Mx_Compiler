@@ -1,14 +1,15 @@
 package NasmTranslate;
 
 import IR.IRInstruction.*;
-import IR.IRInstruction.IRInstruction;
 import IR.IRInstruction.Operand.Immediate;
 import IR.IRInstruction.Operand.Memory;
 import IR.IRInstruction.Operand.Operand;
 import IR.IRInstruction.Operand.Variable;
 import IR.IRNode.IRFunction;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 public class RegAllocator {
     private List<IRInstruction> inst;

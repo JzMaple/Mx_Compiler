@@ -1,7 +1,8 @@
 package SemanticNode;
 
-import Type.*;
-import java.util.*;
+import Type.BaseType;
+
+import java.util.Vector;
 
 public class SemanticParameterNode extends SemanticNode {
     private Vector<BaseType> parameter_type_list;

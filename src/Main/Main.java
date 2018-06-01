@@ -12,8 +12,7 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.io.*;
-
-import java.util.*;
+import java.util.List;
 
 public class Main {
     private static ClassList class_list = new ClassList();
@@ -86,7 +85,7 @@ public class Main {
             text = readTestFile("program.txt");
 
         ParseTree tree = parser(text);
-        System.out.println("parse finish");
+//        System.out.println("parse finish");
 
         semanticAnalysis(tree);
 //        System.out.println("semantic analysis finish");

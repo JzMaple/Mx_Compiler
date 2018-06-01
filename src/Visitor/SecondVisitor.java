@@ -1,11 +1,16 @@
 package Visitor;
 
-import java.util.*;
-
+import Parser.MxBaseVisitor;
+import Parser.MxParser;
+import SemanticNode.SemanticClassNode;
+import SemanticNode.SemanticExpressionNode;
+import SemanticNode.SemanticNode;
+import SemanticNode.SemanticParameterNode;
 import Type.*;
-import Parser.*;
-import SemanticNode.*;
 import org.antlr.v4.runtime.ParserRuleContext;
+
+import java.util.Stack;
+import java.util.Vector;
 
 public class SecondVisitor extends MxBaseVisitor<SemanticNode> {
     private ClassList class_list;

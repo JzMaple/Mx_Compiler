@@ -1,6 +1,6 @@
 package SemanticNode;
 
-import Type.*;
+import Type.BaseType;
 
 public class SemanticExpressionNode extends SemanticNode {
     private BaseType expression_type;

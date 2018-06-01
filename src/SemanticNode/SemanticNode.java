@@ -1,6 +1,6 @@
 package SemanticNode;
 
-import Type.*;
+import Type.BaseType;
 
 abstract public class SemanticNode {
     protected Boolean leaf_value;

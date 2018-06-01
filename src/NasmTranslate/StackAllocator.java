@@ -1,6 +1,5 @@
 package NasmTranslate;
 
-import IR.IRInstruction.Operand.Operand;
 import IR.IRInstruction.Operand.Variable;
 
 import java.util.HashMap;

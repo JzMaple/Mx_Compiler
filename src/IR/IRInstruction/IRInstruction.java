@@ -1,10 +1,8 @@
 package IR.IRInstruction;
 
 import IR.IR;
-import IR.IRInstruction.Operand.Memory;
 import IR.IRInstruction.Operand.Operand;
 import IR.IRInstruction.Operand.Variable;
-import Type.VoidType;
 
 import java.util.HashSet;
 import java.util.Set;

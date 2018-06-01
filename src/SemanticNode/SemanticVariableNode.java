@@ -1,6 +1,6 @@
 package SemanticNode;
 
-import Type.*;
+import Type.BaseType;
 
 public class SemanticVariableNode extends SemanticNode {
     private BaseType variable_type;
