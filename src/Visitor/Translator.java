@@ -114,12 +114,6 @@ public class Translator {
     private void callerSavePush() {
         code.add("\tpush\tr10");
         code.add("\tpush\tr11");
-        code.add("\tpush\tr12");
-        code.add("\tpush\tr13");
-        code.add("\tpush\tr14");
-        code.add("\tpush\tr15");
-        code.add("\tpush\trdi");
-        code.add("\tpush\trsi");
         code.add("\tpush\tr8");
         code.add("\tpush\tr9");
     }
@@ -127,12 +121,6 @@ public class Translator {
     private void callerSavePop() {
         code.add("\tpop \tr9");
         code.add("\tpop \tr8");
-        code.add("\tpop \trsi");
-        code.add("\tpop \trdi");
-        code.add("\tpop \tr15");
-        code.add("\tpop \tr14");
-        code.add("\tpop \tr13");
-        code.add("\tpop \tr12");
         code.add("\tpop \tr11");
         code.add("\tpop \tr10");
     }
@@ -180,10 +168,7 @@ public class Translator {
         int len = parameters.size();
         if (len <= 6) {
             for (int i = 0; i < len; ++i) {
-                load(RegX86.allocReg(i), parameters.get(i));
-            }
-            for (int i = 0; i < len; ++i) {
-                code.add("\tmov \t" + RegX86.getParameter(i) + ", " + RegX86.allocReg(i));
+                load(RegX86.getParameter(i), parameters.get(i));
             }
         } else {
             for (int i = len-1; i >= 6; --i) {
@@ -191,10 +176,7 @@ public class Translator {
                 code.add("\tpush\trcx");
             }
             for (int i = 0; i < 6; ++i) {
-                load(RegX86.allocReg(i), parameters.get(i));
-            }
-            for (int i = 0; i < len; ++i) {
-                code.add("\tmov \t" + RegX86.getParameter(i) + ", " + RegX86.allocReg(i));
+                load(RegX86.getParameter(i), parameters.get(i));
             }
         }
         code.add("\tcall\t" + function.getBeginLabel().getName());
@@ -335,7 +317,7 @@ public class Translator {
         load(RegX86.rcx, rhs);
         code.add("\txor \trdx, rdx");
         code.add("\tcqo");
-        code.add("\tidiv\trcx\n");
+        code.add("\tidiv\trcx");
         code.add("\tmov \t" + address(dest) + ", rax");
     }
 
@@ -364,7 +346,7 @@ public class Translator {
         load(RegX86.rcx, rhs);
         code.add("\txor \trdx, rdx");
         code.add("\tcqo");
-        code.add("\tidiv\trcx\n");
+        code.add("\tidiv\trcx");
         code.add("\tmov \t" + address(dest) + ", rdx");
     }
 
@@ -511,6 +493,11 @@ public class Translator {
         current_stackAlloc = function.getStackAlloc();
         code.add("\tpush\trbp");
         code.add("\tmov  \trbp, rsp");
+        code.add("\tpush\trbx");
+        code.add("\tpush\tr12");
+        code.add("\tpush\tr13");
+        code.add("\tpush\tr14");
+        code.add("\tpush\tr15");
         code.add("\tsub \trsp, " + Integer.toString(current_stackAlloc.size()));
 
         List<Variable> parameters = function.getParameters();
@@ -560,6 +547,13 @@ public class Translator {
             if (ins instanceof Xor) addIns((Xor) ins);
         }
         addIns(function.getEndLabel());
+
+
+        code.add("\tpop \tr15");
+        code.add("\tpop \tr14");
+        code.add("\tpop \tr13");
+        code.add("\tpop \tr12");
+        code.add("\tpop \trbx");
 
         code.add("\tmov \trsp, rbp");
         code.add("\tpop \trbp");
