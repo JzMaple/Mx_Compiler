@@ -855,9 +855,9 @@ public class IRBuilder extends MxBaseVisitor<IR> {
             if (!isFunctionNew) {
                 if (class_type instanceof UserType) {
                     statements.add(new Move(var_tmp, dim));
-                    Sal sal = new Sal(var_tmp, new Immediate(3));
-                    statements.add(sal);
-                    Add add = new Add(sal.getDest(), new Immediate(8));
+                    Mul mul = new Mul(var_tmp, new Immediate(8));
+                    statements.add(mul);
+                    Add add = new Add(mul.getDest(), new Immediate(8));
                     statements.add(add);
                     parameters.add(add.getDest());
                     Call stmt = new Call(inFunctions.get("malloc"), new IRParameter(parameters));
@@ -899,7 +899,7 @@ public class IRBuilder extends MxBaseVisitor<IR> {
             } else {
                 IRFunction function = functions.get(class_type.getClassName() + "_func__");
                 statements.add(new Move(var_tmp, dim));
-                statements.add(new Sal(var_tmp, new Immediate(3)));
+                statements.add(new Mul(var_tmp, new Immediate(8)));
                 Add add = new Add(var_tmp, new Immediate(8));
                 statements.add(add);
                 parameters.add(add.getDest());

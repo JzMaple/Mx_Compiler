@@ -519,31 +519,6 @@ public class Translator {
     private void addFunction(IRFunction function) {
         addIns(function.getBeginLabel());
         initFunction(function);
-        if (function.getFunction_name().equals("main")){
-            for (IRInstruction ins : global_init) {
-                if (ins instanceof Add) addIns((Add) ins);
-                if (ins instanceof And) addIns((And) ins);
-                if (ins instanceof Call) addIns((Call) ins);
-                if (ins instanceof CJump) addIns((CJump) ins);
-                if (ins instanceof Cmp) addIns((Cmp) ins);
-                if (ins instanceof Dec) addIns((Dec) ins);
-                if (ins instanceof Div) addIns((Div) ins);
-                if (ins instanceof Inc) addIns((Inc) ins);
-                if (ins instanceof Jump) addIns((Jump) ins);
-                if (ins instanceof Label) addIns((Label) ins);
-                if (ins instanceof Mod) addIns((Mod) ins);
-                if (ins instanceof Move) addIns((Move) ins);
-                if (ins instanceof Mul) addIns((Mul) ins);
-                if (ins instanceof Neg) addIns((Neg) ins);
-                if (ins instanceof Not) addIns((Not) ins);
-                if (ins instanceof Or) addIns((Or) ins);
-                if (ins instanceof Return) addIns((Return) ins);
-                if (ins instanceof Sal) addIns((Sal) ins);
-                if (ins instanceof Sar) addIns((Sar) ins);
-                if (ins instanceof Sub) addIns((Sub) ins);
-                if (ins instanceof Xor) addIns((Xor) ins);
-            }
-        }
         List<IRInstruction> instructions = function.getStatements();
         for (IRInstruction ins : instructions) {
             if (ins instanceof Add) addIns((Add) ins);
@@ -647,6 +622,8 @@ public class Translator {
 
         RegAllocator regAllocator = new RegAllocator();
 
+        global_init.addAll(main.getStatements());
+        main.setStatements(global_init);
         regAllocator.allocate(main);
         addFunction(main);
         for (IRFunction function : functions) {
