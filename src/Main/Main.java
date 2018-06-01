@@ -86,7 +86,7 @@ public class Main {
             text = readTestFile("program.txt");
 
         ParseTree tree = parser(text);
-//        System.out.println("parse finish");
+        System.out.println("parse finish");
 
         semanticAnalysis(tree);
 //        System.out.println("semantic analysis finish");
