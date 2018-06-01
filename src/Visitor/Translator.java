@@ -118,6 +118,7 @@ public class Translator {
     }
 
     private void callerSavePush() {
+        code.add("\tpush\trdi");
         code.add("\tpush\tr8");
         code.add("\tpush\tr9");
         code.add("\tpush\tr10");
@@ -129,6 +130,7 @@ public class Translator {
         code.add("\tpop \tr10");
         code.add("\tpop \tr9");
         code.add("\tpop \tr8");
+        code.add("\tpop \trdi");
     }
 
     private void addIns(Add add) {
@@ -173,15 +175,18 @@ public class Translator {
         Vector<Operand> parameters = call.getParameters().getParameters();
         int len = parameters.size();
         if (len <= 6) {
-            for (int i = 0; i < len; ++i)
+            for (int i = 1; i < len; ++i)
                 load(RegX86.getParameter(i), parameters.get(i));
+            if (len > 0)
+                load(RegX86.getParameter(0), parameters.get(0));
         } else {
             for (int i = len-1; i >= 6; --i) {
                 load(RegX86.rcx, parameters.get(i));
                 code.add("\tpush\trcx");
             }
-            for (int i = 0; i < 6; ++i)
+            for (int i = 1; i < 6; ++i)
                 load(RegX86.getParameter(i), parameters.get(i));
+            load(RegX86.getParameter(0), parameters.get(0));
         }
         code.add("\tcall\t" + function.getBeginLabel().getName());
         if (len > 6) {

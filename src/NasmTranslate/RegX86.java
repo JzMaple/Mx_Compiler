@@ -46,7 +46,7 @@ public class RegX86 {
         return name;
     }
 
-    public static int allocNum = 8;
+    public static int allocNum = 9;
 
     public static RegX86 allocReg(int index) {
         switch (index) {
@@ -55,10 +55,11 @@ public class RegX86 {
             case 1 : return r9;
             case 2 : return r10;
             case 3 : return r11;
-            case 4 : return r12;
+            case 4 : return rdi;
             case 5 : return r13;
             case 6 : return r14;
             case 7 : return r15;
+            case 8 : return r12;
             default : return null;
         }
     }
