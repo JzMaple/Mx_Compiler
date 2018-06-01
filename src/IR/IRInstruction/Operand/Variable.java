@@ -15,6 +15,10 @@ public class Variable extends Operand {
     private Boolean isConstant;
     private StackAllocator current_stackAlloc = IRBuilder.getCurrent_stackAlloc();
     private RegX86 reg;
+    private int begin = 0;
+    private int end = 0;
+    private int life = 0;
+    private int use = 0;
 
     public Variable(String variable_name, BaseType variable_type, Boolean isGlobal) {
         this.variable_name = variable_name;
@@ -69,6 +73,32 @@ public class Variable extends Operand {
     public Set<Variable> getUse() {
         Set<Variable> use = new HashSet<>();
         if (!isGlobal) use.add(this);
+        return use;
+    }
+
+    public void setBegin(int begin) {
+        this.life = this.life + this.end - this.begin;
+        this.begin = begin;
+        this.end = begin;
+    }
+
+    public void setEnd(int end) {
+        if (end > this.end) this.end = end;
+    }
+
+    public int getLife() {
+        if (begin != end)  {
+            life = life + end - begin;
+            begin = end;
+        }
+        return life;
+    }
+
+    public void setUse() {
+        ++use;
+    }
+
+    public int getUsed() {
         return use;
     }
 }

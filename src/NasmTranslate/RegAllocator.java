@@ -131,31 +131,71 @@ public class RegAllocator {
             IRInstruction ins = inst.get(i);
             Set<Variable> out = ins.getOut();
             Set<Variable> def = ins.getDef();
-            for (Variable o : out)
-                for (Variable d : def)
+            for (Variable o : out) {
+                for (Variable d : def) {
                     if (o != d) {
                         int index_o = stackAlloc.getIndex(o);
                         int index_d = stackAlloc.getIndex(d);
                         conflictGraph[index_o][index_d] = true;
                         conflictGraph[index_d][index_o] = true;
                     }
+                }
+            }
+            for (Variable d : def) d.setBegin(i);
+            for (Variable o : out) o.setEnd(i);
+            for (Variable u : ins.getUse()) u.setUse();
         }
     }
 
     private void RegisterAllocate() {
         int num = stackAlloc.getIndex();
         color = new int[num];
-        for (int i = 0; i < num; ++i) color[i] = -1;
+        for (int i = 1; i < num; ++i) color[i] = -1;
+        int[] order = new int[num];
+        int[] life = new int[num];
+        for (int i = 1; i < num; ++i) {
+            order[i] = i;
+            life[i] = stackAlloc.getVar(i).getLife();
+//            System.out.println(stackAlloc.getVar(i).getName() + " " + life[i]);
+        }
+
+        //sort
+        for (int i = 1; i < num; ++ i) {
+            for (int j = 1; j < num - 1; ++j)
+                if (life[j] > life[j + 1]) {
+                    int x = life[j];
+                    int y = life[j + 1];
+                    life[j + 1] = x;
+                    life[j] = y;
+                    x = order[j];
+                    y = order[j + 1];
+                    order[j + 1] = x;
+                    order[j] = y;
+                }
+        }
+
+        Boolean[] conflict = new Boolean[num];
         for (int reg = 0; reg < RegX86.allocNum; ++reg) {
             for (int i = 1; i < num; ++i) {
-                if (color[i] != -1) continue;
+                int x = order[i];
+                if (color[x] != -1) continue;
                 Boolean flag = true;
-                for (int j = 1; j < num; ++j)
-                    if (conflictGraph[i][j] && color[j] == reg) {
-                        flag = false; break;
+                int use_all = 0;
+                for (int j = 1; j < num; ++j) conflict[j] = false;
+                for (int j = 1; j < num; ++j) {
+                    if (conflictGraph[x][j] && color[j] == reg) {
+                        flag = false;
+                        conflict[j] = true;
+                        use_all = use_all + stackAlloc.getVar(j).getUsed();
                     }
+                }
                 if (flag) {
-                    color[i] = reg;
+                    color[x] = reg;
+                } else if (use_all < stackAlloc.getVar(x).getUsed()) {
+                    color[x] = reg;
+                    for (int j = 1; j < num; ++j) {
+                        if (conflict[j]) color[j] = -1;
+                    }
                 }
              }
         }
@@ -163,6 +203,7 @@ public class RegAllocator {
             Variable var = stackAlloc.getVar(i);
             RegX86 regX86 = RegX86.allocReg(color[i]);
             var.setReg(regX86);
+            System.out.println(var.getName() + " " + regX86 + " " + var.getLife() + " " + var.getUsed());
         }
     }
 
