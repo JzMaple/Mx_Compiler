@@ -130,13 +130,17 @@ public class Translator {
         Operand rhs = add.getRhs();
         Variable dest = add.getDest();
         RegX86 reg_dest = dest.getReg();
-        load(RegX86.rcx, lhs);
-        code.add("\tadd \t" + RegX86.rcx + ", " + address(rhs));
-        if (reg_dest != null) {
-            if (reg_dest != RegX86.rcx)
-                code.add("\tmov \t" + reg_dest + "," + RegX86.rcx);
-        } else
-            store(dest, RegX86.rcx);
+        if (lhs instanceof Variable && ((Variable) lhs).getReg() == reg_dest && reg_dest != null) {
+            code.add("\tadd \t" + reg_dest + ", " + address(rhs));
+        } else {
+            load(RegX86.rcx, lhs);
+            code.add("\tadd \t" + RegX86.rcx + ", " + address(rhs));
+            if (reg_dest != null) {
+                if (reg_dest != RegX86.rcx)
+                    code.add("\tmov \t" + reg_dest + "," + RegX86.rcx);
+            } else
+                store(dest, RegX86.rcx);
+        }
     }
 
     private void addIns(And and) {
@@ -144,13 +148,17 @@ public class Translator {
         Operand rhs = and.getRhs();
         Variable dest = and.getDest();
         RegX86 reg_dest = dest.getReg();
-        load(RegX86.rcx, lhs);
-        code.add("\tand \t" + RegX86.rcx + ", " + address(rhs));
-        if (reg_dest != null) {
-            if (reg_dest != RegX86.rcx)
-                code.add("\tmov \t" + reg_dest + "," + RegX86.rcx);
-        } else
-            store(dest, RegX86.rcx);
+        if (lhs instanceof Variable && ((Variable) lhs).getReg() == reg_dest && reg_dest != null) {
+            code.add("\tand \t" + reg_dest + ", " + address(rhs));
+        } else {
+            load(RegX86.rcx, lhs);
+            code.add("\tand \t" + RegX86.rcx + ", " + address(rhs));
+            if (reg_dest != null) {
+                if (reg_dest != RegX86.rcx)
+                    code.add("\tmov \t" + reg_dest + "," + RegX86.rcx);
+            } else
+                store(dest, RegX86.rcx);
+        }
     }
 
     private void addIns(Call call) {
@@ -162,12 +170,12 @@ public class Translator {
             for (int i = 0; i < len; ++i)
                 load(RegX86.getParameter(i), parameters.get(i));
         } else {
-            for (int i = 0; i < 6; ++i)
-                load(RegX86.getParameter(i), parameters.get(i));
             for (int i = len-1; i >= 6; --i) {
                 load(RegX86.rcx, parameters.get(i));
                 code.add("\tpush\trcx");
             }
+            for (int i = 0; i < 6; ++i)
+                load(RegX86.getParameter(i), parameters.get(i));
         }
         code.add("\tcall\t" + function.getBeginLabel().getName());
         if (len > 6) {
@@ -358,13 +366,17 @@ public class Translator {
         Operand rhs = mul.getRhs();
         Variable dest = mul.getDest();
         RegX86 reg_dest = dest.getReg();
-        load(RegX86.rcx, lhs);
-        code.add("\timul\t" + RegX86.rcx + ", " + address(rhs));
-        if (reg_dest != null) {
-            if (reg_dest != RegX86.rcx)
-                code.add("\tmov \t" + reg_dest + "," + RegX86.rcx);
-        } else
-            store(dest, RegX86.rcx);
+        if (lhs instanceof Variable && ((Variable) lhs).getReg() == reg_dest && reg_dest != null) {
+            code.add("\timul\t" + reg_dest + ", " + address(rhs));
+        } else {
+            load(RegX86.rcx, lhs);
+            code.add("\timul\t" + RegX86.rcx + ", " + address(rhs));
+            if (reg_dest != null) {
+                if (reg_dest != RegX86.rcx)
+                    code.add("\tmov \t" + reg_dest + "," + RegX86.rcx);
+            } else
+                store(dest, RegX86.rcx);
+        }
     }
 
     private void addIns(Neg neg){
@@ -398,13 +410,17 @@ public class Translator {
         Operand rhs = or.getRhs();
         Variable dest = or.getDest();
         RegX86 reg_dest = dest.getReg();
-        load(RegX86.rcx, lhs);
-        code.add("\tor  \t" + RegX86.rcx + ", " + address(rhs));
-        if (reg_dest != null) {
-            if (reg_dest != RegX86.rcx)
-                code.add("\tmov \t" + reg_dest + "," + RegX86.rcx);
-        } else
-            store(dest, RegX86.rcx);
+        if (lhs instanceof Variable && ((Variable) lhs).getReg() == reg_dest && reg_dest != null) {
+            code.add("\tor  \t" + reg_dest + ", " + address(rhs));
+        } else {
+            load(RegX86.rcx, lhs);
+            code.add("\tor  \t" + RegX86.rcx + ", " + address(rhs));
+            if (reg_dest != null) {
+                if (reg_dest != RegX86.rcx)
+                    code.add("\tmov \t" + reg_dest + "," + RegX86.rcx);
+            } else
+                store(dest, RegX86.rcx);
+        }
     }
 
     private void addIns(Return ret){
@@ -437,13 +453,17 @@ public class Translator {
         Operand rhs = sub.getRhs();
         Variable dest = sub.getDest();
         RegX86 reg_dest = dest.getReg();
-        load(RegX86.rcx, lhs);
-        code.add("\tsub \t" + RegX86.rcx + ", " + address(rhs));
-        if (reg_dest != null) {
-            if (reg_dest != RegX86.rcx)
-                code.add("\tmov \t" + reg_dest + "," + RegX86.rcx);
-        } else
-            store(dest, RegX86.rcx);
+        if (lhs instanceof Variable && ((Variable) lhs).getReg() == reg_dest && reg_dest != null) {
+            code.add("\tsub \t" + reg_dest + ", " + address(rhs));
+        } else {
+            load(RegX86.rcx, lhs);
+            code.add("\tsub \t" + RegX86.rcx + ", " + address(rhs));
+            if (reg_dest != null) {
+                if (reg_dest != RegX86.rcx)
+                    code.add("\tmov \t" + reg_dest + "," + RegX86.rcx);
+            } else
+                store(dest, RegX86.rcx);
+        }
     }
 
     private void addIns(Xor xor){
@@ -451,13 +471,17 @@ public class Translator {
         Operand rhs = xor.getRhs();
         Variable dest = xor.getDest();
         RegX86 reg_dest = dest.getReg();
-        load(RegX86.rcx, lhs);
-        code.add("\txor \t" + RegX86.rcx + ", " + address(rhs));
-        if (reg_dest != null) {
-            if (reg_dest != RegX86.rcx)
-                code.add("\tmov \t" + reg_dest + "," + RegX86.rcx);
-        } else
-            store(dest, RegX86.rcx);
+        if (lhs instanceof Variable && ((Variable) lhs).getReg() == reg_dest && reg_dest != null) {
+            code.add("\txor \t" + reg_dest + ", " + address(rhs));
+        } else {
+            load(RegX86.rcx, lhs);
+            code.add("\txor \t" + RegX86.rcx + ", " + address(rhs));
+            if (reg_dest != null) {
+                if (reg_dest != RegX86.rcx)
+                    code.add("\tmov \t" + reg_dest + "," + RegX86.rcx);
+            } else
+                store(dest, RegX86.rcx);
+        }
     }
 
     private void initFunction(IRFunction function) {
@@ -476,16 +500,17 @@ public class Translator {
         List<Variable> parameters = function.getParameters();
         int len = parameters.size();
         int offset = 8;
+        int x = len < 6 ? len - 1 : 5;
         for (int i = 0; i < len; ++i) {
             if (i < 6) {
-                RegX86 regX86 = RegX86.getParameter(i);
-                Variable var = parameters.get(i);
+                RegX86 regX86 = RegX86.getParameter(x - i);
+                Variable var = parameters.get(x - i);
                 code.add("\tmov \t" + address(var) + ", " + regX86);
             } else {
                 offset = offset + 8;
                 Variable var = parameters.get(i);
-                code.add("\tmov \tr10, [rbp + " + offset +"]");
-                code.add("\tmov \t" + address(var) + ", r10");
+                code.add("\tmov \trcx, [rbp + " + offset +"]");
+                code.add("\tmov \t" + address(var) + ", rcx");
             }
         }
         code.add("");
@@ -545,11 +570,11 @@ public class Translator {
         }
         addIns(function.getEndLabel());
         //callee-save
-        code.add("\tpop \trbx");
-        code.add("\tpop \tr12");
-        code.add("\tpop \tr13");
-        code.add("\tpop \tr14");
         code.add("\tpop \tr15");
+        code.add("\tpop \tr14");
+        code.add("\tpop \tr13");
+        code.add("\tpop \tr12");
+        code.add("\tpop \trbx");
 
         code.add("\tmov \trsp, rbp");
         code.add("\tpop \trbp");
