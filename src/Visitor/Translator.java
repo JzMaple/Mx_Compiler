@@ -112,17 +112,21 @@ public class Translator {
     }
 
     private void callerSavePush() {
-        code.add("\tpush\tr8");
-        code.add("\tpush\tr9");
         code.add("\tpush\tr10");
         code.add("\tpush\tr11");
+        code.add("\tpush\trdi");
+        code.add("\tpush\trsi");
+        code.add("\tpush\tr8");
+        code.add("\tpush\tr9");
     }
 
     private void callerSavePop() {
-        code.add("\tpop \tr11");
-        code.add("\tpop \tr10");
         code.add("\tpop \tr9");
         code.add("\tpop \tr8");
+        code.add("\tpop \trsi");
+        code.add("\tpop \trdi");
+        code.add("\tpop \tr11");
+        code.add("\tpop \tr10");
     }
 
     private void addIns(Add add) {
@@ -235,8 +239,8 @@ public class Translator {
                 }
                 code.add("\tjmp \t" + true_label.getName());
             } else {
-                RegX86 reg_lhs = getReg(lhs, RegX86.rdi);
-                RegX86 reg_rhs = getReg(rhs, RegX86.rsi);
+                RegX86 reg_lhs = getReg(lhs, RegX86.rax);
+                RegX86 reg_rhs = getReg(rhs, RegX86.rcx);
                 code.add("\tcmp \t" + reg_lhs + ", " + reg_rhs);
                 switch (op) {
                     case "==":
@@ -267,8 +271,8 @@ public class Translator {
         Operand lhs = cmp.getLhs();
         Operand rhs = cmp.getRhs();
         Variable dest = cmp.getDest();
-        RegX86 reg_lhs = getReg(lhs, RegX86.rdi);
-        RegX86 reg_rhs = getReg(rhs, RegX86.rsi);
+        RegX86 reg_lhs = getReg(lhs, RegX86.rax);
+        RegX86 reg_rhs = getReg(rhs, RegX86.rcx);
         code.add("\tcmp \t" + reg_lhs + ", " + reg_rhs);
         switch (cmp.getOp()) {
             case "==":
