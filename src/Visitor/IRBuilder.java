@@ -848,7 +848,7 @@ public class IRBuilder extends MxBaseVisitor<IR> {
 
     private void create(Variable base, BaseType class_type, Boolean isFunctionNew, Vector<Operand> args) {
         Operand dim = array_creator.pop();
-        Vector<Operand> parameters = new Vector<>();
+        List<Operand> parameters = new ArrayList<>();
         Variable var_cnt = getNewVar("cnt", class_list.getClassType("int"));
 
         Label begin_label = new Label("loop_begin");
@@ -935,13 +935,27 @@ public class IRBuilder extends MxBaseVisitor<IR> {
         String class_name = ctx.class_name().getText();
         BaseType class_type = class_list.getClassType(class_name);
         if (array_creator.empty()) {
-            Variable var_tmp = getNewVar("base", class_list.getClassType("int"));
-            Vector<Operand> parameters = new Vector<>();
-            parameters.add(new Immediate(class_type.getSize()));
-            Call stmt = new Call(inFunctions.get("malloc"), new IRParameter(parameters));
-            statements.add(stmt);
-            statements.add(new Move(var_tmp, stmt.getTmp_return()));
-            return var_tmp;
+            if (!(class_type instanceof UserType)) {
+                Variable var_tmp = getNewVar("base", class_list.getClassType("int"));
+                Vector<Operand> parameters = new Vector<>();
+                parameters.add(new Immediate(class_type.getSize()));
+                Call stmt = new Call(inFunctions.get("malloc"), new IRParameter(parameters));
+                statements.add(stmt);
+                statements.add(new Move(var_tmp, stmt.getTmp_return()));
+                return var_tmp;
+            } else {
+                Variable var_tmp = getNewVar("base", class_list.getClassType("int"));
+                Vector<Operand> parameters = new Vector<>();
+                parameters.add(new Immediate(class_type.getSize()));
+                Call stmt = new Call(inFunctions.get("malloc"), new IRParameter(parameters));
+                statements.add(stmt);
+                statements.add(new Move(var_tmp, stmt.getTmp_return()));
+                IRFunction function = functions.get(class_name);
+                parameters = new Vector<>();
+                parameters.add(var_tmp);
+                statements.add(new Call(function, new IRParameter(parameters)));
+                return var_tmp;
+            }
         } else {
             Variable var_tmp = getNewVar("base", class_list.getClassType("int"));
             create(var_tmp, class_type, false, null);
@@ -1001,18 +1015,17 @@ public class IRBuilder extends MxBaseVisitor<IR> {
         return current_stackAlloc;
     }
 
-//    @Override
-//    public IR visitEXPR_STATE(MxParser.EXPR_STATEContext ctx) {
-//        statements.add(new Label(";" + ctx.getText()));
-//        visitChildren(ctx);
-//        visitChildren(ctx);
-//        return null;
-//    }
-//
-//    @Override
-//    public IR visitINS_STATE(MxParser.INS_STATEContext ctx) {
-//        statements.add(new Label(";" + ctx.getText()));
-//        visitChildren(ctx);
-//        return null;
-//    }
+    @Override
+    public IR visitEXPR_STATE(MxParser.EXPR_STATEContext ctx) {
+        statements.add(new Label(";" + ctx.getText()));
+        visitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public IR visitINS_STATE(MxParser.INS_STATEContext ctx) {
+        statements.add(new Label(";" + ctx.getText()));
+        visitChildren(ctx);
+        return null;
+    }
 }

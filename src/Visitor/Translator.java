@@ -174,7 +174,7 @@ public class Translator {
     private void addIns(Call call) {
         callerSavePush();
         IRFunction function = call.getFunction();
-        Vector<Operand> parameters = call.getParameters().getParameters();
+        List<Operand> parameters = call.getParameters().getParameters();
         int len = parameters.size();
         if (len <= 6) {
             for (int i = 0; i < len; ++i)
@@ -545,6 +545,7 @@ public class Translator {
         instructions = function.getStatements();
         instructions.add(function.getEndLabel());
         for (IRInstruction ins : instructions) {
+//            code.add(ins.toString());
             if (ins instanceof Add) addIns((Add) ins);
             if (ins instanceof And) addIns((And) ins);
             if (ins instanceof Call) addIns((Call) ins);
