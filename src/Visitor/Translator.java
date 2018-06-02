@@ -515,7 +515,6 @@ public class Translator {
         code.add("\tsub \trsp, " + Integer.toString(current_stackAlloc.size()));
 
         //callee-save
-        code.add("\tpush\trbx");
         code.add("\tpush\tr12");
         code.add("\tpush\tr13");
         code.add("\tpush\tr14");
@@ -573,7 +572,6 @@ public class Translator {
         code.add("\tpop \tr14");
         code.add("\tpop \tr13");
         code.add("\tpop \tr12");
-        code.add("\tpop \trbx");
 
         code.add("\tmov \trsp, rbp");
         code.add("\tpop \trbp");
