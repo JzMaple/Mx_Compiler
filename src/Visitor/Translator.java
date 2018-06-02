@@ -187,10 +187,12 @@ public class Translator {
             for (int i = 0; i < 6; ++i)
                 load(RegX86.getParameter(i), parameters.get(i));
         }
+        if (inFunction.contains(function.getFunction_name()))
+            code.add("\txor \trax, rax");
         code.add("\tcall\t" + function.getBeginLabel().getName());
         if (len > 6) {
             for (int i = len-1; i >= 6; --i) {
-                code.add("\tpop\trcx");
+                code.add("\tpop \trcx");
             }
         }
         callerSavePop();
@@ -251,7 +253,7 @@ public class Translator {
                 if (next != true_label)
                     code.add("\tjmp \t" + true_label.getName());
             } else {
-                RegX86 reg_lhs = getReg(lhs, RegX86.rdi);
+                RegX86 reg_lhs = getReg(lhs, RegX86.rcx);
                 code.add("\tcmp \t" + reg_lhs + ", " + address(rhs));
                 switch (op) {
                     case "==":
@@ -285,7 +287,7 @@ public class Translator {
         Operand lhs = cmp.getLhs();
         Operand rhs = cmp.getRhs();
         Variable dest = cmp.getDest();
-        RegX86 reg_lhs = getReg(lhs, RegX86.rdi);
+        RegX86 reg_lhs = getReg(lhs, RegX86.rcx);
         code.add("\tcmp \t" + reg_lhs + ", " + address(rhs));
         switch (cmp.getOp()) {
             case "==":

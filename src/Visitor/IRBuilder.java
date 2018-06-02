@@ -887,6 +887,14 @@ public class IRBuilder extends MxBaseVisitor<IR> {
                     statements.add(new CJump(new Cmp(var_cnt, dim, "<"), begin_label, end_label));
                     addLabel(end_label);
                 } else {
+//                    ArrayList<Operand> param = new ArrayList<>();
+//                    param.add(new Immediate(1));
+//                    Call call;
+//                    statements.add(call = new Call(inFunctions.get("toString"), new IRParameter(param)));
+//                    ArrayList<Operand> pa = new ArrayList<>();
+//                    pa.add(call.getTmp_return());
+//                    statements.add(new Call(inFunctions.get("println"), new IRParameter(pa)));
+
                     statements.add(new Move(var_tmp, dim));
                     Mul mul = new Mul(var_tmp, new Immediate(class_type.getSize()));
                     statements.add(mul);
@@ -921,6 +929,15 @@ public class IRBuilder extends MxBaseVisitor<IR> {
             Variable base_tmp = getNewVar("base", null);
             create(base_tmp, class_type, isFunctionNew, args);
             statements.add(new Move(new Memory(base, var_cnt, 8, 0, null), base_tmp));
+
+//            ArrayList<Operand> param = new ArrayList<>();
+//            param.add(new Immediate(1));
+//            Call call;
+//            statements.add(call = new Call(inFunctions.get("toString"), new IRParameter(param)));
+//            ArrayList<Operand> pa = new ArrayList<>();
+//            pa.add(call.getTmp_return());
+//            statements.add(new Call(inFunctions.get("println"), new IRParameter(pa)));
+
             add = new Add(var_cnt, const_one);
             statements.add(add);
             statements.add(new Move(var_cnt, add.getDest()));
