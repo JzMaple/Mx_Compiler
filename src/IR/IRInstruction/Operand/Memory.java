@@ -18,7 +18,6 @@ public class Memory extends Operand {
         this.scale = scale;
         this.number = number;
         this.type = type;
-        this.isString = false;
     }
 
     public Operand getBase() {
@@ -55,5 +54,11 @@ public class Memory extends Operand {
         if (index instanceof Variable && !((Variable) index).isGlobal())
             use.add((Variable) index);
         return use;
+    }
+
+    @Override
+    public void setParaOrd(int ord) {
+        if (base != null) base.setParaOrd(ord);
+        if (index != null) index.setParaOrd(ord);
     }
 }

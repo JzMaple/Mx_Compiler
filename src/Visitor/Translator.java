@@ -118,6 +118,8 @@ public class Translator {
     }
 
     private void callerSavePush() {
+        code.add("\tpush\trsi");
+        code.add("\tpush\trdi");
         code.add("\tpush\tr8");
         code.add("\tpush\tr9");
         code.add("\tpush\tr10");
@@ -129,6 +131,8 @@ public class Translator {
         code.add("\tpop \tr10");
         code.add("\tpop \tr9");
         code.add("\tpop \tr8");
+        code.add("\tpop \trdi");
+        code.add("\tpop \trsi");
     }
 
     private void addIns(Add add) {

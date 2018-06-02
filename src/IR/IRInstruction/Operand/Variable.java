@@ -19,6 +19,7 @@ public class Variable extends Operand {
     private int end = 0;
     private int life = 0;
     private int use = 0;
+    private int paraOrd = -1;
 
     public Variable(String variable_name, BaseType variable_type, Boolean isGlobal) {
         this.variable_name = variable_name;
@@ -26,7 +27,6 @@ public class Variable extends Operand {
         this.isGlobal = isGlobal;
         if (!isGlobal)
             current_stackAlloc.insert(this);
-        this.isString = false;
         this.isConstant = false;
     }
 
@@ -40,10 +40,6 @@ public class Variable extends Operand {
 
     public Boolean isGlobal() {
         return isGlobal;
-    }
-
-    public void setIsString(Boolean isString) {
-        this.isString = isString;
     }
 
     public Boolean getIsConstant() {
@@ -100,5 +96,14 @@ public class Variable extends Operand {
 
     public int getUsed() {
         return use;
+    }
+
+    @Override
+    public void setParaOrd(int ord) {
+        this.paraOrd = ord;
+    }
+
+    public int getParaOrd() {
+        return this.paraOrd;
     }
 }

@@ -8,7 +8,6 @@ public class Immediate extends Operand {
 
     public Immediate(int int_value) {
         this.value = int_value;
-        this.isString = false;
     }
 
     public int getValue() {
@@ -28,5 +27,10 @@ public class Immediate extends Operand {
     @Override
     public Set<Variable> getUse() {
         return new HashSet<>();
+    }
+
+    @Override
+    public void setParaOrd(int ord) {
+
     }
 }

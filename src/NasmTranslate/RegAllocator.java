@@ -32,8 +32,10 @@ public class RegAllocator {
     private void set(Call call, int index) {
         call.setDef(call.getTmp_return());
         List<Operand> parameters = call.getParameters().getParameters();
-        for (int i = 0; i < parameters.size(); ++i)
+        for (int i = 0; i < parameters.size(); ++i) {
             setUse(call, parameters.get(i));
+            if (i < 6) parameters.get(i).setParaOrd(i);
+        }
         call.setSuccessor(inst.get(index + 1));
     }
 
@@ -179,6 +181,7 @@ public class RegAllocator {
             for (int i = 1; i < num; ++i) {
                 int x = order[i];
                 if (color[x] != -1) continue;
+                if (RegX86.getParaOrd(x) < stackAlloc.getVar(i).getParaOrd()) continue;
                 Boolean flag = true;
                 int use_all = 0;
                 for (int j = 1; j < num; ++j) conflict[j] = false;
