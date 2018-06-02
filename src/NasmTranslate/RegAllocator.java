@@ -181,7 +181,7 @@ public class RegAllocator {
             for (int i = 1; i < num; ++i) {
                 int x = order[i];
                 if (color[x] != -1) continue;
-                if (RegX86.getParaOrd(reg) < stackAlloc.getVar(i).getParaOrd()) continue;
+                if (RegX86.getParaOrd(reg) < stackAlloc.getVar(x).getParaOrd()) continue;
                 Boolean flag = true;
                 int use_all = 0;
                 for (int j = 1; j < num; ++j) conflict[j] = false;

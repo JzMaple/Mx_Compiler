@@ -1,200 +1,213 @@
-int hilo(int hi, int lo)
-{
-	return lo | (hi << 16);
-}
-
-int shift_l(int x, int n)
-{
-	return (x << n) & hilo(65535, 65535);	// 0xffff ffff
-}
-
-int shift_r(int x, int n)
-{
-	int tmp = hilo(32767, 65535);	// 0x7fff ffff
-	tmp = ((tmp >> n) << 1) + 1;
-	tmp = tmp & (x >> n);
-	return tmp & hilo(65535, 65535);
-}
-
-int xorshift(int seed)
-{
-	int x = seed;
-
-	x = x ^ shift_l(x, 13);
-	x = x ^ shift_r(x, 17);
-	x = x ^ shift_l(x, 5);
-
-	return x;
-}
-
-int xorshift10(int seed)
-{
-	int i;
-	int x = seed;
-
-	x = xorshift(x);
-	x = xorshift(x);
-	x = xorshift(x);
-	x = xorshift(x);
-	x = xorshift(x);
-	x = xorshift(x);
-	x = xorshift(x);
-	x = xorshift(x);
-	x = xorshift(x);
-	x = xorshift(x);
-
-	return x;
-}
-
-
-string asciiTable = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
-string int2chr(int x)
-{
-	if(x >= 32 && x <= 126)
-		return asciiTable.substring(x-32, x-32);
-	return "";
-}
-
-string toStringHex(int x)
-{
-	string ret = "";
-	int i;
-	for(i=28;i>=0;i=i-4)
-	{
-		int digit = (x >> i) & 15;
-		if(digit < 10)
-			ret = ret + int2chr(48+digit);
-		else
-			ret = ret + int2chr(65+digit-10);
+int N = 100000;
+int n;
+int[] a = new int[N];
+int[] bak = new int[N];
+int[] a_left = new int[N];
+int[] a_right = new int[N];
+int[] heap = new int[N];
+int i1;int i2;int i3;int i4;int i5;int i6;int i7;int i8;
+int i9;int i10;int i11;int i12; int i13; int i14;
+class A{
+	int[][][][][][][][][][] A_arr;
+	void Optimizer(){
+		int[][][][][][][][][][] arr= new int[2][2][2][2][2][2][2][2][2][2];
+		int i1;int i2;int i3;int i4;int i5;int i6;int i7;int i8;
+		int i9;int i10;int i11;int i12; int i13; int i14;
+		int i;
+		int sum = 0;
+		for(i = 1; i <= 1000; i++){
+			arr[0][1][0][1][0][1][0][1][0][1] = 123 + i;
+			sum = sum + arr[0][1][0][1][0][1][0][1][0][1];
+		}
+		println(toString(sum));
+		for(i = 1; i <= 1000000; i++){
+			sum = sum + (9876 % 1234 * 2345 % 1234 * 2345 % 1234
+            			* 2345 % 1234 * 2345 % 1234 * 2345 % 1234 * 2345 % 1234
+            			* 2345 % 1234 * 2345 % 1234 * 2345 % 1234 * 2345 % 1234
+            			* 2345 % 1234 * 2345 % 1234 * 2345 % 1234 * 2345 % 1234
+            			* 2345 % 1234 * 2345 % 1234 * 2345 % 1234 * 2345 % 1234
+            			* 2345 % 1234 * 2345 % 1234 * 2345 % 1234 * 2345 % 1234
+            			* 2345 % 1234 * 2345 % 1234 * 2345 % 1234 * 2345 % 1234
+            			* 2345 % 1234 * 2345 % 1234 * 2345 % 1234 * 2345 % 1234
+            			* 2345 % 1234 * 2345 % 1234 * 2345 % 1234 * 2345 % 1234
+            			* 2345 % 1234 * 2345 % 1234 * 2345 % 1234 * 2345 % 1234
+            			* 2345 % 1234 * 2345 % 1234 * 2345 % 1234 * 2345 % 1234
+            			* 2345 % 1234 * 2345 % 1234 * 2345 % 1234 * 2345 % 1234
+            			* 2345 % 1234 * 2345 % 1234 * 2345 % 1234 * 2345 % 1234
+            			* 2345 % 1234 * 2345 % 1234 * 2345 % 1234 * 2345 % 1234
+            			* 2345 % 1234 * 2345 % 1234 * 2345 % 1234 * 2345 % 1234
+            			* 2345 % 1234 * 2345 % 1234 * 2345 % 1234 * 2345 % 1234
+            			* 2345 % 1234 * 2345 % 1234 * 2345 % 1234 * 2345 % 1234
+            			* 2345 % 1234 * 2345 % 1234 * 2345 % 1234 * 2345 % 1234
+            			* 2345 % 1234 * 2345 % 1234 * 2345 % 1234 * 2345 % 1234
+            			* 2345 % 1234 * 2345 % 1234 * 2345 % 1234 * 2345 % 1234
+            			* 2345 % 1234 * 2345 % 1234 * 2345 % 1234 * 2345 % 1234
+            			* 2345 % 1234 * 2345 % 1234 * 2345 % 1234 * 2345 % 1234
+            			* 2345 % 1234 * 2345 % 1234 * 2345 % 1234 * 2345 % 1234) % 11;
+		}
+		println(toString(sum));
+		for(i = 1; i <= 200000000; i++);
 	}
-	return ret;
-}
-
-void assert(bool expression)
-{
-	if(!expression)
-		println("Assertion Failed!");
-}
-
-int main()
-{
-	int seed;
-	int l; int r;
-	int P;
-
-	seed = getInt();
-	l = getInt();
-	r = getInt();
-	P = getInt();
-
-	int i;
-	seed = xorshift10(seed + 1);
-
-	int INT_MAX = hilo(32767, 65535);
-
-	int r1 = 0; int r2 = 0; int r3 = 0; int r4 = 0;
-	int d = 0;
-
-	for(i=l; i<r; i++)
-	{
-		int v1; int v2; int v3; int v4; int v5; int v6;
-		seed = xorshift(seed); v1 = seed & INT_MAX;
-		seed = xorshift(seed); v2 = seed & INT_MAX;
-		seed = xorshift(seed); v3 = seed & INT_MAX;
-		seed = xorshift(seed); v4 = seed & INT_MAX;
-		seed = xorshift(seed); v5 = seed & INT_MAX;
-		seed = xorshift(seed); v6 = seed & INT_MAX;
-
-		////////////////////////////////////////
-
-		int a1 = v1 ^ v2 ^ v3;
-		a1 = a1 ^ (v4 ^ v5 ^ v6);
-		a1 = a1 & INT_MAX;
-
-		int a2 = v1 + v2 + v3 + 1;
-		a2 = a2 - (v4 + v5 + v6);
-		a2 = a2 & INT_MAX;
-
-		int a3 = (v1 % P) * (v2 % P) * (v3 % P);
-		a3 = a3 * (v4 % P) * (v5 % P) * (v6 % P);
-		a3 = a3 & INT_MAX;
-
-		int a4;
-		if((v1 ^ v2 ^ v3) > (v4 ^ v5 ^ v6))
-			a4 = (((v1 + v2) & INT_MAX) % P) % (v3 % P + 1);
-		else
-			a4 = (((v3 + v2) & INT_MAX) % P) % (v1 % P + 1);
-
-		r1 = r1 + xorshift10(a1 ^ 10001);
-		r2 = r2 + xorshift10(a2 ^ 10002);
-		r3 = r3 + xorshift10(a3 ^ 10003);
-		r4 = r4 + xorshift10(a4 ^ 10004);
-
-		////////////////////////////////////////
-
-		int b1 = v4 ^ v2 ^ v3;
-		b1 = b1 ^ v1 ^ v6 ^ v5;
-		b1 = b1 & INT_MAX;
-
-		int b2 = -v4 + v2 + v3;
-		b2 = b2 + v1 - v6 - v5 + 1;
-		b2 = b2 & INT_MAX;
-
-		int b3 = (v4 % P) * (v2 % P) * (v3 % P);
-		b3 = b3 * (v1 % P) * (v6 % P) * (v5 % P);
-		b3 = b3 & INT_MAX;
-
-		int b4;
-		if((v1 ^ v2 ^ v3) <= (v4 ^ v5 ^ v6))
-			b4 = (((v3 + v2) & INT_MAX) % P) % (v1 % P + 1);
-		else
-			b4 = (((v1 + v2) & INT_MAX) % P) % (v3 % P + 1);
-
-		r1 = r1 + xorshift10(b1 ^ 10001);
-		r2 = r2 + xorshift10(b2 ^ 10002);
-		r3 = r3 + xorshift10(b3 ^ 10003);
-		r4 = r4 + xorshift10(b4 ^ 10004);
-
-		//assert(a1 == b1 && a2 == b2 && a3 == b3 && a4 == b4);
-
-		////////////////////////////////////////
-
-		int c1 = v4 ^ v1 ^ v3;
-		c1 = c1 ^ v2 ^ v6 ^ v5;
-		c1 = c1 & INT_MAX;
-
-		int c2 = v4 - v2 + (-v3);
-		c2 = c2 - v1 + v6 + v5 - 1;
-		c2 = (-c2) & INT_MAX;
-
-		int c3 = (v4 % P) * (v5 % P) * (v6 % P);
-		c3 = c3 * (v1 % P) * (v2 % P) * (v3 % P);
-		c3 = c3 & INT_MAX;
-
-		int c4;
-		if((v4 ^ v5 ^ v6) < (v3 ^ v2 ^ v1))
-			c4 = (((v1 + v2) & INT_MAX) % P) % (v3 % P + 1);
-		else
-			c4 = (((v3 + v2) & INT_MAX) % P) % (v1 % P + 1);
-
-		r1 = r1 + xorshift10(c1 ^ 10001);
-		r2 = r2 + xorshift10(c2 ^ 10002);
-		r3 = r3 + xorshift10(c3 ^ 10003);
-		r4 = r4 + xorshift10(c4 ^ 10004);
-
-		//assert(a1 == c1 && a2 == c2 && a3 == c3 && a4 == c4);
-
-		// println("a1=" + toString(a1) + ", a2=" + toString(a2) + ", a3=" + toString(a3) + ", a4=" + toString(a4));
-		// println("b1=" + toString(b1) + ", b2=" + toString(b2) + ", b3=" + toString(b3) + ", b4=" + toString(b4));
-		// println("c1=" + toString(c1) + ", c2=" + toString(c2) + ", c3=" + toString(c3) + ", c4=" + toString(c4));
-
+	A(){
+		A_arr = new int[2][2][3][2][3][2][2][3][2][2];
 	}
+}
+void restore(){
+	int i;
+	for(i = 1; i <= n; i++)
+		a[i] = bak[i];
+}
+int quicksort(int l, int r){
+	int i1;int i2;int i3;int i4;int i5;int i6;int i7;int i8;
+	int i9;int i10;int i11;int i12; int i13; int i14;
+	int sum = 0;
+	int x = a[l];
+	int z_l = 0;
+	int z_r = 0;
+	int i;
+	for(i = l + 1; i < r; i++){
+		sum++;
+		if(a[i] < x)
+			a_left[z_l++] = a[i];
+		else
+			a_right[z_r++] = a[i];
+	}
+	int p = l;
+	for(i = 0; i < z_l; i++)
+		a[p++] = a_left[i];
+	a[p++] = x;
+	for(i = 0; i < z_r; i++)
+		a[p++] = a_right[i];
+	if(z_l > 1)
+		sum = sum + quicksort(l, l + z_l);
+	if(z_r > 1)
+		sum = sum + quicksort(r - z_r, r);
+	return sum;
+}
+int calc(){
+	int i1;int i2;int i3;int i4;int i5;int i6;int i7;int i8;
+	int i9;int i10;int i11;int i12; int i13; int i14;
+	int i;
+	for(i = 1; i <= n; i++){
+		a_left[i] = i - 1;
+		a_right[i] = i + 1;
+	}
+	int sum = 0;
+	for(i = n; i >= 1; i--){
+		int l = a_left[a[i]];
+		int r = a_right[a[i]];
+		a_right[l] = r;
+		a_left[r] = l;
+		sum = sum + r - l - 2;
+	}
+	return sum;
+}
+int mergesort(int l, int r){
+	int i1;int i2;int i3;int i4;int i5;int i6;int i7;int i8;
+	int i9;int i10;int i11;int i12; int i13; int i14;
+	if(l + 1 == r) return 0;
+	int mid = l + r >> 1;
+	int sum = 0;
+	sum = sum + mergesort(l, mid);
+	sum = sum + mergesort(mid, r);
+	int n_l = 0;
+	int n_r = 0;
+	int i;
+	for(i = l; i < mid; i++)
+		a_left[n_l++] = a[i];
+	for(i = mid; i < r; i++)
+		a_right[n_r++] = a[i];
+	int z_l = 0;
+	int z_r = 0;
+	int z = l;
+	while(z_l < n_l && z_r < n_r){
+		sum++;
+		if(a_left[z_l] < a_right[z_r])
+			a[z++] = a_left[z_l++];
+		else
+			a[z++] = a_right[z_r++];
+	}
+	while(z_l < n_l)
+		a[z++] = a_left[z_l++];
+	while(z_r < n_r)
+		a[z++] = a_right[z_r++];
+	return sum;
+}
+int heapsort(){
+	int i1;int i2;int i3;int i4;int i5;int i6;int i7;int i8;
+	int i9;int i10;int i11;int i12; int i13; int i14;
+	int sum = 0;
+	int i;
+	int tmp;
+	for(i = 1; i <= n; i++){
+		heap[i] = a[i];
+		int x = i;
+		while(x != 1){
+			sum++;
+			if(heap[x] > heap[x >> 1])
+				break;
+			tmp = heap[x];
+			heap[x] = heap[x >> 1];
+			heap[x >> 1] = tmp;
+			x = x >> 1;
+		}
+	}
+	int heap_size = n;
+	for(i = 1; i <= n; i++){
+		a[i] = heap[1];
+		heap[1] = heap[heap_size--];
+		int x = 1;
+		while((x << 1) <= heap_size){
+			int l = x << 1;
+			int r = l + 1;
+			int y = l;
+			if(r <= heap_size){
+				sum++;
+				if(heap[r] < heap[l])
+					y = r;
+			}
+			sum++;
+			if(heap[x] < heap[y])
+				break;
+			tmp = heap[x];
+			heap[x] = heap[y];
+			heap[y] = tmp;
+			tmp = x;
+			x = y;
+			y = tmp;
+		}
+	}
+	return sum;
+}
+int main(){
+	int i1;int i2;int i3;int i4;int i5;int i6;int i7;int i8;
+	int i9;int i10;int i11;int i12; int i13; int i14;
+	n = getInt();
+	int k = getInt();
+	int i;
+	for(i = 1; i <= n; i++){
+		a[i] = i;
+		if(i <= k){
+			a[i] = k + 1 - i;
+		}
+		bak[i] = a[i];
+	}
+	int ans1 = quicksort(1, n + 1);
 
-	print(toStringHex(r1) + " ");
-	print(toStringHex(r2) + " ");
-	print(toStringHex(r3) + " ");
-	print(toStringHex(r4) + " ");
-	println("");
+	restore();
+	int ans2 = calc();
 
-	return 0;
+	restore();
+	int ans3 = mergesort(1, n + 1);
+
+	restore();
+	int ans4 = heapsort();
+
+	println(toString(ans1));
+	println(toString(ans2));
+	println(toString(ans3));
+	println(toString(ans4));
+	A a = new A;
+	a.Optimizer();
+    return 0;
 }
