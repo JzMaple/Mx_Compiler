@@ -76,8 +76,8 @@ public class RegX86 {
             case 5 : return 6;
             case 6 : return 6;
             case 7 : return 6;
-            case 8 : return 0;
-            case 9 : return 1;
+            case 8 : return 1;
+            case 9 : return 0;
             default : return -1;
         }
     }

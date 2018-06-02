@@ -179,8 +179,8 @@ public class RegAllocator {
         Boolean[] conflict = new Boolean[num];
         for (int reg = 0; reg < RegX86.allocNum; ++reg) {
             for (int i = 1; i < num; ++i) {
-//                int x = order[i];
-                int x = i;
+                int x = order[i];
+//                int x = i;
                 if (color[x] != -1) continue;
                 if (RegX86.getParaOrd(reg) < stackAlloc.getVar(x).getParaOrd()) continue;
                 Boolean flag = true;
@@ -196,19 +196,19 @@ public class RegAllocator {
                 if (flag) {
                     color[x] = reg;
                 }
-//                else if (use_all < stackAlloc.getVar(x).getUsed()) {
-//                    color[x] = reg;
-//                    for (int j = 1; j < num; ++j) {
-//                        if (conflict[j]) color[j] = -1;
-//                    }
-//                }
+                else if (use_all < stackAlloc.getVar(x).getUsed()) {
+                    color[x] = reg;
+                    for (int j = 1; j < num; ++j) {
+                        if (conflict[j]) color[j] = -1;
+                    }
+                }
              }
         }
         for (int i = 1; i < num; ++i) {
             Variable var = stackAlloc.getVar(i);
             RegX86 regX86 = RegX86.allocReg(color[i]);
             var.setReg(regX86);
-//            System.out.println(var.getName() + " " + regX86 + " " + var.getLife() + " " + var.getUsed() + " " + var.getParaOrd());
+            System.out.println(var.getName() + " " + regX86 + " " + var.getLife() + " " + var.getUsed() + " " + var.getParaOrd());
         }
     }
 
