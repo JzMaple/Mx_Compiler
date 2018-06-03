@@ -1,9 +1,9 @@
 package IR.IRInstruction.Operand;
 
-import NasmTranslate.RegX86;
-import NasmTranslate.StackAllocator;
+import Nasm.RegX86;
+import Nasm.StackAllocator;
 import Type.BaseType;
-import Visitor.IRBuilder;
+import IR.IRBuilder;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -13,7 +13,6 @@ public class Variable extends Operand {
     private BaseType variable_type;
     private Boolean isGlobal;
     private Boolean isConstant;
-    private StackAllocator current_stackAlloc = IRBuilder.getCurrent_stackAlloc();
     private RegX86 reg;
     private int begin = 0;
     private int end = 0;
@@ -21,12 +20,12 @@ public class Variable extends Operand {
     private int use = 0;
     private int paraOrd = -1;
 
-    public Variable(String variable_name, BaseType variable_type, Boolean isGlobal) {
+    public Variable(String variable_name, BaseType variable_type, Boolean isGlobal, StackAllocator stackAllocator) {
         this.variable_name = variable_name;
         this.variable_type = variable_type;
         this.isGlobal = isGlobal;
-        if (!isGlobal)
-            current_stackAlloc.insert(this);
+        if (!isGlobal && stackAllocator != null)
+            stackAllocator.insert(this);
         this.isConstant = false;
     }
 

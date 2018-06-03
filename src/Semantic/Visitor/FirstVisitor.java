@@ -1,8 +1,8 @@
-package Visitor;
+package Semantic.Visitor;
 
 import Parser.MxBaseVisitor;
 import Parser.MxParser;
-import SemanticNode.SemanticNode;
+import Semantic.SemanticNode.SemanticNode;
 import Type.ClassList;
 
 public class FirstVisitor extends MxBaseVisitor<SemanticNode> {

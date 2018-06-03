@@ -3,7 +3,7 @@ package IR.IRInstruction;
 import IR.IRInstruction.Operand.Operand;
 import IR.IRInstruction.Operand.Variable;
 
-abstract public class UnBin extends IRInstruction {
+abstract public class Unary extends IRInstruction {
     protected Operand expr;
     protected Variable dest;
 

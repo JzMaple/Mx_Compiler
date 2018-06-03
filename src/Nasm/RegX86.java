@@ -1,4 +1,4 @@
-package NasmTranslate;
+package Nasm;
 
 public class RegX86 {
     private String name;

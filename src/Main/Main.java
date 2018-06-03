@@ -1,10 +1,12 @@
 package Main;
 
+import IR.IRBuilder;
+import Nasm.Translator;
 import Parser.MxLexer;
 import Parser.MxParser;
 import Type.ClassList;
 import Type.FunctionList;
-import Visitor.*;
+import Semantic.Visitor.*;
 import org.antlr.v4.runtime.BailErrorStrategy;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;

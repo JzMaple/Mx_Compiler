@@ -3,9 +3,10 @@ package IR.IRNode;
 import IR.IRInstruction.IRInstruction;
 import IR.IRInstruction.Label;
 import IR.IRInstruction.Operand.Variable;
-import NasmTranslate.StackAllocator;
+import Nasm.StackAllocator;
 import Type.FunctionType;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
@@ -18,6 +19,8 @@ public class IRFunction extends IRNode {
     private StackAllocator stackAlloc;
     private List<IRInstruction> statements;
     private List<Variable> parameters;
+    private int inlineInstLen = -1;
+    private Boolean isInline = false;
 
     public IRFunction(String function_name, FunctionType function_type){
         this.function_name = function_name;
@@ -68,5 +71,21 @@ public class IRFunction extends IRNode {
 
     public String getFunction_name() {
         return function_name;
+    }
+
+    public Boolean getIsInline() {
+        return isInline;
+    }
+
+    public void setIsInline(Boolean isInline) {
+        this.isInline = isInline;
+    }
+
+    public int getInlineLen() {
+        return inlineInstLen;
+    }
+
+    public void setInlineInstLen(int inlineInstLen) {
+        this.inlineInstLen = inlineInstLen;
     }
 }

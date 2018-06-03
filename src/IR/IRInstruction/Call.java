@@ -9,10 +9,10 @@ public class Call extends IRInstruction {
     private IRParameter parameters;
     private Variable tmp_return;
 
-    public Call(IRFunction function, IRParameter parameters) {
+    public Call(IRFunction function, IRParameter parameters, Variable tmp_return) {
         this.function = function;
         this.parameters = parameters;
-        this.tmp_return = new Variable("return", function.getFunctionType().getReturnType(), false);
+        this.tmp_return = tmp_return;
     }
 
     public IRFunction getFunction() {

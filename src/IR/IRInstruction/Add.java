@@ -2,11 +2,12 @@ package IR.IRInstruction;
 
 import IR.IRInstruction.Operand.Operand;
 import IR.IRInstruction.Operand.Variable;
+import Nasm.StackAllocator;
 
-public class Add extends Bin {
-    public Add(Operand lhs, Operand rhs) {
+public class Add extends Binary {
+    public Add(Operand lhs, Operand rhs, Variable dest) {
         this.lhs = lhs;
         this.rhs = rhs;
-        this.dest = new Variable("add_tmp", null, false);
+        this.dest = dest;
     }
 }

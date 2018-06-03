@@ -1,8 +1,8 @@
-package Visitor;
+package Semantic.Visitor;
 
 import Parser.MxBaseVisitor;
 import Parser.MxParser;
-import SemanticNode.*;
+import Semantic.SemanticNode.*;
 import Type.*;
 import org.antlr.v4.runtime.ParserRuleContext;
 

@@ -1,4 +1,4 @@
-package SemanticNode;
+package Semantic.SemanticNode;
 
 import Type.FunctionType;
 

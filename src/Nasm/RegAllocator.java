@@ -1,4 +1,4 @@
-package NasmTranslate;
+package Nasm;
 
 import IR.IRInstruction.*;
 import IR.IRInstruction.Operand.Immediate;
@@ -39,19 +39,20 @@ public class RegAllocator {
         call.setSuccessor(inst.get(index + 1));
     }
 
-    private void set(Bin bin, int index) {
-        if (bin instanceof Move) {
-            setDef(bin, bin.getLhs());
-            setUse(bin, bin.getRhs());
-        } else {
-            setUse(bin, bin.getLhs());
-            setUse(bin, bin.getRhs());
-            setDef(bin, bin.getDest());
-        }
-        bin.setSuccessor(inst.get(index + 1));
+    private void set(Binary binary, int index) {
+        setUse(binary, binary.getLhs());
+        setUse(binary, binary.getRhs());
+        setDef(binary, binary.getDest());
+        binary.setSuccessor(inst.get(index + 1));
     }
 
-    private void set(UnBin unBin, int index) {
+    private void set(Move move, int index) {
+        setDef(move, move.getLhs());
+        setUse(move, move.getRhs());
+        move.setSuccessor(inst.get(index + 1));
+    }
+
+    private void set(Unary unBin, int index) {
         setUse(unBin, unBin.getExpr());
         setDef(unBin, unBin.getDest());
         unBin.setSuccessor(inst.get(index + 1));
@@ -87,12 +88,13 @@ public class RegAllocator {
         for (int i = 0; i < size; ++i) {
             IRInstruction ins = inst.get(i);
             if (ins instanceof Call) set((Call) ins, i);
-            if (ins instanceof Bin) set((Bin) ins, i);
-            if (ins instanceof UnBin) set((UnBin) ins, i);
+            if (ins instanceof Binary) set((Binary) ins, i);
+            if (ins instanceof Unary) set((Unary) ins, i);
             if (ins instanceof CJump) set((CJump) ins, i);
             if (ins instanceof Jump) set((Jump) ins, i);
             if (ins instanceof Label) set((Label) ins, i);
             if (ins instanceof Return) set((Return) ins, i);
+            if (ins instanceof Move) set((Move) ins, i);
         }
         Boolean flag = false;
         while (!flag) {
@@ -101,26 +103,26 @@ public class RegAllocator {
                 flag = flag && inst.get(i).update();
 //            System.out.println("yes");
         }
-//        for (int i = 0; i < size; ++i) {
-//            IRInstruction ins = inst.get(i);
-//            System.out.println(ins);
-//            System.out.print("def : ");
-//            for (Variable var : ins.getDef())
-//                System.out.print(var.getName() + " ");
-//            System.out.print("\n");
-//            System.out.print("use : ");
-//            for (Variable var : ins.getUse())
-//                System.out.print(var.getName() + " ");
-//            System.out.print("\n");
-//            System.out.print("in : ");
-//            for (Variable var : ins.getIn())
-//                System.out.print(var.getName() + " ");
-//            System.out.print("\n");
-//            System.out.print("out : ");
-//            for (Variable var : ins.getOut())
-//                System.out.print(var.getName() + " ");
-//            System.out.print("\n");
-//        }
+        for (int i = 0; i < size; ++i) {
+            IRInstruction ins = inst.get(i);
+            System.out.println(ins);
+            System.out.print("def : ");
+            for (Variable var : ins.getDef())
+                System.out.print(var.getName() + " ");
+            System.out.print("\n");
+            System.out.print("use : ");
+            for (Variable var : ins.getUse())
+                System.out.print(var.getName() + " ");
+            System.out.print("\n");
+            System.out.print("in : ");
+            for (Variable var : ins.getIn())
+                System.out.print(var.getName() + " ");
+            System.out.print("\n");
+            System.out.print("out : ");
+            for (Variable var : ins.getOut())
+                System.out.print(var.getName() + " ");
+            System.out.print("\n");
+        }
     }
 
     private void BuildConflictGraph() {
@@ -208,7 +210,7 @@ public class RegAllocator {
             Variable var = stackAlloc.getVar(i);
             RegX86 regX86 = RegX86.allocReg(color[i]);
             var.setReg(regX86);
-//            System.out.println(var.getName() + " " + regX86 + " " + var.getLife() + " " + var.getUsed() + " " + var.getParaOrd());
+            System.out.println(var.getName() + " " + regX86 + " " + var.getLife() + " " + var.getUsed() + " " + var.getParaOrd());
         }
     }
 

@@ -1,4 +1,4 @@
-package NasmTranslate;
+package Nasm;
 
 import IR.IRInstruction.Operand.Variable;
 
@@ -35,5 +35,9 @@ public class StackAllocator {
 
     public Variable getVar(int index) {
         return variable.get(-index);
+    }
+
+    public Map<Variable, Integer> getLocation() {
+        return location;
     }
 }

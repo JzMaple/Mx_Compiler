@@ -1,6 +1,7 @@
-package Visitor;
+package Nasm;
 
 
+import IR.IR;
 import IR.IRInstruction.*;
 import IR.IRInstruction.Operand.Immediate;
 import IR.IRInstruction.Operand.Memory;
@@ -8,9 +9,7 @@ import IR.IRInstruction.Operand.Operand;
 import IR.IRInstruction.Operand.Variable;
 import IR.IRNode.IRFunction;
 import IR.IRNode.IRScope;
-import NasmTranslate.RegAllocator;
-import NasmTranslate.RegX86;
-import NasmTranslate.StackAllocator;
+import IR.IRBuilder;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -19,7 +18,7 @@ import java.io.IOException;
 import java.util.*;
 
 public class Translator {
-    private Vector<IRFunction> functions = new Vector<>();
+    private List<IRFunction> functions = new ArrayList<>();
     private List<IRInstruction> instructions;
     private IRScope global_scope;
     private List<IRInstruction> global_init;
@@ -28,8 +27,11 @@ public class Translator {
     private List<String> code = new LinkedList<>();
     private IRFunction main;
     private StackAllocator current_stackAlloc;
+    private RegAllocator regAllocator = new RegAllocator();
+    private InlineFunction inlineFunction;
 
     public Translator(IRBuilder IR_Builder) {
+        inlineFunction = new InlineFunction(IR_Builder);
         Map<String, IRFunction> functions = IR_Builder.getFunctions();
         for (String func_name : functions.keySet()) {
             if (func_name.equals("main"))
@@ -645,7 +647,7 @@ public class Translator {
         code.add("");
         code.add("\tsection .text");
 
-        RegAllocator regAllocator = new RegAllocator();
+        inlineFunction.InlineOptim();
 
         global_init.addAll(main.getStatements());
         main.setStatements(global_init);
@@ -654,6 +656,7 @@ public class Translator {
         for (IRFunction function : functions) {
             String func_name = function.getFunction_name();
             if (inFunction.contains(func_name)) continue;
+            if (function.getIsInline()) continue;
             regAllocator.allocate(function);
             addFunction(function);
         }

@@ -3,9 +3,9 @@ package IR.IRInstruction;
 import IR.IRInstruction.Operand.Operand;
 import IR.IRInstruction.Operand.Variable;
 
-public class Neg extends UnBin {
-    public Neg(Operand expr) {
+public class Neg extends Unary {
+    public Neg(Operand expr, Variable dest) {
         this.expr = expr;
-        this.dest = new Variable("tmp", null, false);
+        this.dest = dest;
     }
 }
