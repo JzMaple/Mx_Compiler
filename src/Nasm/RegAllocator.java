@@ -103,26 +103,26 @@ public class RegAllocator {
                 flag = flag && inst.get(i).update();
 //            System.out.println("yes");
         }
-        for (int i = 0; i < size; ++i) {
-            IRInstruction ins = inst.get(i);
-            System.out.println(ins);
-            System.out.print("def : ");
-            for (Variable var : ins.getDef())
-                System.out.print(var.getName() + " ");
-            System.out.print("\n");
-            System.out.print("use : ");
-            for (Variable var : ins.getUse())
-                System.out.print(var.getName() + " ");
-            System.out.print("\n");
-            System.out.print("in : ");
-            for (Variable var : ins.getIn())
-                System.out.print(var.getName() + " ");
-            System.out.print("\n");
-            System.out.print("out : ");
-            for (Variable var : ins.getOut())
-                System.out.print(var.getName() + " ");
-            System.out.print("\n");
-        }
+//        for (int i = 0; i < size; ++i) {
+//            IRInstruction ins = inst.get(i);
+//            System.out.println(ins);
+//            System.out.print("def : ");
+//            for (Variable var : ins.getDef())
+//                System.out.print(var.getName() + " ");
+//            System.out.print("\n");
+//            System.out.print("use : ");
+//            for (Variable var : ins.getUse())
+//                System.out.print(var.getName() + " ");
+//            System.out.print("\n");
+//            System.out.print("in : ");
+//            for (Variable var : ins.getIn())
+//                System.out.print(var.getName() + " ");
+//            System.out.print("\n");
+//            System.out.print("out : ");
+//            for (Variable var : ins.getOut())
+//                System.out.print(var.getName() + " ");
+//            System.out.print("\n");
+//        }
     }
 
     private void BuildConflictGraph() {
@@ -210,7 +210,7 @@ public class RegAllocator {
             Variable var = stackAlloc.getVar(i);
             RegX86 regX86 = RegX86.allocReg(color[i]);
             var.setReg(regX86);
-            System.out.println(var.getName() + " " + regX86 + " " + var.getLife() + " " + var.getUsed() + " " + var.getParaOrd());
+//            System.out.println(var.getName() + " " + regX86 + " " + var.getLife() + " " + var.getUsed() + " " + var.getParaOrd());
         }
     }
 
