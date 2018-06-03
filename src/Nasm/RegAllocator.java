@@ -326,7 +326,7 @@ public class RegAllocator {
             Variable var = stackAlloc.getVar(i);
             RegX86 regX86 = RegX86.allocReg(color[i]);
             var.setReg(regX86);
-            System.out.println(var.getName() + " " /*+ regX86 + " " + var.getLife() + " " + var.getUsed() + " "*/ + i + " " + father[i]);
+//            System.out.println(var.getName() + " " /*+ regX86 + " " + var.getLife() + " " + var.getUsed() + " "*/ + i + " " + father[i]);
         }
     }
 
