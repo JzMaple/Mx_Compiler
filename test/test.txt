@@ -2,7 +2,8 @@ int main() {
     int a = 1;
     int b;
     int c = 3;
-    for (b = 0; b < 10000; ++b)
+    for (b = 0; b < 10000; ++b) {
         c = c + 2 * a;
+    }
     return a;
 }

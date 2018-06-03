@@ -361,9 +361,14 @@ public class RegAllocator {
         return true;
     }
 
-    private Boolean ok(IRInstruction ins) {
+    private Boolean ok(IRInstruction ins, Set<Variable> in) {
+        if (ins instanceof Binary)
+            return !in.contains(((Binary) ins).getDest());
+        if (ins instanceof Unary)
+            return !in.contains(((Unary) ins).getDest());
         if (ins instanceof Move)
-            return !(((Move) ins).getLhs() instanceof Memory);
+            if (((Move) ins).getLhs() instanceof Memory) return false;
+            else if (((Move) ins).getLhs() instanceof Variable) return !in.contains((Variable) ((Move) ins).getLhs());
         return !(ins instanceof Call || ins instanceof Return);
     }
 
@@ -394,7 +399,7 @@ public class RegAllocator {
             Set<Variable> in = ins.getIn();
             for (int j = i; j < size; ++j) {
                 IRInstruction ins_j = inst.get(j);
-                if (!ok(ins_j)) break;
+                if (!ok(ins_j, in)) break;
                 else if (ins_j instanceof Jump) {
                     int x = inst.indexOf(((Jump) ins_j).getLabel());
                     if (x < i) break;
