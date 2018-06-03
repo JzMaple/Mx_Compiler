@@ -146,6 +146,14 @@ public class IRBuilder extends MxBaseVisitor<IR> {
             IRFunction function_node = new IRFunction(function_name, function_type);
             functions.put(function_name, function_node);
             if (function_name.equals("main")) global_stackAlloc = function_node.getStackAlloc();
+            if (_class_list.getClassType(function_name) != null) {
+                current_stackAlloc = function_node.getStackAlloc();
+                Variable tmp = getNewVar("self", _class_list.getClassType(function_name));
+                List<Variable> parameters = new ArrayList<>();
+                parameters.add(tmp);
+                function_node.setParameters(parameters);
+                current_stackAlloc = null;
+            }
         }
         for (String class_name : class_list.keySet()) {
             BaseType class_type = class_list.get(class_name);

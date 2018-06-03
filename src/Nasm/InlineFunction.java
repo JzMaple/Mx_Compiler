@@ -42,7 +42,10 @@ public class InlineFunction {
         }
         for (String func_name : functions.keySet()) {
             IRFunction function = functions.get(func_name);
-            if (isInline(function)) inlineFunctions.add(function);
+            if (isInline(function)) {
+                if (!func_name.equals("main"))
+                    inlineFunctions.add(function);
+            }
         }
     }
 
@@ -162,14 +165,17 @@ public class InlineFunction {
         }
 
         for (IRFunction function : inlineFunctions)
-            if (pre[functionMap.get(function)] == 0)
+            if (pre[functionMap.get(function)] == 0) {
                 wait.offer(function);
+            }
 
         while (!wait.isEmpty()) {
             IRFunction function = wait.poll();
             int j = functionMap.get(function);
             if (function.getStatements().size() > 50) continue;
             function.setIsInline(true);
+            inlineFunctions.remove(function);
+//            System.out.println(function.getFunction_name());
             for (int i = 0; i < num; ++i)
                 if (callMap[i][j] > 0) {
                     addInline(function, numberMap.get(i));
@@ -177,7 +183,10 @@ public class InlineFunction {
                     pre[j] = pre[j] - 1;
                 }
             for (IRFunction inlineFunction : inlineFunctions)
-                if (pre[functionMap.get(inlineFunction)] == 0) wait.offer(inlineFunction);
+                if (pre[functionMap.get(inlineFunction)] == 0 && !wait.contains(inlineFunction))
+                    wait.offer(inlineFunction);
         }
+
+//        System.out.println(1);
     }
 }
