@@ -74,9 +74,9 @@ public class InlineFunction {
     private Operand get(Operand op) {
         if (op instanceof Immediate)
             return op;
-        else if (op instanceof Variable)
-            return variableMap.get(op);
-        else if (op instanceof Memory) {
+        else if (op instanceof Variable) {
+            return variableMap.get(op) == null ? op : variableMap.get(op);
+        } else if (op instanceof Memory) {
             Memory mem = (Memory) op;
             return new Memory(get(mem.getBase()), get(mem.getIndex()), mem.getScale(), mem.getNumber(), mem.getType());
         } else return null;
@@ -89,8 +89,10 @@ public class InlineFunction {
         Map<Variable, Integer> location = callee_stack.getLocation();
         variableMap.clear();
         for (Variable var : location.keySet()) {
-            Variable variable = new Variable(var.getName(), var.getType(), false, caller_stack);
-            variableMap.put(var, variable);
+            if (!var.isGlobal()) {
+                Variable variable = new Variable(var.getName(), var.getType(), var.isGlobal(), caller_stack);
+                variableMap.put(var, variable);
+            }
         }
 
         List<IRInstruction> inst = callee.getStatements();
