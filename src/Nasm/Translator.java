@@ -551,7 +551,7 @@ public class Translator {
         instructions.add(function.getEndLabel());
         for (IRInstruction ins : instructions) {
 //            code.add(ins.toString());
-            if (ins.getIsDead()) continue;
+            if (ins.getIsDead() && !(ins instanceof Label)) continue;
             if (ins instanceof Add) addIns((Add) ins);
             if (ins instanceof And) addIns((And) ins);
             if (ins instanceof Call) addIns((Call) ins);

@@ -62,6 +62,7 @@ public class RegAllocator {
     private void set(Unary unBin, int index) {
         setUse(unBin, unBin.getExpr());
         setDef(unBin, unBin.getDest());
+        if (unBin instanceof Inc || unBin instanceof Dec) setDef(unBin, unBin.getDest());
         int cnt = index + 1;
         while (inst.get(cnt).getIsDead()) ++cnt;
         unBin.setSuccessor(inst.get(cnt));
@@ -361,14 +362,31 @@ public class RegAllocator {
         return true;
     }
 
+    private Boolean isGlobal(Operand x) {
+        if (x instanceof Variable) return ((Variable) x).isGlobal();
+        if (x instanceof Memory) return isGlobal(((Memory) x).getBase()) || isGlobal(((Memory) x).getIndex());
+        return false;
+    }
+
     private Boolean ok(IRInstruction ins, Set<Variable> in) {
-        if (ins instanceof Binary)
-            return !in.contains(((Binary) ins).getDest());
-        if (ins instanceof Unary)
-            return !in.contains(((Unary) ins).getDest());
-        if (ins instanceof Move)
-            if (((Move) ins).getLhs() instanceof Memory) return false;
-            else if (((Move) ins).getLhs() instanceof Variable) return !in.contains((Variable) ((Move) ins).getLhs());
+        if (ins instanceof Binary) {
+            Variable dest = ((Binary) ins).getDest();
+            return !(in.contains(dest));
+        }
+        if (ins instanceof Unary) {
+            Variable dest = ((Unary) ins).getDest();
+            Operand expr = ((Unary) ins).getExpr();
+            if (ins instanceof Inc || ins instanceof Dec) {
+                if (expr instanceof Variable && in.contains(expr)) return false;
+            }
+            return !(in.contains(dest));
+        }
+        if (ins instanceof Move) {
+            Operand lhs = ((Move) ins).getLhs();
+            if (lhs instanceof Memory) return false;
+            if (lhs instanceof Variable && in.contains(lhs)) return false;
+            return !isGlobal(lhs);
+        }
         return !(ins instanceof Call || ins instanceof Return);
     }
 
@@ -376,11 +394,13 @@ public class RegAllocator {
         int size = inst.size();
         Boolean f = false;
         for (int i = 0; i < size; ++i) {
+//            if (i == 25) {
+//                System.out.println(1);
+//            }
             int flag = 0;
             int end = i - 1;
             IRInstruction ins = inst.get(i);
             if (ins.getIsDead()) continue;
-            if (ins instanceof Label) continue;
             if (ins instanceof Return) continue;
             if (ins instanceof Call) continue;
             if (ins instanceof Jump) {
@@ -390,7 +410,7 @@ public class RegAllocator {
             }
             if (ins instanceof CJump) {
                 int x = inst.indexOf(((CJump) ins).getFalse_label());
-                int y = inst.indexOf(((CJump) ins).getFalse_label());
+                int y = inst.indexOf(((CJump) ins).getTrue_label());
                 if (x < i) continue;
                 else flag = flag < x ? x : flag;
                 if (y < i) continue;
@@ -406,11 +426,11 @@ public class RegAllocator {
                     else flag = flag < x ? x : flag;
                 } else if (ins_j instanceof CJump) {
                     int x = inst.indexOf(((CJump) ins_j).getFalse_label());
-                    int y = inst.indexOf(((CJump) ins_j).getFalse_label());
+                    int y = inst.indexOf(((CJump) ins_j).getTrue_label());
                     if (x < i) break;
-                    else flag = flag < x ? x : flag;
                     if (y < i) break;
-                    else flag = flag < y ? y : flag;
+                    flag = flag < x ? x : flag;
+                    flag = flag < y ? y : flag;
                 }
                 Set<Variable> out = ins_j.getOut();
                 if (SetContain(in, out))
@@ -419,6 +439,7 @@ public class RegAllocator {
             if (end >= flag && end >= i) {
                 f = true;
                 for (int j = i; j <= end; ++j) inst.get(j).setIsDead(true);
+//                System.out.println(i + " " + end);
             }
         }
         return f;
