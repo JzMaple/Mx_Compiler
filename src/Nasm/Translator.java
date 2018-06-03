@@ -29,9 +29,10 @@ public class Translator {
     private StackAllocator current_stackAlloc;
     private RegAllocator regAllocator = new RegAllocator();
     private InlineFunction inlineFunction;
+    private IRBuilder irBuilder;
 
     public Translator(IRBuilder IR_Builder) {
-        inlineFunction = new InlineFunction(IR_Builder);
+        this.irBuilder = IR_Builder;
         Map<String, IRFunction> functions = IR_Builder.getFunctions();
         for (String func_name : functions.keySet()) {
             if (func_name.equals("main"))
@@ -647,10 +648,13 @@ public class Translator {
         code.add("");
         code.add("\tsection .text");
 
-        inlineFunction.InlineOptim();
 
         global_init.addAll(main.getStatements());
         main.setStatements(global_init);
+
+        inlineFunction = new InlineFunction(irBuilder);
+        inlineFunction.InlineOptim();
+
         regAllocator.allocate(main);
         addFunction(main);
         for (IRFunction function : functions) {
