@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 abstract public class IRInstruction extends IR {
+    private Boolean isDead = false;
     private Set<IRInstruction> successor = new HashSet<>();
     private Set<Variable> in = new HashSet<>();
     private Set<Variable> out = new HashSet<>();
@@ -38,10 +39,6 @@ abstract public class IRInstruction extends IR {
         return use;
     }
 
-    public Set<IRInstruction> getSuccessor() {
-        return successor;
-    }
-
     public void setUse(Operand use) {
 //        System.out.println(use);
         this.use.addAll(use.getUse());
@@ -66,5 +63,21 @@ abstract public class IRInstruction extends IR {
         for (Variable var : set1)
             if (!set2.contains(var)) return false;
         return true;
+    }
+
+    public Boolean getIsDead() {
+        return isDead;
+    }
+
+    public void setIsDead(Boolean isDead) {
+        this.isDead = isDead;
+    }
+
+    public void reset() {
+        in.clear();
+        out.clear();
+        use.clear();
+        def.clear();
+        successor.clear();
     }
 }

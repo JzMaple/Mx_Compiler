@@ -150,7 +150,7 @@ public class Translator {
             code.add("\tadd \t" + RegX86.rcx + ", " + address(rhs));
             if (reg_dest != null) {
                 if (reg_dest != RegX86.rcx)
-                    code.add("\tmov \t" + reg_dest + "," + RegX86.rcx);
+                    code.add("\tmov \t" + reg_dest + ", " + RegX86.rcx);
             } else
                 store(dest, RegX86.rcx);
         }
@@ -168,7 +168,7 @@ public class Translator {
             code.add("\tand \t" + RegX86.rcx + ", " + address(rhs));
             if (reg_dest != null) {
                 if (reg_dest != RegX86.rcx)
-                    code.add("\tmov \t" + reg_dest + "," + RegX86.rcx);
+                    code.add("\tmov \t" + reg_dest + ", " + RegX86.rcx);
             } else
                 store(dest, RegX86.rcx);
         }
@@ -402,7 +402,7 @@ public class Translator {
             code.add("\timul\t" + RegX86.rcx + ", " + address(rhs));
             if (reg_dest != null) {
                 if (reg_dest != RegX86.rcx)
-                    code.add("\tmov \t" + reg_dest + "," + RegX86.rcx);
+                    code.add("\tmov \t" + reg_dest + ", " + RegX86.rcx);
             } else
                 store(dest, RegX86.rcx);
         }
@@ -416,7 +416,7 @@ public class Translator {
         code.add("\tneg \t" + RegX86.rcx);
         if (reg_dest != null) {
             if (reg_dest != RegX86.rcx)
-                code.add("\tmov \t" + reg_dest + "," + RegX86.rcx);
+                code.add("\tmov \t" + reg_dest + ", " + RegX86.rcx);
         } else
             store(dest, RegX86.rcx);
     }
@@ -429,7 +429,7 @@ public class Translator {
         code.add("\tnot \t" + RegX86.rcx);
         if (reg_dest != null) {
             if (reg_dest != RegX86.rcx)
-                code.add("\tmov \t" + reg_dest + "," + RegX86.rcx);
+                code.add("\tmov \t" + reg_dest + ", " + RegX86.rcx);
         } else
             store(dest, RegX86.rcx);
     }
@@ -446,7 +446,7 @@ public class Translator {
             code.add("\tor  \t" + RegX86.rcx + ", " + address(rhs));
             if (reg_dest != null) {
                 if (reg_dest != RegX86.rcx)
-                    code.add("\tmov \t" + reg_dest + "," + RegX86.rcx);
+                    code.add("\tmov \t" + reg_dest + ", " + RegX86.rcx);
             } else
                 store(dest, RegX86.rcx);
         }
@@ -489,7 +489,7 @@ public class Translator {
             code.add("\tsub \t" + RegX86.rcx + ", " + address(rhs));
             if (reg_dest != null) {
                 if (reg_dest != RegX86.rcx)
-                    code.add("\tmov \t" + reg_dest + "," + RegX86.rcx);
+                    code.add("\tmov \t" + reg_dest + ", " + RegX86.rcx);
             } else
                 store(dest, RegX86.rcx);
         }
@@ -507,7 +507,7 @@ public class Translator {
             code.add("\txor \t" + RegX86.rcx + ", " + address(rhs));
             if (reg_dest != null) {
                 if (reg_dest != RegX86.rcx)
-                    code.add("\tmov \t" + reg_dest + "," + RegX86.rcx);
+                    code.add("\tmov \t" + reg_dest + ", " + RegX86.rcx);
             } else
                 store(dest, RegX86.rcx);
         }
@@ -551,6 +551,7 @@ public class Translator {
         instructions.add(function.getEndLabel());
         for (IRInstruction ins : instructions) {
 //            code.add(ins.toString());
+            if (ins.getIsDead()) continue;
             if (ins instanceof Add) addIns((Add) ins);
             if (ins instanceof And) addIns((And) ins);
             if (ins instanceof Call) addIns((Call) ins);

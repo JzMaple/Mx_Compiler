@@ -37,26 +37,34 @@ public class RegAllocator {
             setUse(call, parameters.get(i));
             if (i < 6) parameters.get(i).setParaOrd(i);
         }
-        call.setSuccessor(inst.get(index + 1));
+        int cnt = index + 1;
+        while (inst.get(cnt).getIsDead()) ++cnt;
+        call.setSuccessor(inst.get(cnt));
     }
 
     private void set(Binary binary, int index) {
         setUse(binary, binary.getLhs());
         setUse(binary, binary.getRhs());
         setDef(binary, binary.getDest());
-        binary.setSuccessor(inst.get(index + 1));
+        int cnt = index + 1;
+        while (inst.get(cnt).getIsDead()) ++cnt;
+        binary.setSuccessor(inst.get(cnt));
     }
 
     private void set(Move move, int index) {
         setDef(move, move.getLhs());
         setUse(move, move.getRhs());
-        move.setSuccessor(inst.get(index + 1));
+        int cnt = index + 1;
+        while (inst.get(cnt).getIsDead()) ++cnt;
+        move.setSuccessor(inst.get(cnt));
     }
 
     private void set(Unary unBin, int index) {
         setUse(unBin, unBin.getExpr());
         setDef(unBin, unBin.getDest());
-        unBin.setSuccessor(inst.get(index + 1));
+        int cnt = index + 1;
+        while (inst.get(cnt).getIsDead()) ++cnt;
+        unBin.setSuccessor(inst.get(cnt));
     }
 
     private void set(CJump cJump, int index) {
@@ -76,18 +84,24 @@ public class RegAllocator {
     }
 
     private void set(Label label, int index) {
-        label.setSuccessor(inst.get(index + 1));
+        int cnt = index + 1;
+        while (inst.get(cnt).getIsDead()) ++cnt;
+        label.setSuccessor(inst.get(cnt));
     }
 
     private void set(Return ret, int index) {
         setUse(ret, ret.getRet());
-        ret.setSuccessor(inst.get(index + 1));
+        int cnt = index + 1;
+        while (inst.get(cnt).getIsDead()) ++cnt;
+        ret.setSuccessor(inst.get(cnt));
     }
 
     private void LivenessAnalysis() {
         int size = inst.size();
         for (int i = 0; i < size; ++i) {
             IRInstruction ins = inst.get(i);
+            if (ins.getIsDead()) continue;
+            ins.reset();
             if (ins instanceof Call) set((Call) ins, i);
             if (ins instanceof Binary) set((Binary) ins, i);
             if (ins instanceof Unary) set((Unary) ins, i);
@@ -340,13 +354,81 @@ public class RegAllocator {
         inst.add(new Jump(function.getEndLabel()));
     }
 
+    private Boolean SetContain(Set<Variable> set1, Set<Variable> set2) {
+        if (set1.size() < set2.size()) return false;
+        for (Variable var : set2)
+            if (!set1.contains(var)) return false;
+        return true;
+    }
+
+    private Boolean ok(IRInstruction ins) {
+        if (ins instanceof Move)
+            return !(((Move) ins).getLhs() instanceof Memory);
+        return !(ins instanceof Call || ins instanceof Return);
+    }
+
+    private Boolean DeadCodeElimination() {
+        int size = inst.size();
+        Boolean f = false;
+        for (int i = 0; i < size; ++i) {
+            int flag = 0;
+            int end = i - 1;
+            IRInstruction ins = inst.get(i);
+            if (ins.getIsDead()) continue;
+            if (ins instanceof Label) continue;
+            if (ins instanceof Return) continue;
+            if (ins instanceof Call) continue;
+            if (ins instanceof Jump) {
+                int x = inst.indexOf(((Jump) ins).getLabel());
+                if (x < i) continue;
+                else flag = flag < x ? x : flag;
+            }
+            if (ins instanceof CJump) {
+                int x = inst.indexOf(((CJump) ins).getFalse_label());
+                int y = inst.indexOf(((CJump) ins).getFalse_label());
+                if (x < i) continue;
+                else flag = flag < x ? x : flag;
+                if (y < i) continue;
+                else flag = flag < y ? y : flag;
+            }
+            Set<Variable> in = ins.getIn();
+            for (int j = i; j < size; ++j) {
+                IRInstruction ins_j = inst.get(j);
+                if (!ok(ins_j)) break;
+                else if (ins_j instanceof Jump) {
+                    int x = inst.indexOf(((Jump) ins_j).getLabel());
+                    if (x < i) break;
+                    else flag = flag < x ? x : flag;
+                } else if (ins_j instanceof CJump) {
+                    int x = inst.indexOf(((CJump) ins_j).getFalse_label());
+                    int y = inst.indexOf(((CJump) ins_j).getFalse_label());
+                    if (x < i) break;
+                    else flag = flag < x ? x : flag;
+                    if (y < i) break;
+                    else flag = flag < y ? y : flag;
+                }
+                Set<Variable> out = ins_j.getOut();
+                if (SetContain(in, out))
+                    end = j;
+            }
+            if (end >= flag && end >= i) {
+                f = true;
+                for (int j = i; j <= end; ++j) inst.get(j).setIsDead(true);
+            }
+        }
+        return f;
+    }
+
     public void allocate(IRFunction function) {
         initInst(function);
 //        System.out.println(function.getFunction_name());
         stackAlloc = function.getStackAlloc();
         LivenessAnalysis();
+        while (DeadCodeElimination()) {
+            LivenessAnalysis();
+        }
         BuildConflictGraph();
-        nodeCombine();
+//        nodeCombine();
         RegisterAllocate();
     }
 }

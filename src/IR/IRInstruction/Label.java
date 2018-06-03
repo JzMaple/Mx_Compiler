@@ -14,4 +14,7 @@ public class Label extends IRInstruction {
     public void setName(String name) {
         this.name = name;
     }
+
+    @Override
+    public void setIsDead(Boolean isDead) {}
 }
