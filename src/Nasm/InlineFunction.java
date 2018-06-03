@@ -174,7 +174,7 @@ public class InlineFunction {
         while (!wait.isEmpty()) {
             IRFunction function = wait.poll();
             int j = functionMap.get(function);
-            if (function.getStatements().size() > 50) continue;
+            if (function.getStatements().size() > 100) continue;
             function.setIsInline(true);
             inlineFunctions.remove(function);
 //            System.out.println(function.getFunction_name());

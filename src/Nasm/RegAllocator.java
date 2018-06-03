@@ -16,6 +16,7 @@ public class RegAllocator {
     private StackAllocator stackAlloc;
     private Boolean[][] conflictGraph;
     private int[] color;
+    private Boolean nodeCombineOptim = true;
 
     private void setUse(IRInstruction ins, Operand op) {
         if (op == null) return;
@@ -151,16 +152,94 @@ public class RegAllocator {
         }
     }
 
+    int[] father;
+    Boolean[][] append;
+    private int getFather(int x) {
+        if (father[x] == x)
+            return x;
+        else
+            return father[x] = getFather(father[x]);
+    }
+
+    private void combine(int index1, int index2) {
+        int num = stackAlloc.getIndex();
+        int x = getFather(index1);
+        int y = getFather(index2);
+        father[y] = x;
+        for (int i = 0; i < num; ++i) {
+            if (conflictGraph[y][i]) conflictGraph[x][i] = true;
+            if (append[y][i]) append[x][i] = true;
+        }
+        int o1 = stackAlloc.getVar(x).getParaOrd();
+        int o2 = stackAlloc.getVar(y).getParaOrd();
+        stackAlloc.getVar(x).setParaOrd(o1 < o2 ? o1 : o2);
+    }
+
+    private void nodeCombine() {
+        int size = inst.size();
+        int num = stackAlloc.getIndex();
+        int[] conflict = new int[num];
+        append = new Boolean[num][num];
+        father = new int[num];
+        for (int i = 0; i < num; ++i) {
+            father[i] = i;
+            conflict[i] = 0;
+            for (int j = 0; j < num; ++j) {
+                if (conflictGraph[j][i]) conflict[i] += 1;
+                append[i][j] = (i == j);
+            }
+        }
+        for (int i = 0; i < size; ++i) {
+            IRInstruction ins = inst.get(i);
+            if (ins instanceof Binary && !(ins instanceof Cmp)) {
+                Operand lhs = ((Binary) ins).getLhs();
+                if (lhs instanceof Variable && !((Variable) lhs).isGlobal()) {
+                    int index_lhs = stackAlloc.getIndex((Variable) lhs);
+                    int index_dest = stackAlloc.getIndex(((Binary) ins).getDest());
+                    if (!conflictGraph[index_dest][index_lhs] && (conflict[index_dest] + conflict[index_lhs]) < RegX86.allocNum)
+                        combine(index_dest, index_lhs);
+                }
+            }
+            if (ins instanceof Move) {
+                Operand lhs = ((Move) ins).getLhs();
+                if (lhs instanceof Variable && !((Variable) lhs).isGlobal()) {
+                    Operand rhs = ((Move) ins).getRhs();
+                    if (rhs instanceof Variable && !((Variable) rhs).isGlobal()) {
+                        int index_lhs = stackAlloc.getIndex((Variable) lhs);
+                        int index_rhs = stackAlloc.getIndex((Variable) rhs);
+                        if (!conflictGraph[index_rhs][index_lhs] && (conflict[index_rhs] + conflict[index_lhs]) < RegX86.allocNum)
+                            combine(index_lhs, index_rhs);
+                    }
+                }
+            }
+        }
+    }
+
     private void RegisterAllocate() {
         int num = stackAlloc.getIndex();
         color = new int[num];
         for (int i = 1; i < num; ++i) color[i] = -1;
         int[] order = new int[num];
         int[] life = new int[num];
+        int[] use = new int[num];
         for (int i = 1; i < num; ++i) {
             order[i] = i;
             life[i] = stackAlloc.getVar(i).getLife();
+            use[i] = stackAlloc.getVar(i).getUsed();
 //            System.out.println(stackAlloc.getVar(i).getName() + " " + life[i]);
+        }
+
+        if (nodeCombineOptim) {
+            for (int i = 1; i < num; ++i) {
+                life[i] = 0;
+                use[i] = 0;
+                for (int j = 1; j < num; ++j) {
+                    if (append[i][j]) {
+                        life[i] += life[j];
+                        use[i] += use[j];
+                    }
+                }
+            }
         }
 
         //sort
@@ -178,34 +257,71 @@ public class RegAllocator {
                 }
         }
 
-        Boolean[] conflict = new Boolean[num];
-        for (int reg = 0; reg < RegX86.allocNum; ++reg) {
-            for (int i = 1; i < num; ++i) {
-                int x = order[i];
-//                int x = i;
-                if (color[x] != -1) continue;
-                if (RegX86.getParaOrd(reg) < stackAlloc.getVar(x).getParaOrd()) continue;
-                Boolean flag = true;
-                int use_all = 0;
-                for (int j = 1; j < num; ++j) conflict[j] = false;
-                for (int j = 1; j < num; ++j) {
-                    if (conflictGraph[x][j] && color[j] == reg) {
-                        flag = false;
-                        conflict[j] = true;
-                        use_all = use_all + stackAlloc.getVar(j).getUsed();
-                    }
-                }
-                if (flag) {
-                    color[x] = reg;
-                }
-                else if (use_all < stackAlloc.getVar(x).getUsed()) {
-                    color[x] = reg;
+        if (nodeCombineOptim) {
+            Boolean[] conflict = new Boolean[num];
+            for (int reg = 0; reg < RegX86.allocNum; ++reg) {
+                for (int i = 1; i < num; ++i) {
+                    int x = order[i];
+                    if (father[x] != x) continue;
+                    if (color[x] != -1) continue;
+                    if (RegX86.getParaOrd(reg) < stackAlloc.getVar(x).getParaOrd()) continue;
+                    Boolean flag = true;
+                    int use_all = 0;
+                    for (int j = 1; j < num; ++j) conflict[j] = false;
                     for (int j = 1; j < num; ++j) {
-                        if (conflict[j]) color[j] = -1;
+                        if (conflictGraph[x][j] && color[getFather(j)] == reg) {
+                            flag = false;
+                            if (!conflict[getFather(j)]) {
+                                conflict[getFather(j)] = true;
+                                use_all = use_all + use[getFather(j)];
+                            }
+                        }
+                    }
+                    if (flag) {
+                        color[x] = reg;
+                    } else if (use_all < use[x]) {
+                        color[x] = reg;
+                        for (int j = 1; j < num; ++j) {
+                            if (conflict[j]) color[j] = -1;
+                        }
                     }
                 }
-             }
+            }
+            for (int i = 0; i < num; ++i) {
+                if (father[i] != i) continue;
+                for (int j = 0; j < num; ++j)
+                    if (append[i][j]) color[j] = color[i];
+            }
+        } else {
+            Boolean[] conflict = new Boolean[num];
+            for (int reg = 0; reg < RegX86.allocNum; ++reg) {
+                for (int i = 1; i < num; ++i) {
+                    int x = order[i];
+//                int x = i;
+                    if (color[x] != -1) continue;
+                    if (RegX86.getParaOrd(reg) < stackAlloc.getVar(x).getParaOrd()) continue;
+                    Boolean flag = true;
+                    int use_all = 0;
+                    for (int j = 1; j < num; ++j) conflict[j] = false;
+                    for (int j = 1; j < num; ++j) {
+                        if (conflictGraph[x][j] && color[j] == reg) {
+                            flag = false;
+                            conflict[j] = true;
+                            use_all = use_all + use[j];
+                        }
+                    }
+                    if (flag) {
+                        color[x] = reg;
+                    } else if (use_all < use[x]) {
+                        color[x] = reg;
+                        for (int j = 1; j < num; ++j) {
+                            if (conflict[j]) color[j] = -1;
+                        }
+                    }
+                }
+            }
         }
+
         for (int i = 1; i < num; ++i) {
             Variable var = stackAlloc.getVar(i);
             RegX86 regX86 = RegX86.allocReg(color[i]);
@@ -230,6 +346,7 @@ public class RegAllocator {
         stackAlloc = function.getStackAlloc();
         LivenessAnalysis();
         BuildConflictGraph();
+        nodeCombine();
         RegisterAllocate();
     }
 }
