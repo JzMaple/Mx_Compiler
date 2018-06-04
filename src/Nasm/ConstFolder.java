@@ -49,8 +49,14 @@ public class ConstFolder {
                         if (op.equals(">")) d = l > r ? 1 : 0;
                         if (op.equals(">=")) d = l >= r ? 1 : 0;
                     }
-                    if (ins instanceof Div) d = l / r;
-                    if (ins instanceof Mod) d = l % r;
+                    if (ins instanceof Div) {
+                        if (r != 0) d = l / r;
+                        else d = -1;
+                    }
+                    if (ins instanceof Mod) {
+                        if (r != 0) d = l % r;
+                        else d = -1;
+                    }
                     if (ins instanceof Mul) d = l * r;
                     if (ins instanceof Or) d = l | r;
                     if (ins instanceof Sal) d = l << r;
@@ -72,7 +78,38 @@ public class ConstFolder {
                     ((Variable) lhs).setValue(r);
                     inst.set(i, new Move(lhs, new Immediate(r)));
                 }
+            } else if (ins instanceof Unary) {
+                Operand expr = ((Unary) ins).getExpr();
+                Variable dest = ((Unary) ins).getDest();
+                if (ins instanceof Inc || ins instanceof Dec) {
+                    if (dangerous && expr instanceof Variable) {
+                        ((Variable) expr).setGotValue(false);
+                        continue;
+                    }
+                    if (expr instanceof Variable && ok(expr)){
+                        int d = get(expr);
+                        if (ins instanceof Inc) d = d + 1;
+                        if (ins instanceof Dec) d = d - 1;
+                        ((Variable) expr).setValue(d);
+                        inst.set(i, new Move(expr, new Immediate(d)));
+                    }
+                } else {
+                    if (dangerous) {
+                        dest.setGotValue(false);
+                        continue;
+                    }
+                    if (ok(expr)) {
+                        int e = get(expr);
+                        int d = -1;
+                        if (ins instanceof Not) d = e == 1 ? 0 : 1;
+                        if (ins instanceof Neg) d = ~e;
+                        dest.setValue(d);
+                        inst.set(i, new Move(expr, new Immediate(d)));
+                    }
+                }
+
             }
         }
+//        System.out.println(1);
     }
 }

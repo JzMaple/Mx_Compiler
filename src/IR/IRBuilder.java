@@ -629,20 +629,32 @@ public class IRBuilder extends MxBaseVisitor<IR> {
         Move move;
         statements.add(move = new Move(var, expr));
         move.setDangerous(dangerous);
-        if (ctx.op.getText().equals("++"))
-            statements.add(new Inc(expr));
-        else if (ctx.op.getText().equals("--"))
-            statements.add(new Dec(expr));
+        if (ctx.op.getText().equals("++")) {
+            Inc inc;
+            statements.add(inc = new Inc(expr));
+            inc.setDangerous(dangerous);
+        }
+        else if (ctx.op.getText().equals("--")) {
+            Dec dec;
+            statements.add(dec = new Dec(expr));
+            dec.setDangerous(dangerous);
+        }
         return var;
     }
 
     @Override
     public IR visitPREFIX(MxParser.PREFIXContext ctx) {
         Operand expr = (Operand) visit(ctx.expression());
-        if (ctx.op.getText().equals("++"))
-            statements.add(new Inc(expr));
-        else if (ctx.op.getText().equals("--"))
-            statements.add(new Dec(expr));
+        if (ctx.op.getText().equals("++")) {
+            Inc inc;
+            statements.add(inc = new Inc(expr));
+            inc.setDangerous(dangerous);
+        }
+        else if (ctx.op.getText().equals("--")) {
+            Dec dec;
+            statements.add(dec = new Dec(expr));
+            dec.setDangerous(dangerous);
+        }
         Variable var = getNewVar("tmp", class_list.getClassType("int"));
         Move move;
         statements.add(move = new Move(var, expr));
@@ -658,6 +670,7 @@ public class IRBuilder extends MxBaseVisitor<IR> {
                 Variable dest = getNewVar("dest", class_list.getClassType("int"));
                 Neg neg = new Neg(expr, dest);
                 statements.add(neg);
+                neg.setDangerous(dangerous);
                 return neg.getDest();
             } else {
                 int value = ((Immediate) expr).getValue();
@@ -679,6 +692,7 @@ public class IRBuilder extends MxBaseVisitor<IR> {
                 Variable dest = getNewVar("dest", class_list.getClassType("int"));
                 Not not = new Not(expr, dest);
                 statements.add(not);
+                not.setDangerous(dangerous);
                 return not.getDest();
             }
         } else {
@@ -689,6 +703,7 @@ public class IRBuilder extends MxBaseVisitor<IR> {
                 Variable dest = getNewVar("dest", class_list.getClassType("int"));
                 Xor xor = new Xor(expr, new Immediate(1), dest);
                 statements.add(xor);
+                xor.setDangerous(dangerous);
                 return xor.getDest();
             }
         }
