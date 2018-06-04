@@ -381,7 +381,7 @@ public class RegAllocator {
                 if (expr instanceof Variable) {
                     in.remove(expr);
                     if (isGlobal(expr)) return false;
-                }
+                } else if (expr instanceof Memory) return false;
             }
             in.remove(dest);
             return true;
@@ -443,14 +443,22 @@ public class RegAllocator {
             }
             if (end >= flag && end >= i) {
                 f = true;
-                for (int j = i; j <= end; ++j) inst.get(j).setIsDead(true);
-//                System.out.println(i + " " + end);
+                Boolean xxx = false;
+                for (int j = i; j <= end; ++j) {
+                    inst.get(j).setIsDead(true);
+                    if (!(inst.get(j) instanceof Label)) xxx = true;
+                }
+                if (xxx)
+                    System.out.println(i + " " + end);
             }
         }
         return f;
     }
 
     public void allocate(IRFunction function) {
+        System.out.println(function.getFunction_name());
+        if (function.getFunction_name().equals("improve"))
+            System.out.println(1);
         initInst(function);
 //        System.out.println(function.getFunction_name());
         stackAlloc = function.getStackAlloc();
