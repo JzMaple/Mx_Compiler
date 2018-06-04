@@ -444,7 +444,7 @@ public class RegAllocator {
             if (end >= flag && end >= i) {
                 f = true;
                 for (int j = i; j <= end; ++j) inst.get(j).setIsDead(true);
-                System.out.println(i + " " + end);
+//                System.out.println(i + " " + end);
             }
         }
         return f;
