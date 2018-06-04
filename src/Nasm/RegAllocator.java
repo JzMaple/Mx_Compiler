@@ -371,20 +371,25 @@ public class RegAllocator {
     private Boolean ok(IRInstruction ins, Set<Variable> in) {
         if (ins instanceof Binary) {
             Variable dest = ((Binary) ins).getDest();
-            return !(in.contains(dest));
+            in.remove(dest);
+            return true;
         }
         if (ins instanceof Unary) {
             Variable dest = ((Unary) ins).getDest();
             Operand expr = ((Unary) ins).getExpr();
             if (ins instanceof Inc || ins instanceof Dec) {
-                if (expr instanceof Variable && in.contains(expr)) return false;
+                if (expr instanceof Variable) {
+                    in.remove(expr);
+                    if (isGlobal(expr)) return false;
+                }
             }
-            return !(in.contains(dest));
+            in.remove(dest);
+            return true;
         }
         if (ins instanceof Move) {
             Operand lhs = ((Move) ins).getLhs();
             if (lhs instanceof Memory) return false;
-            if (lhs instanceof Variable && in.contains(lhs)) return false;
+            if (lhs instanceof Variable) in.remove(lhs);
             return !isGlobal(lhs);
         }
         return !(ins instanceof Call || ins instanceof Return);
@@ -439,7 +444,7 @@ public class RegAllocator {
             if (end >= flag && end >= i) {
                 f = true;
                 for (int j = i; j <= end; ++j) inst.get(j).setIsDead(true);
-//                System.out.println(i + " " + end);
+                System.out.println(i + " " + end);
             }
         }
         return f;
