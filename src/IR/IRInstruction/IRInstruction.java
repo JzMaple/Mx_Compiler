@@ -9,7 +9,6 @@ import java.util.Set;
 
 abstract public class IRInstruction extends IR {
     private Boolean isDead = false;
-    private Boolean isDangerous = false;
     private Set<IRInstruction> successor = new HashSet<>();
     private Set<Variable> in = new HashSet<>();
     private Set<Variable> out = new HashSet<>();
@@ -80,13 +79,5 @@ abstract public class IRInstruction extends IR {
         use.clear();
         def.clear();
         successor.clear();
-    }
-
-    public void setDangerous(Boolean dangerous) {
-        isDangerous = dangerous;
-    }
-
-    public Boolean getIsDangerous() {
-        return isDangerous;
     }
 }

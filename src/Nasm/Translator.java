@@ -650,7 +650,6 @@ public class Translator {
         code.add("");
         code.add("\tsection .text");
 
-
         global_init.addAll(main.getStatements());
         main.setStatements(global_init);
 
@@ -664,6 +663,7 @@ public class Translator {
             String func_name = function.getFunction_name();
             if (inFunction.contains(func_name)) continue;
             if (function.getIsInline()) continue;
+            folder.fold(function);
             regAllocator.allocate(function);
             addFunction(function);
         }
