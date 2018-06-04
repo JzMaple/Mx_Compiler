@@ -664,7 +664,6 @@ public class Translator {
             String func_name = function.getFunction_name();
             if (inFunction.contains(func_name)) continue;
             if (function.getIsInline()) continue;
-            folder.fold(function);
             regAllocator.allocate(function);
             addFunction(function);
         }

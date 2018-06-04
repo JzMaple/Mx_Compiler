@@ -845,6 +845,9 @@ public class IRBuilder extends MxBaseVisitor<IR> {
         Move move;
         statements.add(move = new Move(tmp, lhs));
         move.setDangerous(dangerous);
+        Boolean flag = false;
+        if (dangerous) flag = true;
+        dangerous = true;
         if (ctx.op.getText().equals("&&")) {
             Variable dest = getNewVar("dest", class_list.getClassType("int"));
             statements.add(new CJump(new Cmp(tmp, const_one, "==", dest), goon_label, end_label));
@@ -862,6 +865,7 @@ public class IRBuilder extends MxBaseVisitor<IR> {
             move.setDangerous(dangerous);
             addLabel(end_label);
         }
+        dangerous = flag;
         return tmp;
     }
 
