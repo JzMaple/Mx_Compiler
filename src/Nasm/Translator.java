@@ -30,6 +30,7 @@ public class Translator {
     private RegAllocator regAllocator = new RegAllocator();
     private InlineFunction inlineFunction;
     private IRBuilder irBuilder;
+    private ConstFolder folder = new ConstFolder();
 
     public Translator(IRBuilder IR_Builder) {
         this.irBuilder = IR_Builder;
@@ -656,12 +657,14 @@ public class Translator {
         inlineFunction = new InlineFunction(irBuilder);
         inlineFunction.InlineOptim();
 
+        folder.fold(main);
         regAllocator.allocate(main);
         addFunction(main);
         for (IRFunction function : functions) {
             String func_name = function.getFunction_name();
             if (inFunction.contains(func_name)) continue;
             if (function.getIsInline()) continue;
+            folder.fold(function);
             regAllocator.allocate(function);
             addFunction(function);
         }

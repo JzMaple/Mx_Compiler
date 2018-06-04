@@ -19,6 +19,8 @@ public class Variable extends Operand {
     private int life = 0;
     private int use = 0;
     private int paraOrd = -1;
+    private int value = -1;
+    private Boolean gotValue = false;
 
     public Variable(String variable_name, BaseType variable_type, Boolean isGlobal, StackAllocator stackAllocator) {
         this.variable_name = variable_name;
@@ -104,5 +106,20 @@ public class Variable extends Operand {
 
     public int getParaOrd() {
         return this.paraOrd;
+    }
+
+    public void setValue(int value) {
+        if (value != -1) {
+            this.value = value;
+            this.gotValue = true;
+        }
+    }
+
+    public int getValue() {
+        return value;
+    }
+
+    public Boolean gotValue() {
+        return gotValue;
     }
 }
