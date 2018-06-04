@@ -446,19 +446,19 @@ public class RegAllocator {
                 Boolean xxx = false;
                 for (int j = i; j <= end; ++j) {
                     inst.get(j).setIsDead(true);
-                    if (!(inst.get(j) instanceof Label)) xxx = true;
+//                    if (!(inst.get(j) instanceof Label)) xxx = true;
                 }
-                if (xxx)
-                    System.out.println(i + " " + end);
+//                if (xxx)
+//                    System.out.println(i + " " + end);
             }
         }
         return f;
     }
 
     public void allocate(IRFunction function) {
-        System.out.println(function.getFunction_name());
-        if (function.getFunction_name().equals("improve"))
-            System.out.println(1);
+//        System.out.println(function.getFunction_name());
+//        if (function.getFunction_name().equals("improve"))
+//            System.out.println(1);
         initInst(function);
 //        System.out.println(function.getFunction_name());
         stackAlloc = function.getStackAlloc();

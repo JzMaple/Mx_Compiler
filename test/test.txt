@@ -1,91 +1,122 @@
-int[][] c;
-int ans = 0;
-int[] visit = new int[110];
-int[] pre = new int[110];
-int[] f = new int[110];
-int i;
-int j;
-int open;
-int closed;
-
-void origin(int N)
+int n;
+int h;
+int now;
+int[] a;
+int A = 48271;
+int M = 2147483647;
+int Q;
+int R;
+int seed=1;
+int random() {
+    int tempseed = A * (seed % Q) - R * (seed / Q);
+    if (tempseed >= 0)
+		seed = tempseed;
+    else
+		seed = tempseed + M;
+	return seed;
+}
+void initialize(int val) {
+    seed = val;
+}
+void swap(int x,int y) {
+    int temp = a[x];
+    a[x] = a[y];
+    a[y] = temp;
+}
+bool pd(int x) {
+    for (;h <= x; ++h)
+        if (x == h * (h + 1) / 2)
+			return true;
+    return false;
+}
+void show() {
+    int i;
+    for (i = 0; i < now; ++i)
+        print(toString(a[i]) + " ");
+    println("");
+}
+bool win()
 {
-	c = new int[N][];
-    for (i = 0; i < N; i ++ ) {
-		c[i] = new int[N];
-        for (j = 0; j < N; j ++ )
-        c[i][j] = 0;
-    }
-}
-
-int build(int start, int ending) {
-    for (i = 1; i <= 49; i++) {
-        for (j = 50; j <= 98-i+1; j++) {
-            c[i][j] = 1;
-        }
-    }
-    for (i = 1; i <= 49; i++)
-        c[start][i] = 1;
-    for (i = 50; i <= 98; i++)
-        c[i][ending] = 1;
-    return 0;
-}
-
-int find(int ending, int start, int flag) {
-    open = 0;
-    closed = 1;
-    for (i = 1; i <= ending; i++) {
-        visit[i] = 0;
-    }
-    f[1]=start;
-    visit[start]=1;
-    pre[start]=0;
-    flag=0;
-    while (open<closed && flag==0) {
-        open++;
-        i=f[open];
-        for (j = 1; j <= ending; j++)
-            if (c[i][j]>0 && visit[j]==0) {
-                visit[j]=1;
-                closed++;
-                f[closed]=j;
-                pre[j]=i;
-                if (closed==ending) flag=1;
+    int i;
+	int j;
+	int[] b = new int[100];
+	int temp;
+    if (now != h)
+		return false;
+    for (j = 0; j < now; ++j)
+        b[j] = a[j];
+    for (i = 0;i < now - 1; ++i)
+        for (j = i + 1;j < now; ++j)
+            if (b[i] > b[j]) {
+                temp = b[i];
+                b[i] = b[j];
+                b[j] = temp;
             }
-    }
-    return flag;
+    for (i = 0; i < now; ++i)
+        if (b[i] != i + 1)
+			return false;
+    return true;
 }
-
-int improve(int ending) {
-    i=ending;
-    ans++;
-    while (pre[i]>0) {
-        j=pre[i];
-        c[j][i]--;
-        c[i][j]++;
-        i=j;
-    }
-    return 0;
+void merge()
+{
+    int i;
+    for (i = 0;i < now; ++i)
+        if (a[i] == 0) {
+            int j;
+            for (j = i+1; j < now; ++j)
+                if (a[j] != 0) {
+                    swap(i,j);
+                    break;
+                }
+        }
+    for (i=0;i<now;++i)
+        if (a[i] == 0) {
+            now = i;
+            break;
+        }
 }
-
+void move() {
+    int i = 0;
+    for (; i < now; ) {
+        --a[i];
+        i = i + 1;
+    }
+    a[now] = now;
+    now++;
+}
 int main() {
-	origin(110);
-    int k;
-	int start;
-	int ending;
-    int flag;
-    int i1;
-
-    k = 0;
-    start = 99;
-    ending = 100;
-    flag = 0;
-
-    build(start, ending);
-    while (find(ending, start, flag)>0) {
-        //println(toString(ending));
-        improve(ending);
+    int i = 0;
+	int temp = 0;
+	int count = 0;
+	n = 3 * 7 * 10;
+	h = 0;
+	a = new int[100];
+    Q = M / A;
+    R = M % A;
+    if (!pd(n)) {
+        println("Sorry, the number n must be a number s.t. there exists i satisfying n=1+2+...+i");
+        return 1;
     }
-	println(toString(ans));
+    println("Let's start!");
+    initialize(3654898);
+    now = random() % 10 + 1;
+    println(toString(now));
+    for (; i < now - 1; ++i)
+    {
+        a[i] = random() % 10 + 1;
+        while (a[i] + temp > n)
+            a[i] = random() % 10 + 1;
+        temp = temp + a[i];
+    }
+    a[now - 1] = n - temp;
+    show();
+    merge();
+    while (!win()) {
+        println("step " + toString(++count) + ":");
+        move();
+        merge();
+        show();
+    }
+    println("Total: " + toString(count) + " step(s)");
     return 0;
 }
