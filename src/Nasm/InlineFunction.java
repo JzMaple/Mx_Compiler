@@ -171,6 +171,7 @@ public class InlineFunction {
                 wait.offer(function);
             }
 
+
         while (!wait.isEmpty()) {
             IRFunction function = wait.poll();
             int j = functionMap.get(function);
@@ -182,7 +183,7 @@ public class InlineFunction {
                 if (callMap[i][j] > 0) {
                     addInline(function, numberMap.get(i));
                     callMap[i][j] = 0;
-                    pre[j] = pre[j] - 1;
+                    pre[i] = pre[i] - 1;
                 }
             for (IRFunction inlineFunction : inlineFunctions)
                 if (pre[functionMap.get(inlineFunction)] == 0 && !wait.contains(inlineFunction))

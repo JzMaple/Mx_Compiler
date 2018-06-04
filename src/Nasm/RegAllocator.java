@@ -289,11 +289,12 @@ public class RegAllocator {
         int size = inst.size();
         Boolean f = false;
         for (int i = 0; i < size; ++i) {
-//            if (i == 25) {
+//            if (i == 500) {
 //                System.out.println(1);
 //            }
             int flag = 0;
             int end = i - 1;
+            int now = i - 1;
             IRInstruction ins = inst.get(i);
             if (ins.getIsDead()) continue;
             if (ins instanceof Return) continue;
@@ -329,9 +330,11 @@ public class RegAllocator {
                 }
                 Set<Variable> out = ins_j.getOut();
                 if (SetContain(in, out))
-                    end = j;
+                    now = j;
+                if (now >= flag)
+                    end = now;
             }
-            if (end >= flag && end >= i) {
+            if (end >= i) {
                 f = true;
                 Boolean xxx = false;
                 for (int j = i; j <= end; ++j) {
@@ -360,6 +363,7 @@ public class RegAllocator {
         Boolean flag = true;
         while (flag) {
             LivenessAnalysis();
+//            flag = false;
 //            flag = VariableCombine();
             flag = DeadCodeElimination();
         }

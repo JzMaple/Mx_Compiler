@@ -27,7 +27,7 @@ public class ConstFolder {
         int size = inst.size();
         for (int i = 0; i < size; ++i) {
             IRInstruction ins = inst.get(i);
-            if (ins instanceof Label)
+            if (ins instanceof Label || ins instanceof Jump || ins instanceof CJump)
                 value.clear();
             if (ins instanceof Binary) {
                 Operand lhs = ((Binary) ins).getLhs();
@@ -64,6 +64,8 @@ public class ConstFolder {
                     if (ins instanceof Xor) d = l ^ r;
                     value.put(dest, d);
                     inst.set(i, new Move(dest, new Immediate(d)));
+                } else {
+                    value.remove(dest);
                 }
             } else if (ins instanceof Move) {
                 Operand lhs = ((Move) ins).getLhs();
@@ -72,7 +74,7 @@ public class ConstFolder {
                     int r = get(rhs);
                     value.put((Variable) lhs, r);
                     inst.set(i, new Move(lhs, new Immediate(r)));
-                }
+                } else if (lhs instanceof Variable) value.remove(lhs);
             } else if (ins instanceof Unary) {
                 Operand expr = ((Unary) ins).getExpr();
                 Variable dest = ((Unary) ins).getDest();
@@ -83,7 +85,7 @@ public class ConstFolder {
                         if (ins instanceof Dec) d = d - 1;
                         value.put((Variable) expr, d);
                         inst.set(i, new Move(expr, new Immediate(d)));
-                    }
+                    } else if (expr instanceof Variable) value.remove(expr);
                 } else {
                     if (ok(expr)) {
                         int e = get(expr);
@@ -92,7 +94,7 @@ public class ConstFolder {
                         if (ins instanceof Neg) d = ~e;
                         value.put(dest, d);
                         inst.set(i, new Move(dest, new Immediate(d)));
-                    }
+                    } else value.remove(dest);
                 }
             }
         }
