@@ -122,4 +122,8 @@ public class Variable extends Operand {
     public Boolean gotValue() {
         return gotValue;
     }
+
+    public void setGotValue(Boolean gotValue) {
+        this.gotValue = gotValue;
+    }
 }

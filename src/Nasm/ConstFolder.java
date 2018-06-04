@@ -25,10 +25,15 @@ public class ConstFolder {
         int size = inst.size();
         for (int i = 0; i < size; ++i) {
             IRInstruction ins = inst.get(i);
+            Boolean dangerous = ins.getIsDangerous();
             if (ins instanceof Binary) {
                 Operand lhs = ((Binary) ins).getLhs();
                 Operand rhs = ((Binary) ins).getRhs();
                 Variable dest = ((Binary) ins).getDest();
+                if (dangerous) {
+                    dest.setGotValue(false);
+                    continue;
+                }
                 if (ok(lhs) && ok(rhs)) {
                     int l = get(lhs);
                     int r = get(rhs);
@@ -58,6 +63,10 @@ public class ConstFolder {
             } else if (ins instanceof Move) {
                 Operand lhs = ((Move) ins).getLhs();
                 Operand rhs = ((Move) ins).getRhs();
+                if (dangerous && lhs instanceof Variable) {
+                    ((Variable) lhs).setGotValue(false);
+                    continue;
+                }
                 if (lhs instanceof Variable && ok(rhs)) {
                     int r = get(rhs);
                     ((Variable) lhs).setValue(r);

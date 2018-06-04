@@ -33,6 +33,7 @@ public class IRBuilder extends MxBaseVisitor<IR> {
     private Label current_loop_end = null;
     private Immediate const_one = new Immediate(1);
     private Immediate const_zero = new Immediate(0);
+    private Boolean dangerous = false;
 
     private Variable getNewVar(String name, BaseType class_type) {
         String tmp_rename = variableRename(name);
@@ -207,6 +208,9 @@ public class IRBuilder extends MxBaseVisitor<IR> {
         Label old_end = current_loop_end;
         current_loop_condition = condition_label;
         current_loop_end = end_label;
+        Boolean flag = false;
+        if (dangerous) flag = true;
+        dangerous = true;
 
         statements.add(new Jump(condition_label));
         addLabel(begin_label);
@@ -234,6 +238,7 @@ public class IRBuilder extends MxBaseVisitor<IR> {
         addLabel(end_label);
         current_loop_condition = old_condition;
         current_loop_end = old_end;
+        dangerous = flag;
     }
 
     @Override
@@ -325,7 +330,9 @@ public class IRBuilder extends MxBaseVisitor<IR> {
         IRScope scope = variable_scope.peek();
         scope.insert(variable_name, var);
         Operand init = (Operand) visit(ctx.expression());
-        statements.add(new Move(var, init));
+        Move move;
+        statements.add(move = new Move(var, init));
+        move.setDangerous(dangerous);
         return null;
     }
 
@@ -341,11 +348,14 @@ public class IRBuilder extends MxBaseVisitor<IR> {
             if (value == 0)
                 statements.add(new Jump(end_label));
         }
+        Boolean flag = false;
+        if (dangerous) flag = true;
         addLabel(then_label);
         variable_scope.push(new IRScope(variable_scope.peek()));
         visit(ctx.noScope_block());
         variable_scope.pop();
         addLabel(end_label);
+        dangerous = flag;
         return null;
     }
 
@@ -363,6 +373,9 @@ public class IRBuilder extends MxBaseVisitor<IR> {
                 statements.add(new Jump(else_label));
         }
         addLabel(then_label);
+        Boolean flag = false;
+        if (dangerous) flag = true;
+        dangerous = true;
         variable_scope.push(new IRScope(variable_scope.peek()));
         visit(ctx.noScope_block(0));
         statements.add(new Jump(end_label));
@@ -372,6 +385,7 @@ public class IRBuilder extends MxBaseVisitor<IR> {
         visit(ctx.noScope_block(1));
         variable_scope.pop();
         addLabel(end_label);
+        dangerous = flag;
         return null;
     }
 
@@ -456,11 +470,15 @@ public class IRBuilder extends MxBaseVisitor<IR> {
         Variable var_offset = null;
         if (pointer instanceof Memory) {
             var_pointer = getNewVar("base", null);
-            statements.add(new Move(var_pointer, pointer));
+            Move move;
+            statements.add(move = new Move(var_pointer, pointer));
+            move.setDangerous(dangerous);
         }
         if (offset instanceof Memory) {
             var_offset = getNewVar("base", null);
-            statements.add(new Move(var_offset, offset));
+            Move move;
+            statements.add(move = new Move(var_offset, offset));
+            move.setDangerous(dangerous);
         }
         Memory mem;
         if (pointer instanceof Memory && offset instanceof Memory)
@@ -494,6 +512,7 @@ public class IRBuilder extends MxBaseVisitor<IR> {
             var = getNewVar("base", class_type);
             Move move = new Move(var, pointer);
             statements.add(move);
+            move.setDangerous(dangerous);
             Memory mem = new Memory(var, null, 8, offset, type);
             if (type instanceof StringType) mem.setIsString(true);
             return mem;
@@ -522,7 +541,9 @@ public class IRBuilder extends MxBaseVisitor<IR> {
             if (function_name.equals("size")) {
                 if (pointer instanceof Memory) {
                     Variable var = getNewVar("base", null);
-                    statements.add(new Move(var, pointer));
+                    Move move;
+                    statements.add(move = new Move(var, pointer));
+                    move.setDangerous(dangerous);
                     return new Memory(var, null, 1, -8, class_list.getClassType("int"));
                 } else
                     return new Memory(pointer, null, 1, -8, class_list.getClassType("int"));
@@ -605,7 +626,9 @@ public class IRBuilder extends MxBaseVisitor<IR> {
     public IR visitPOSTFIX(MxParser.POSTFIXContext ctx) {
         Operand expr = (Operand) visit(ctx.expression());
         Variable var = getNewVar("tmp", class_list.getClassType("int"));
-        statements.add(new Move(var, expr));
+        Move move;
+        statements.add(move = new Move(var, expr));
+        move.setDangerous(dangerous);
         if (ctx.op.getText().equals("++"))
             statements.add(new Inc(expr));
         else if (ctx.op.getText().equals("--"))
@@ -621,7 +644,9 @@ public class IRBuilder extends MxBaseVisitor<IR> {
         else if (ctx.op.getText().equals("--"))
             statements.add(new Dec(expr));
         Variable var = getNewVar("tmp", class_list.getClassType("int"));
-        statements.add(new Move(var, expr));
+        Move move;
+        statements.add(move = new Move(var, expr));
+        move.setDangerous(dangerous);
         return var;
     }
 
@@ -776,6 +801,7 @@ public class IRBuilder extends MxBaseVisitor<IR> {
                 default:
                     stmt = new Add(null, null, null);
             }
+            stmt.setDangerous(dangerous);
             return stmt.getDest();
         }
     }
@@ -801,20 +827,24 @@ public class IRBuilder extends MxBaseVisitor<IR> {
         Label goon_label = new Label("goon");
         Label end_label = new Label("end");
         Operand lhs = (Operand) visit(ctx.expression(0));
-        statements.add(new Move(tmp, lhs));
+        Move move;
+        statements.add(move = new Move(tmp, lhs));
+        move.setDangerous(dangerous);
         if (ctx.op.getText().equals("&&")) {
             Variable dest = getNewVar("dest", class_list.getClassType("int"));
             statements.add(new CJump(new Cmp(tmp, const_one, "==", dest), goon_label, end_label));
             addLabel(goon_label);
             Operand rhs = (Operand) visit(ctx.expression(1));
-            statements.add(new Move(tmp, rhs));
+            statements.add(move = new Move(tmp, rhs));
+            move.setDangerous(dangerous);
             addLabel(end_label);
         } else {
             Variable dest = getNewVar("dest", class_list.getClassType("int"));
             statements.add(new CJump(new Cmp(tmp, const_one, "==",dest), end_label, goon_label));
             addLabel(goon_label);
             Operand rhs = (Operand) visit(ctx.expression(1));
-            statements.add(new Move(tmp, rhs));
+            statements.add(move = new Move(tmp, rhs));
+            move.setDangerous(dangerous);
             addLabel(end_label);
         }
         return tmp;
@@ -831,10 +861,11 @@ public class IRBuilder extends MxBaseVisitor<IR> {
     public IR visitASSIGN(MxParser.ASSIGNContext ctx) {
         Operand rhs = (Operand) visit(ctx.expression(1));
         Operand lhs = (Operand) visit(ctx.expression(0));
-        Move stmt = new Move(lhs, rhs);
-        statements.add(stmt);
+        Move move = new Move(lhs, rhs);
+        statements.add(move);
+        move.setDangerous(dangerous);
         if (rhs.getIsString()) lhs.setIsString(true);
-        return stmt.getLhs();
+        return move.getLhs();
     }
 
     @Override
@@ -876,10 +907,12 @@ public class IRBuilder extends MxBaseVisitor<IR> {
         Label end_label = new Label("loop_end");
 
         Variable var_tmp = getNewVar("tmp", class_list.getClassType("int"));
+        Move move;
         if (array_creator.empty()) {
             if (!isFunctionNew) {
                 if (class_type instanceof UserType) {
-                    statements.add(new Move(var_tmp, dim));
+                    statements.add(move = new Move(var_tmp, dim));
+                    move.setDangerous(dangerous);
                     Variable dest = getNewVar("dest", class_list.getClassType("int"));
                     Mul mul = new Mul(var_tmp, new Immediate(8), dest);
                     statements.add(mul);
@@ -890,26 +923,32 @@ public class IRBuilder extends MxBaseVisitor<IR> {
                     Variable return_tmp = getNewVar("return", null);
                     Call stmt = new Call(inFunctions.get("malloc"), new IRParameter(parameters), return_tmp);
                     statements.add(stmt);
-                    statements.add(new Move(base, stmt.getTmp_return()));
-                    statements.add(new Move(new Memory(base, null, 8, 0, null), dim));
+                    statements.add(move = new Move(base, stmt.getTmp_return()));
+                    move.setDangerous(dangerous);
+                    statements.add(move = new Move(new Memory(base, null, 8, 0, null), dim));
+                    move.setDangerous(dangerous);
                     dest = getNewVar("dest", class_list.getClassType("int"));
                     add = new Add(base, new Immediate(8), dest);
                     statements.add(add);
-                    statements.add(new Move(base, add.getDest()));
+                    statements.add(move = new Move(base, add.getDest()));
+                    move.setDangerous(dangerous);
                     parameters = new Vector<>();
                     parameters.add(new Immediate(class_type.getSize()));
-                    statements.add(new Move(var_cnt, const_zero));
+                    statements.add(move = new Move(var_cnt, const_zero));
+                    move.setDangerous(dangerous);
                     addLabel(begin_label);
                     return_tmp = getNewVar("return", null);
                     stmt = new Call(inFunctions.get("malloc"), new IRParameter(parameters), return_tmp);
                     statements.add(stmt);
-                    statements.add(new Move(new Memory(base, var_cnt, 8, 0, null), stmt.getTmp_return()));
+                    statements.add(move = new Move(new Memory(base, var_cnt, 8, 0, null), stmt.getTmp_return()));
+                    move.setDangerous(dangerous);
                     dest = getNewVar("dest", class_list.getClassType("int"));
                     statements.add(new Add(new Memory(base, var_cnt, 8, 0, null), new Immediate(8), dest));
                     dest = getNewVar("dest", class_list.getClassType("int"));
                     add = new Add(var_cnt, const_one, dest);
                     statements.add(add);
-                    statements.add(new Move(var_cnt, add.getDest()));
+                    statements.add(move = new Move(var_cnt, add.getDest()));
+                    move.setDangerous(dangerous);
                     addLabel(condition_label);
                     dest = getNewVar("dest", class_list.getClassType("int"));
                     statements.add(new CJump(new Cmp(var_cnt, dim, "<", dest), begin_label, end_label));
@@ -923,7 +962,8 @@ public class IRBuilder extends MxBaseVisitor<IR> {
 //                    pa.add(call.getTmp_return());
 //                    statements.add(new Call(inFunctions.get("println"), new IRParameter(pa)));
 
-                    statements.add(new Move(var_tmp, dim));
+                    statements.add(move = new Move(var_tmp, dim));
+                    move.setDangerous(dangerous);
                     Variable dest = getNewVar("dest", class_list.getClassType("int"));
                     Mul mul = new Mul(var_tmp, new Immediate(class_type.getSize()), dest);
                     statements.add(mul);
@@ -934,16 +974,20 @@ public class IRBuilder extends MxBaseVisitor<IR> {
                     Variable return_tmp = getNewVar("return", null);
                     Call stmt = new Call(inFunctions.get("malloc"), new IRParameter(parameters), return_tmp);
                     statements.add(stmt);
-                    statements.add(new Move(base, stmt.getTmp_return()));
-                    statements.add(new Move(new Memory(base, null, 1, 0, null), dim));
+                    statements.add(move = new Move(base, stmt.getTmp_return()));
+                    move.setDangerous(dangerous);
+                    statements.add(move = new Move(new Memory(base, null, 1, 0, null), dim));
+                    move.setDangerous(dangerous);
                     dest = getNewVar("dest", class_list.getClassType("int"));
                     add = new Add(base, new Immediate(8), dest);
                     statements.add(add);
-                    statements.add(new Move(base, add.getDest()));
+                    statements.add(move = new Move(base, add.getDest()));
+                    move.setDangerous(dangerous);
                 }
             }
         } else {
-            statements.add(new Move(var_tmp, dim));
+            statements.add(move = new Move(var_tmp, dim));
+            move.setDangerous(dangerous);
             Variable dest = getNewVar("dest", class_list.getClassType("int"));
             Mul mul = new Mul(var_tmp, new Immediate(8), dest);
             statements.add(mul);
@@ -954,21 +998,27 @@ public class IRBuilder extends MxBaseVisitor<IR> {
             Variable return_tmp = getNewVar("return", null);
             Call stmt = new Call(inFunctions.get("malloc"), new IRParameter(parameters), return_tmp);
             statements.add(stmt);
-            statements.add(new Move(base, stmt.getTmp_return()));
-            statements.add(new Move(new Memory(base, null, 8, 0, null), dim));
+            statements.add(move = new Move(base, stmt.getTmp_return()));
+            move.setDangerous(dangerous);
+            statements.add(move = new Move(new Memory(base, null, 8, 0, null), dim));
+            move.setDangerous(dangerous);
             dest = getNewVar("dest", class_list.getClassType("int"));
             add = new Add(base, new Immediate(8), dest);
             statements.add(add);
-            statements.add(new Move(base, add.getDest()));
-            statements.add(new Move(var_cnt, const_zero));
+            statements.add(move = new Move(base, add.getDest()));
+            move.setDangerous(dangerous);
+            statements.add(move = new Move(var_cnt, const_zero));
+            move.setDangerous(dangerous);
             addLabel(begin_label);
             Variable base_tmp = getNewVar("base", null);
             create(base_tmp, class_type, isFunctionNew, args);
-            statements.add(new Move(new Memory(base, var_cnt, 8, 0, null), base_tmp));
+            statements.add(move = new Move(new Memory(base, var_cnt, 8, 0, null), base_tmp));
+            move.setDangerous(dangerous);
             dest = getNewVar("dest", class_list.getClassType("int"));
             add = new Add(var_cnt, const_one, dest);
             statements.add(add);
-            statements.add(new Move(var_cnt, add.getDest()));
+            statements.add(move = new Move(var_cnt, add.getDest()));
+            move.setDangerous(dangerous);
             addLabel(condition_label);
             dest = getNewVar("dest", class_list.getClassType("int"));
             statements.add(new CJump(new Cmp(var_cnt, dim, "<", dest), begin_label, end_label));
@@ -980,6 +1030,7 @@ public class IRBuilder extends MxBaseVisitor<IR> {
     public IR visitTYPE_NEW(MxParser.TYPE_NEWContext ctx) {
         String class_name = ctx.class_name().getText();
         BaseType class_type = class_list.getClassType(class_name);
+        Move move;
         if (array_creator.empty()) {
             if (!(class_type instanceof UserType)) {
                 Variable var_tmp = getNewVar("base", class_list.getClassType("int"));
@@ -988,7 +1039,8 @@ public class IRBuilder extends MxBaseVisitor<IR> {
                 Variable return_tmp = getNewVar("return", null);
                 Call stmt = new Call(inFunctions.get("malloc"), new IRParameter(parameters), return_tmp);
                 statements.add(stmt);
-                statements.add(new Move(var_tmp, stmt.getTmp_return()));
+                statements.add(move = new Move(var_tmp, stmt.getTmp_return()));
+                move.setDangerous(dangerous);
                 return var_tmp;
             } else {
                 Variable var_tmp = getNewVar("base", class_list.getClassType("int"));
@@ -997,7 +1049,8 @@ public class IRBuilder extends MxBaseVisitor<IR> {
                 Variable return_tmp = getNewVar("return", null);
                 Call stmt = new Call(inFunctions.get("malloc"), new IRParameter(parameters), return_tmp);
                 statements.add(stmt);
-                statements.add(new Move(var_tmp, stmt.getTmp_return()));
+                statements.add(move = new Move(var_tmp, stmt.getTmp_return()));
+                move.setDangerous(dangerous);
                 IRFunction function = functions.get(class_name);
                 parameters = new Vector<>();
                 parameters.add(var_tmp);
@@ -1023,7 +1076,9 @@ public class IRBuilder extends MxBaseVisitor<IR> {
             Variable return_tmp = getNewVar("return", null);
             Call stmt = new Call(inFunctions.get("malloc"), new IRParameter(parameters), return_tmp);
             statements.add(stmt);
-            statements.add(new Move(var_tmp, stmt.getTmp_return()));
+            Move move;
+            statements.add(move = new Move(var_tmp, stmt.getTmp_return()));
+            move.setDangerous(dangerous);
             IRFunction function = functions.get(class_name);
             parameters = new Vector<>();
             parameters.add(var_tmp);
