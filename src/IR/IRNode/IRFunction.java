@@ -19,8 +19,8 @@ public class IRFunction extends IRNode {
     private StackAllocator stackAlloc;
     private List<IRInstruction> statements;
     private List<Variable> parameters;
-    private int inlineInstLen = -1;
     private Boolean isInline = false;
+    private Boolean isRemember = false;
 
     public IRFunction(String function_name, FunctionType function_type){
         this.function_name = function_name;
@@ -81,11 +81,11 @@ public class IRFunction extends IRNode {
         this.isInline = isInline;
     }
 
-    public int getInlineLen() {
-        return inlineInstLen;
+    public void setIsRemember(Boolean isRemember) {
+        this.isRemember = isRemember;
     }
 
-    public void setInlineInstLen(int inlineInstLen) {
-        this.inlineInstLen = inlineInstLen;
+    public Boolean getIsRemember() {
+        return isRemember;
     }
 }

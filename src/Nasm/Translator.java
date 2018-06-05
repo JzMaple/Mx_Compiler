@@ -31,6 +31,7 @@ public class Translator {
     private InlineFunction inlineFunction;
     private IRBuilder irBuilder;
     private ConstFolder folder = new ConstFolder();
+    private Map<IRFunction, Variable> functionRemember;
 
     public Translator(IRBuilder IR_Builder) {
         this.irBuilder = IR_Builder;
@@ -49,6 +50,7 @@ public class Translator {
         this.global_scope = IR_Builder.getGlobalScope();
         this.global_init = IR_Builder.getGlobalStatements();
         this.global_string = IR_Builder.getConst_string();
+        this.functionRemember = IR_Builder.getFunctionRemember();
     }
 
     private String address(Operand op) {
@@ -684,6 +686,10 @@ public class Translator {
         for (String name : global_def.keySet()) {
             Variable var = global_def.get(name);
             code.add(var.getName() + ":\tresq\t1");
+        }
+        for (IRFunction function : functionRemember.keySet()) {
+            Variable var = functionRemember.get(function);
+            code.add(var.getName() + "\tresq\t1");
         }
         code.add("");
 

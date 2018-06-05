@@ -45,10 +45,8 @@ abstract public class IRInstruction extends IR {
     }
 
     public Boolean update() {
-        Set<Variable> _in = new HashSet<>();
-        _in.addAll(in);
-        Set<Variable> _out = new HashSet<>();
-        _out.addAll(out);
+        Set<Variable> _in = new HashSet<>(in);
+        Set<Variable> _out = new HashSet<>(out);
         out.clear();
         for (IRInstruction inst : successor) out.addAll(inst.getIn());
         in.clear();

@@ -34,6 +34,7 @@ public class IRBuilder extends MxBaseVisitor<IR> {
     private Immediate const_one = new Immediate(1);
     private Immediate const_zero = new Immediate(0);
     private Boolean dangerous = false;
+    private Map<IRFunction, Variable> functionRemember = new HashMap<>();
 
     private Variable getNewVar(String name, BaseType class_type) {
         String tmp_rename = variableRename(name);
@@ -110,11 +111,47 @@ public class IRBuilder extends MxBaseVisitor<IR> {
         inFunctions.put(subString_name, subString_func);
     }
 
-    private void getStrCombine() {
+    private void setStrCombine() {
         String strCombine_name = "strCombine";
         FunctionType functionType = new FunctionType(class_list.getClassType("string"), null, null);
         IRFunction strCombine_func = new IRFunction(strCombine_name, functionType);
         inFunctions.put(strCombine_name, strCombine_func);
+    }
+
+    private void setLoadFunc() {
+        String loadFunc_name = "loadFunc";
+        FunctionType functionType = new FunctionType(class_list.getClassType("int"), null, null);
+        IRFunction loadFunc_func = new IRFunction(loadFunc_name, functionType);
+        current_stackAlloc = loadFunc_func.getStackAlloc();
+        List<Variable> parameters = new ArrayList<>();
+        Variable param1 = getNewVar("func", null);
+        Variable param2 = getNewVar("param", class_list.getClassType("int"));
+        parameters.add(param1);
+        parameters.add(param2);
+        loadFunc_func.setParameters(parameters);
+        List<IRInstruction> inst = loadFunc_func.getStatements();
+        inst.add(new Return(new Memory(param1, param2, 8, 0, class_list.getClassType("int"))));
+        functions.put(loadFunc_name, loadFunc_func);
+        current_stackAlloc = null;
+    }
+
+    private void setStoreFunc() {
+        String storeFunc_name = "storeFunc";
+        FunctionType functionType = new FunctionType(class_list.getClassType("void"), null, null);
+        IRFunction storeFunc_func = new IRFunction(storeFunc_name, functionType);
+        current_stackAlloc = storeFunc_func.getStackAlloc();
+        List<Variable> parameters = new ArrayList<>();
+        Variable param1 = getNewVar("func", null);
+        Variable param2 = getNewVar("param", class_list.getClassType("int"));
+        Variable param3 = getNewVar("value", class_list.getClassType("int"));
+        parameters.add(param1);
+        parameters.add(param2);
+        parameters.add(param3);
+        storeFunc_func.setParameters(parameters);
+        List<IRInstruction> inst = storeFunc_func.getStatements();
+        inst.add(new Move(new Memory(param1, param2, 8, 0, class_list.getClassType("int")), param3));
+        functions.put(storeFunc_name, storeFunc_func);
+        current_stackAlloc = null;
     }
 
     private void setInFunction() {
@@ -128,7 +165,9 @@ public class IRBuilder extends MxBaseVisitor<IR> {
         setParseInt();
         setOrd();
         setSubString();
-        getStrCombine();
+        setStrCombine();
+//        setLoadFunc();
+//        setStoreFunc();
     }
 
     public IRBuilder(ClassList _class_list, FunctionList _global_function_list) {
@@ -287,6 +326,15 @@ public class IRBuilder extends MxBaseVisitor<IR> {
             if (class_type instanceof StringType) para.setIsString(true);
             parameters.add(para);
             scope.insert(parameter_name, para);
+        }
+        if (parameters_type.size() == 1 && parameters_type.get(0) == class_list.getClassType("int")
+                && function_type.getReturnType() == class_list.getClassType("int") && current_class == null) {
+            function_node.setIsRemember(true);
+            List<Operand> args = new ArrayList<>();
+            args.add(new Immediate(10000));
+            Variable func = new Variable("_" + function_name, null, true, current_stackAlloc);
+            global_statements.add(new Call(inFunctions.get("malloc"), new IRParameter(args), func));
+            functionRemember.put(function_node, func);
         }
         function_node.setParameters(parameters);
         variable_scope.push(scope);
@@ -1089,17 +1137,21 @@ public class IRBuilder extends MxBaseVisitor<IR> {
         return const_string;
     }
 
-//    @Override
-//    public IR visitEXPR_STATE(MxParser.EXPR_STATEContext ctx) {
-//        statements.add(new Label(";" + ctx.getText()));
-//        visitChildren(ctx);
-//        return null;
-//    }
-//
-//    @Override
-//    public IR visitINS_STATE(MxParser.INS_STATEContext ctx) {
-//        statements.add(new Label(";" + ctx.getText()));
-//        visitChildren(ctx);
-//        return null;
-//    }
+    public Map<IRFunction, Variable> getFunctionRemember() {
+        return functionRemember;
+    }
+
+    @Override
+    public IR visitEXPR_STATE(MxParser.EXPR_STATEContext ctx) {
+        statements.add(new Label(";" + ctx.getText()));
+        visitChildren(ctx);
+        return null;
+    }
+
+    @Override
+    public IR visitINS_STATE(MxParser.INS_STATEContext ctx) {
+        statements.add(new Label(";" + ctx.getText()));
+        visitChildren(ctx);
+        return null;
+    }
 }

@@ -9,6 +9,7 @@ import IR.IRNode.IRFunction;
 import com.sun.org.apache.xpath.internal.operations.Bool;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -289,9 +290,9 @@ public class RegAllocator {
         int size = inst.size();
         Boolean f = false;
         for (int i = 0; i < size; ++i) {
-//            if (i == 500) {
-//                System.out.println(1);
-//            }
+            if (i == 128) {
+                System.out.println(1);
+            }
             int flag = 0;
             int end = i - 1;
             int now = i - 1;
@@ -312,7 +313,7 @@ public class RegAllocator {
                 if (y < i) continue;
                 else flag = flag < y ? y : flag;
             }
-            Set<Variable> in = ins.getIn();
+            Set<Variable> in = new HashSet<>(ins.getIn());
             for (int j = i; j < size; ++j) {
                 IRInstruction ins_j = inst.get(j);
                 if (!ok(ins_j, in)) break;
@@ -336,7 +337,7 @@ public class RegAllocator {
             }
             if (end >= i) {
                 f = true;
-                Boolean xxx = false;
+//                Boolean xxx = false;
                 for (int j = i; j <= end; ++j) {
                     inst.get(j).setIsDead(true);
 //                    if (!(inst.get(j) instanceof Label)) xxx = true;

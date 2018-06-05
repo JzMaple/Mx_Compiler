@@ -18,9 +18,11 @@ public class InlineFunction {
     private Map<Integer, IRFunction> numberMap = new HashMap<>();
     private Map<IRFunction, Integer> functionMap = new HashMap<>();
     private Queue<IRFunction> wait = new LinkedList<>();
+    private Map<IRFunction, Variable> functionRemember;
     private int num;
 
     public InlineFunction(IRBuilder irBuilder) {
+        functionRemember = irBuilder.getFunctionRemember();
         Map<String, IRFunction> functions = irBuilder.getFunctions();
         Map<String, IRFunction> inFunctions = irBuilder.getInFunctions();
         num = functions.size() + inFunctions.size();
@@ -158,6 +160,36 @@ public class InlineFunction {
         caller.setStatements(instInline);
     }
 
+    private int cnt = 0;
+    private void remember(IRFunction callee, IRFunction caller) {
+        List<IRInstruction> inst = caller.getStatements();
+        List<IRInstruction> instRemember = new ArrayList<>();
+        StackAllocator caller_stack = caller.getStackAlloc();
+        for (IRInstruction ins : inst) {
+            if (ins instanceof Call && ((Call) ins).getFunction() == callee) {
+                Variable answer = new Variable("answer", null, false, caller_stack);
+                Variable func = functionRemember.get(callee);
+                Operand param = ((Call) ins).getParameters().getParameters().get(0);
+                Label l1 = new Label("then_getRemember" + (cnt++));
+                Label l2 = new Label("else_doCall" + (cnt++));
+                Label l3 = new Label("if_end" + (cnt++));
+                instRemember.add(new Move(answer, new Memory(func, param, 8, 0, null)));
+                Variable dest = new Variable("dest", null, false, caller_stack);
+                Cmp cmp = new Cmp(answer, new Immediate(0), "!=", dest);
+                instRemember.add(new CJump(cmp, l1, l2));
+                instRemember.add(l1);
+                instRemember.add(new Move(((Call) ins).getTmp_return(), answer));
+                instRemember.add(new Jump(l3));
+                instRemember.add(l2);
+                instRemember.add(ins);
+                instRemember.add(new Move(new Memory(func, param, 8, 0, null), ((Call) ins).getTmp_return()));
+                instRemember.add(l3);
+            } else {
+                instRemember.add(ins);
+            }
+        }
+        caller.setStatements(instRemember);
+    }
 
     public void InlineOptim() {
         int[] pre = new int[num];
@@ -190,6 +222,19 @@ public class InlineFunction {
                     wait.offer(inlineFunction);
         }
 
+        for (IRFunction function : functionMap.keySet()) {
+            if (!function.getIsRemember()) continue;
+            if (function.getIsInline()) continue;
+            int index = functionMap.get(function);
+            if (callMap[index][index] == 0) continue;
+            for (int i = 0; i < num; ++i)
+                if (callMap[i][index] > 0) {
+                    System.out.println(function.getFunction_name());
+                    System.out.println(numberMap.get(i).getFunction_name());
+//                    System.out.println(numberMap.get(i).getStatements());
+                    remember(function, numberMap.get(i));
+                }
+        }
 //        System.out.println(1);
     }
 }
