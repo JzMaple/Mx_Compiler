@@ -1141,17 +1141,17 @@ public class IRBuilder extends MxBaseVisitor<IR> {
         return functionRemember;
     }
 
-    @Override
-    public IR visitEXPR_STATE(MxParser.EXPR_STATEContext ctx) {
-        statements.add(new Label(";" + ctx.getText()));
-        visitChildren(ctx);
-        return null;
-    }
-
-    @Override
-    public IR visitINS_STATE(MxParser.INS_STATEContext ctx) {
-        statements.add(new Label(";" + ctx.getText()));
-        visitChildren(ctx);
-        return null;
-    }
+//    @Override
+//    public IR visitEXPR_STATE(MxParser.EXPR_STATEContext ctx) {
+//        statements.add(new Label(";" + ctx.getText()));
+//        visitChildren(ctx);
+//        return null;
+//    }
+//
+//    @Override
+//    public IR visitINS_STATE(MxParser.INS_STATEContext ctx) {
+//        statements.add(new Label(";" + ctx.getText()));
+//        visitChildren(ctx);
+//        return null;
+//    }
 }

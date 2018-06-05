@@ -290,9 +290,9 @@ public class RegAllocator {
         int size = inst.size();
         Boolean f = false;
         for (int i = 0; i < size; ++i) {
-            if (i == 128) {
-                System.out.println(1);
-            }
+//            if (i == 128) {
+//                System.out.println(1);
+//            }
             int flag = 0;
             int end = i - 1;
             int now = i - 1;
