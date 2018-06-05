@@ -11,8 +11,9 @@ int main()
 	int N = getInt();
 	int i;
 	int sum = 0;
-	for(i=0; i<N; i++)
+	for(i=0; i<N; i++) {
 		sum = (sum + func(i)) & 65535;
+	}
 	println(toString(sum));
 	return 0;
 }

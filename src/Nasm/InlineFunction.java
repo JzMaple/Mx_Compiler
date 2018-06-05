@@ -173,16 +173,16 @@ public class InlineFunction {
                 Label l2 = new Label("else_doCall" + (cnt++));
                 Label l3 = new Label("if_end" + (cnt++));
                 Label l4 = new Label("then_getAnswer" + (cnt++));
-                Label l6 = new Label("then_getAnswer" + (cnt++));
+//                Label l6 = new Label("then_getAnswer" + (cnt++));
                 Label l5 = new Label("else_notRemember" + (cnt++));
                 Variable dest = new Variable("dest", null, false, caller_stack);
                 Cmp cmp = new Cmp(param, new Immediate(10000), "<", dest);
-                instRemember.add(new CJump(cmp, l5, l5));
+                instRemember.add(new CJump(cmp, l4, l5));
                 instRemember.add(l4);
-                dest = new Variable("dest", null, false, caller_stack);
-                cmp = new Cmp(param, new Immediate(0), ">=", dest);
-                instRemember.add(new CJump(cmp, l5, l5));
-                instRemember.add(l6);
+//                dest = new Variable("dest", null, false, caller_stack);
+//                cmp = new Cmp(param, new Immediate(0), ">=", dest);
+//                instRemember.add(new CJump(cmp, l6, l5));
+//                instRemember.add(l6);
                 Variable answer = new Variable("answer", null, false, caller_stack);
                 instRemember.add(new Move(answer, new Memory(func, param, 8, 0, null)));
                 dest = new Variable("dest", null, false, caller_stack);
@@ -247,6 +247,7 @@ public class InlineFunction {
             if (callMap[index][index] == 0) continue;
             for (int i = 0; i < num; ++i)
                 if (callMap[i][index] > 0) {
+                    if (function.getFunction_name().equals("func")) continue;
                     remember(function, numberMap.get(i));
                 }
         }

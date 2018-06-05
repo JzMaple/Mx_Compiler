@@ -384,7 +384,7 @@ public class Translator {
         else if (lhs instanceof Variable && ((Variable) lhs).getReg() != null) {
             String str_rhs = address(rhs);
             if (!str_rhs.equals(((Variable) lhs).getReg().toString()))
-                code.add("\tmov \t" + ((Variable) lhs).getReg() + ", " + address(rhs));
+                code.add("\tmov \t" + ((Variable) lhs).getReg() + ", " + str_rhs);
         } else {
             RegX86 reg_rhs = getReg(rhs, RegX86.rcx);
             String str_lhs = address(lhs);
