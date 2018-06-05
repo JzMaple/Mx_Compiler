@@ -247,7 +247,7 @@ public class InlineFunction {
             if (callMap[index][index] == 0) continue;
             for (int i = 0; i < num; ++i)
                 if (callMap[i][index] > 0) {
-                    if (function.getFunction_name().equals("func")) continue;
+//                    if (function.getFunction_name().equals("func")) continue;
                     remember(function, numberMap.get(i));
                 }
         }

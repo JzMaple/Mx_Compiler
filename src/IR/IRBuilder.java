@@ -331,7 +331,7 @@ public class IRBuilder extends MxBaseVisitor<IR> {
                 && function_type.getReturnType() == class_list.getClassType("int") && current_class == null) {
             function_node.setIsRemember(true);
             List<Operand> args = new ArrayList<>();
-            args.add(new Immediate(10000));
+            args.add(new Immediate(80000));
             Variable func = new Variable("_" + function_name, null, true, current_stackAlloc);
             global_statements.add(new Call(inFunctions.get("malloc"), new IRParameter(args), func));
             functionRemember.put(function_node, func);
