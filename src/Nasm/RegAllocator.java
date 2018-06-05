@@ -40,7 +40,7 @@ public class RegAllocator {
             if (i < 6) parameters.get(i).setParaOrd(i);
         }
         int cnt = index + 1;
-        while (inst.get(cnt).getIsDead()) ++cnt;
+        while (inst.get(cnt).getIsDead() && !(inst.get(cnt) instanceof Label)) ++cnt;
         call.setSuccessor(inst.get(cnt));
     }
 
@@ -49,7 +49,7 @@ public class RegAllocator {
         setUse(binary, binary.getRhs());
         setDef(binary, binary.getDest());
         int cnt = index + 1;
-        while (inst.get(cnt).getIsDead()) ++cnt;
+        while (inst.get(cnt).getIsDead() && !(inst.get(cnt) instanceof Label)) ++cnt;
         binary.setSuccessor(inst.get(cnt));
     }
 
@@ -57,7 +57,7 @@ public class RegAllocator {
         setDef(move, move.getLhs());
         setUse(move, move.getRhs());
         int cnt = index + 1;
-        while (inst.get(cnt).getIsDead()) ++cnt;
+        while (inst.get(cnt).getIsDead() && !(inst.get(cnt) instanceof Label)) ++cnt;
         move.setSuccessor(inst.get(cnt));
     }
 
@@ -66,7 +66,7 @@ public class RegAllocator {
         setDef(unBin, unBin.getDest());
         if (unBin instanceof Inc || unBin instanceof Dec) setDef(unBin, unBin.getDest());
         int cnt = index + 1;
-        while (inst.get(cnt).getIsDead()) ++cnt;
+        while (inst.get(cnt).getIsDead() && !(inst.get(cnt) instanceof Label)) ++cnt;
         unBin.setSuccessor(inst.get(cnt));
     }
 
@@ -88,14 +88,14 @@ public class RegAllocator {
 
     private void set(Label label, int index) {
         int cnt = index + 1;
-        while (inst.get(cnt).getIsDead()) ++cnt;
+        while (inst.get(cnt).getIsDead() && !(inst.get(cnt) instanceof Label)) ++cnt;
         label.setSuccessor(inst.get(cnt));
     }
 
     private void set(Return ret, int index) {
         setUse(ret, ret.getRet());
         int cnt = index + 1;
-        while (inst.get(cnt).getIsDead()) ++cnt;
+        while (inst.get(cnt).getIsDead() && !(inst.get(cnt) instanceof Label)) ++cnt;
         ret.setSuccessor(inst.get(cnt));
     }
 
@@ -103,7 +103,7 @@ public class RegAllocator {
         int size = inst.size();
         for (int i = 0; i < size; ++i) {
             IRInstruction ins = inst.get(i);
-            if (ins.getIsDead()) continue;
+            if (ins.getIsDead() && !(ins instanceof Label)) continue;
             ins.reset();
             if (ins instanceof Call) set((Call) ins, i);
             if (ins instanceof Binary) set((Binary) ins, i);
@@ -232,7 +232,7 @@ public class RegAllocator {
             Variable var = stackAlloc.getVar(i);
             RegX86 regX86 = RegX86.allocReg(color[i]);
             var.setReg(regX86);
-//            System.out.println(var.getName() + " " /*+ regX86 + " " + var.getLife() + " " + var.getUsed() + " "*/ + i + " " + father[i]);
+//            System.out.println(var.getName() + " " + regX86 + " " + var.getLife() + " " + var.getUsed());
         }
     }
 
@@ -362,11 +362,12 @@ public class RegAllocator {
 //        System.out.println(function.getFunction_name());
         stackAlloc = function.getStackAlloc();
         Boolean flag = true;
+        LivenessAnalysis();
         while (flag) {
-            LivenessAnalysis();
 //            flag = false;
 //            flag = VariableCombine();
             flag = DeadCodeElimination();
+            LivenessAnalysis();
         }
         BuildConflictGraph();
         RegisterAllocate();

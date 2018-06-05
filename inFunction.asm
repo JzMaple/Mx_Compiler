@@ -42,17 +42,6 @@ println:
     leave
     ret
 
-    push    rbp
-    mov     rbp, rsp
-    sub     rsp, 16
-    mov     qword [rbp-8H], rdi
-    mov     rax, qword [rbp-8H]
-    mov     rdi, rax
-    call    puts
-    nop
-    leave
-    ret
-
 
 strCombine:
     push    rbp

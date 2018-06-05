@@ -167,22 +167,40 @@ public class InlineFunction {
         StackAllocator caller_stack = caller.getStackAlloc();
         for (IRInstruction ins : inst) {
             if (ins instanceof Call && ((Call) ins).getFunction() == callee) {
-                Variable answer = new Variable("answer", null, false, caller_stack);
                 Variable func = functionRemember.get(callee);
                 Operand param = ((Call) ins).getParameters().getParameters().get(0);
                 Label l1 = new Label("then_getRemember" + (cnt++));
                 Label l2 = new Label("else_doCall" + (cnt++));
                 Label l3 = new Label("if_end" + (cnt++));
-                instRemember.add(new Move(answer, new Memory(func, param, 8, 0, null)));
+                Label l4 = new Label("then_getAnswer" + (cnt++));
+                Label l6 = new Label("then_getAnswer" + (cnt++));
+                Label l5 = new Label("else_notRemember" + (cnt++));
                 Variable dest = new Variable("dest", null, false, caller_stack);
-                Cmp cmp = new Cmp(answer, new Immediate(0), "!=", dest);
+                Cmp cmp = new Cmp(param, new Immediate(10000), "<", dest);
+                instRemember.add(new CJump(cmp, l5, l5));
+                instRemember.add(l4);
+                dest = new Variable("dest", null, false, caller_stack);
+                cmp = new Cmp(param, new Immediate(0), ">=", dest);
+                instRemember.add(new CJump(cmp, l5, l5));
+                instRemember.add(l6);
+                Variable answer = new Variable("answer", null, false, caller_stack);
+                instRemember.add(new Move(answer, new Memory(func, param, 8, 0, null)));
+                dest = new Variable("dest", null, false, caller_stack);
+                cmp = new Cmp(answer, new Immediate(0), "!=", dest);
                 instRemember.add(new CJump(cmp, l1, l2));
                 instRemember.add(l1);
                 instRemember.add(new Move(((Call) ins).getTmp_return(), answer));
                 instRemember.add(new Jump(l3));
                 instRemember.add(l2);
-                instRemember.add(ins);
-                instRemember.add(new Move(new Memory(func, param, 8, 0, null), ((Call) ins).getTmp_return()));
+                Variable tmp = new Variable("tmp", null, false, caller_stack);
+                instRemember.add(new Call(callee, ((Call) ins).getParameters(), tmp));
+                instRemember.add(new Move(new Memory(func, param, 8, 0, null), tmp));
+                instRemember.add(new Move(((Call) ins).getTmp_return(), tmp));
+                instRemember.add(new Jump(l3));
+                instRemember.add(l5);
+                tmp = new Variable("tmp", null, false, caller_stack);
+                instRemember.add(new Call(callee, ((Call) ins).getParameters(), tmp));
+                instRemember.add(new Move(((Call) ins).getTmp_return(), tmp));
                 instRemember.add(l3);
             } else {
                 instRemember.add(ins);
@@ -229,9 +247,6 @@ public class InlineFunction {
             if (callMap[index][index] == 0) continue;
             for (int i = 0; i < num; ++i)
                 if (callMap[i][index] > 0) {
-//                    System.out.println(function.getFunction_name());
-//                    System.out.println(numberMap.get(i).getFunction_name());
-//                    System.out.println(numberMap.get(i).getStatements());
                     remember(function, numberMap.get(i));
                 }
         }
