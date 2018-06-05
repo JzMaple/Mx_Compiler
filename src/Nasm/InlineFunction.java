@@ -229,8 +229,8 @@ public class InlineFunction {
             if (callMap[index][index] == 0) continue;
             for (int i = 0; i < num; ++i)
                 if (callMap[i][index] > 0) {
-                    System.out.println(function.getFunction_name());
-                    System.out.println(numberMap.get(i).getFunction_name());
+//                    System.out.println(function.getFunction_name());
+//                    System.out.println(numberMap.get(i).getFunction_name());
 //                    System.out.println(numberMap.get(i).getStatements());
                     remember(function, numberMap.get(i));
                 }
