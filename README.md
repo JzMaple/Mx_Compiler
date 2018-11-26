@@ -11,7 +11,7 @@ For more information: https://acm.sjtu.edu.cn/wiki/Compiler_2018
 Main part
 - Parser
 - Semantic Analysis
-- Intermedian Representation
+- Intermediate Representation
 - Translator to NASM
 
 Optimization
